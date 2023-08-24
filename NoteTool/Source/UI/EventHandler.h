@@ -1,0 +1,35 @@
+#pragma once
+
+
+namespace gui
+{
+	enum MouseButton
+	{
+		MOUSE_LEFT, 
+		MOUSE_RIGHT,
+
+		MOUSE_BUTTON_COUNT
+	};
+
+	class EventHandler
+	{
+	public:
+
+
+
+		static int x;
+		static int y;
+		static int xrel;
+		static int yrel;
+
+		struct MouseButton
+		{
+			unsigned char clicks = 0;
+			bool down;
+		};
+
+		static MouseButton mouseButton[MOUSE_BUTTON_COUNT];
+
+	private:
+	};
+}

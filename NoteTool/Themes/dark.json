@@ -1,0 +1,19 @@
+{
+  "name": "basic dark",
+  "version": "1.0",
+  "author": "Henry Gronow",
+  "use-windows-dark-mode": true,
+  "font-regular": "Poppins-Light.ttf",
+  "font-bold": "Poppins-Bold.ttf",
+
+
+  "background": [ 4, 4, 4 ],
+  "button-accent": [ 16, 16, 16 ],
+  "button-highlight": [ 27, 27, 27 ],
+  "button-shadow": [ 3, 3, 3 ],
+  "hover-modifier": [ 20, 20, 20 ],
+  "click-modifier": [ 50, 50, 50 ],
+
+  "button-rounding": 6.0
+
+}
