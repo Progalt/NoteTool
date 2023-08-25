@@ -28,6 +28,8 @@ bool open = true;
 #include "UI/Utility.h"
 #include "UI/Button.h"
 
+#include "Vendor/tinyfiledialogs.h"
+
 void ToggleDarkModeForHwnd(SDL_Window* window)
 {
 	static bool darkMode = false;
@@ -61,13 +63,47 @@ void ToggleDarkModeForHwnd(SDL_Window* window)
 #endif
 }
 
+gui::Panel* windowPanel;
+Renderer renderer;
+Theme theme;
+SDL_Window* win;
+GPUTexture whiteTexture;
+Matrix4x4f screen;
+
+void Render()
+{
+
+	windowPanel->HandleEvents();
+
+	renderer.BeginRenderpass(theme.backgroundColour);
+
+	renderer.SetViewport(0, 0, window_width, window_height);
+	renderer.SetScissor(0, 0, window_width, window_height);
+
+	// Draw the titleBar
+
+	gui::DrawList drawList;
+
+	windowPanel->GenerateVertexList(drawList);
+
+	//gui::RenderText(drawList, "Hello World", &fontRegular, { 400, 200 }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+	//gui::RenderText(drawList, "BOLD", &fontBold, { 400, 300 }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+	for (auto& cmd : drawList.drawcalls)
+		renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount);
+
+
+	renderer.EndRenderpass();
+
+	SDL_GL_SwapWindow(win);
+}
+
 int main(int argc, char* argv)
 {
 
-	Theme theme;
 	theme.LoadFromThemeJSON("Themes/dark.json");
 
-	SDL_Window* win;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -96,7 +132,6 @@ int main(int argc, char* argv)
 
 	// Initialise the rendering
 
-	Renderer renderer;
 	renderer.Initialise(win);
 
 	// Init base content
@@ -104,17 +139,15 @@ int main(int argc, char* argv)
 
 
 	Font fontRegular;
-	fontRegular.SetFont("Themes/Poppins-Light.ttf", 24);
+	fontRegular.SetFont("Themes/DMSans-Regular.ttf", 12);
 	fontRegular.LoadAlphabet(Alphabet::Latin);
 
 	Font fontBold;
-	fontBold.SetFont("Themes/Poppins-Bold.ttf", 24);
+	fontBold.SetFont("Themes/DMSans-Bold.ttf", 32);
 	fontBold.LoadAlphabet(Alphabet::Latin);
 
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
-
-	GPUTexture tex;
-	tex.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
+	whiteTexture.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
 
 	Image exitImg;
 	exitImg.CreateIcon(exitIcon, 10, 10);
@@ -122,39 +155,68 @@ int main(int argc, char* argv)
 	GPUTexture exitIcon;
 	exitIcon.CreateFromImage(exitImg);
 
-	Matrix4x4f screen;
 	screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
 
 
 	FloatRect fullWindowBounds;
 	fullWindowBounds.size = { (float)window_width, (float)window_height };
-	gui::Panel* windowPanel = new gui::Panel();
-	windowPanel->SetTheme(&theme);
+	windowPanel = new gui::Panel();
 	windowPanel->SetBounds(fullWindowBounds);
 	windowPanel->SetDummyPanel(true);
 
-	gui::Button* button = windowPanel->NewChild<gui::Button>();
-	button->SetBounds({ 100.0f, 100.0f, 100.0f, 30.0f });
+	Vector2f modalSize = { 500.0f, 450.0f };
+
+	gui::Panel* modal = windowPanel->NewChild<gui::Panel>();
+	modal->SetDummyPanel(false);
+	modal->SetBounds({ (float)window_width / 2.0f - modalSize.x / 2.0f, (float)window_height / 2.0f - modalSize.y / 2.0f, modalSize.x, modalSize.y});
+	modal->SetColour({ 0.03f, 0.03f, 0.03f, 1.0f });
+	modal->SetRounding(theme.buttonRounding);
+	modal->SetTransparency(1.0f);
+	modal->SetAnchor(gui::Anchor::Centre);
+
+	gui::Button* button = modal->NewChild<gui::Button>();
+	button->SetBounds({ 10.0f, 10.0f, 100.0f, 30.0f });
 	button->SetOnClick([&]() { printf("Click"); });
 	button->SetButtonColour(theme.accentColour);
 	button->SetHighlightColour(theme.accentHighlight);
 	button->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	button->SetButtonRounding(theme.buttonRounding);
+	button->SetRounding(theme.buttonRounding);
+	button->SetShadowColour(theme.accentColour);
 
-	gui::Button* button2 = windowPanel->NewChild<gui::Button>();
-	button2->SetBounds({ 100.0f, 135.0f, 100.0f, 30.0f });
-	button2->SetOnClick([&]() { printf("Click2"); });
+	button->SetText("New", &fontRegular);
+
+	gui::Button* button2 = modal->NewChild<gui::Button>();
+	button2->SetBounds({ 10.0f, 50.0f, 100.0f, 30.0f });
+	button2->SetOnClick([&]() { });
 	button2->SetButtonColour(theme.accentColour);
 	button2->SetHighlightColour(theme.accentHighlight);
 	button2->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	button2->SetButtonRounding(theme.buttonRounding);
+	button2->SetRounding(theme.buttonRounding);
+	button2->SetShadowColour(theme.accentColour);
+
+	button2->SetText("Close", &fontRegular);
+
+	Uint64 NOW = SDL_GetPerformanceCounter();
+	Uint64 LAST = 0;
+	double deltaTime = 0;
+
+	gui::EventHandler::initial_window_width = window_width;
+	gui::EventHandler::initial_window_height = window_height;
 
 	SDL_Event evnt;
 	while (open)
 	{
+		LAST = NOW;
+		NOW = SDL_GetPerformanceCounter();
+
+		deltaTime = (double)((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency());
+
 		gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks = 0;
 		gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].clicks = 0;
 
+		gui::EventHandler::deltaTime = (float)deltaTime;
+
+		gui::EventHandler::resizeEvent = false;
 
 		while (SDL_PollEvent(&evnt))
 		{
@@ -174,10 +236,18 @@ int main(int argc, char* argv)
 				{
 				case SDL_WINDOWEVENT_RESIZED:
 
+					gui::EventHandler::resizeEvent = true;
+
 					window_width = evnt.window.data1;
 					window_height = evnt.window.data2;
 
+					gui::EventHandler::window_width = window_width;
+					gui::EventHandler::window_height = window_height;
+					fullWindowBounds.size = { (float)window_width, (float)window_height };
+
 					screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
+					windowPanel->SetBounds(fullWindowBounds);
+
 
 					break;
 				}
@@ -210,29 +280,10 @@ int main(int argc, char* argv)
 				gui::EventHandler::mouseButton[button].down = (evnt.button.state == SDL_PRESSED) ? true : false;
 			}
 			break;
-			}
+			} 
 		}
 
-		windowPanel->HandleEvents();
-
-		renderer.BeginRenderpass(theme.backgroundColour);
-
-		renderer.SetViewport(0, 0, window_width, window_height);
-		renderer.SetScissor(0, 0, window_width, window_height);
-
-		// Draw the titleBar
-
-		gui::DrawList drawList;
-
-		windowPanel->GenerateVertexList(drawList);
-
-		for (auto& cmd : drawList.drawcalls)
-			renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, &tex, cmd.firstIndex, cmd.indexCount);
-
-
-		renderer.EndRenderpass();
-
-		SDL_GL_SwapWindow(win);
+		Render();
 	}
 
 	delete windowPanel;

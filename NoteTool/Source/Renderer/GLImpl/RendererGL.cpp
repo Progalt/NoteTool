@@ -55,6 +55,7 @@ void RendererGL::BeginRenderpass(const Colour& clear)
 
 	m_Buffer.vboOffset = 0;
 	m_Buffer.iboOffset = 0;
+
 }
 
 void RendererGL::EndRenderpass()
@@ -84,15 +85,16 @@ void RendererGL::SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32
 	for (auto& idx : indices)
 		offsetIndices.push_back(idx + offset);
 
+
 	glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, m_Buffer.vboOffset * sizeof(Vertex), sizeof(Vertex) * vertices.size(), vertices.data());
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo);
 
 	uint32_t count = indexCount;
 	if (count + indexOffset > indices.size())
 		count = indices.size() - indexOffset;
 
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.iboOffset * sizeof(uint32_t), sizeof(uint32_t) * count, offsetIndices.data() + (indexOffset * sizeof(uint32_t)));
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data());
 
 	glBindVertexArray(m_Buffer.vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo);
@@ -103,7 +105,7 @@ void RendererGL::SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32
 	}
 
 
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (const void*)(m_Buffer.iboOffset * sizeof(uint32_t)));
+	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (const void*)(indexOffset * sizeof(uint32_t)));
 
 	m_Buffer.vboOffset += vertices.size();
 	m_Buffer.iboOffset += indices.size();

@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 #include "../Renderer/Renderer.h"
-#include "../Theme.h"
 #include "../Maths/Rect.h"
+#include "EventHandler.h"
 
 namespace gui
 {
@@ -54,13 +54,34 @@ namespace gui
 			vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 			indices.insert(indices.end(), offsetIndices.begin(), offsetIndices.end());
 
-			m_CurrentCall->indexCount += indices.size();
+			m_CurrentCall->indexCount += newIndices.size();
 		}
 
 	private:
 
 		Call* m_CurrentCall;
 		
+	};
+
+	enum class Alignment
+	{
+		Left, 
+		Centre,
+		Right
+	};
+
+	enum class Anchor
+	{
+		None, 
+		TopLeft, 
+		TopCentre,
+		TopRight,
+		CentreLeft,
+		Centre, 
+		CentreRight, 
+		BottomLeft, 
+		BottomCentre, 
+		BottomRight
 	};
 
 	class Widget
@@ -79,6 +100,32 @@ namespace gui
 
 		void HandleEvents()
 		{
+			// TODO: Add more anchor points
+
+			if (EventHandler::resizeEvent)
+			{
+				switch (m_Anchor)
+				{
+				case Anchor::Centre:
+				{
+					if (m_Parent)
+					{
+						Vector2f widgetCentre = m_Bounds.position + (m_Bounds.size / 2.0f);
+
+						Vector2f parentCentre = Vector2f(m_Parent->m_Bounds.w, m_Parent->m_Bounds.h) / 2.0f;
+
+						Vector2f distanceToCentre = parentCentre - widgetCentre;
+
+
+						m_Bounds.position += distanceToCentre;
+						RecalculateAllBounds();
+
+					}
+				}
+				break;
+				}
+			}
+
 			OnEvent();
 
 			for (auto& child : m_Children)
@@ -92,14 +139,12 @@ namespace gui
 
 			m_Children.push_back(w);
 			w->m_Parent = this;
-			w->m_Theme = m_Theme;
 
 			return static_cast<_Ty*>(w);
 		}
 
 		void SetName(const std::string& name) { m_Name = name; }
 
-		void SetTheme(Theme* theme) { m_Theme = theme; }
 
 		void SetBounds(FloatRect bounds) 
 		{ 
@@ -110,6 +155,41 @@ namespace gui
 		}
 
 		FloatRect GetBounds() { return m_GlobalBounds; }
+
+		void SetRounding(float rounding) { m_Rounding = rounding; }
+
+		void SetColour(Colour col) { m_Colour = col; }
+
+		void SetTransparency(float transparency)
+		{
+			m_Transparency = transparency;
+
+			// Force calculate the global transparency
+			GetTransparency();
+		}
+
+		float GetTransparency()
+		{
+			m_GlobalTransparency = m_Transparency;
+			if (m_Parent)
+			{
+				float parentGlobalTransparency = m_Parent->GetTransparency();
+
+				m_GlobalTransparency *= parentGlobalTransparency;
+			}
+
+			return m_GlobalTransparency;
+		}
+
+		void SetAnchor(Anchor anchor) { m_Anchor = anchor; }
+
+		void RecalculateAllBounds()
+		{
+			SetBounds(m_Bounds);
+
+			for (auto& child : m_Children)
+				child->RecalculateAllBounds();
+		}
 
 	protected:
 
@@ -130,6 +210,14 @@ namespace gui
 
 		std::string m_Name;
 
-		Theme* m_Theme;
+
+		float m_Rounding = 0.0f;
+		Colour m_Colour;
+
+		float m_Transparency = 1.0f;
+
+		float m_GlobalTransparency = 1.0f;
+
+		Anchor m_Anchor = Anchor::None;
 	};
 }

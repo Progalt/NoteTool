@@ -22,6 +22,16 @@ namespace gui
 		static int xrel;
 		static int yrel;
 
+		static float deltaTime;
+
+		static int window_width;
+		static int window_height;
+
+		static int initial_window_width;
+		static int initial_window_height;
+
+		static bool resizeEvent;
+
 		struct MouseButton
 		{
 			unsigned char clicks = 0;

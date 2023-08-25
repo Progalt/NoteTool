@@ -134,6 +134,7 @@
     <ClCompile Include="Source\Renderer\GLImpl\RendererGL.cpp" />
     <ClCompile Include="Source\Renderer\GLImpl\Shader.cpp" />
     <ClCompile Include="Source\UI\EventHandler.cpp" />
+    <ClCompile Include="Source\Vendor\tinyfiledialogs.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Colour.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Utility.h" />
     <ClInclude Include="Source\UI\Widget.h" />
+    <ClInclude Include="Source\Vendor\tinyfiledialogs.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />

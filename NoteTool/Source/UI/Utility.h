@@ -8,6 +8,12 @@
 
 namespace gui
 {
+	template<typename _Ty>
+	inline _Ty Lerp(_Ty a, _Ty b, _Ty t)
+	{
+		return a + t * (b - a);
+	}
+
 	struct Shape
 	{
 		std::vector<Vertex> vertices;
@@ -31,7 +37,9 @@ namespace gui
 
 	inline Shape GenerateRoundedQuad(Vector2f rmin, Vector2f rmax, Colour col, float rounding)
 	{
-		uint32_t detail = 8;
+		uint32_t detail = 4;
+		if (rounding > 10.0f)
+			detail = 8;
 
 		float halfWidth = ((rmax.x - rmin.x) / 2.0f);
 		float halfHeight = ((rmax.y - rmin.y) / 2.0f);
@@ -154,8 +162,169 @@ namespace gui
 		return out;
 	}
 
-	inline void RenderText(DrawList& list, const std::string& Text, Font* font)
+	inline void RenderText(DrawList& list, const std::string& text, Font* font, Vector2i position, float textWrap, Colour col)
 	{
+		float x = 0.0f;
 
+		uint32_t lineCount = 0;
+
+		//if (m_String == m_PreviousString)
+		//	return;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+
+
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				continue;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				continue;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+			//Sprite& spr = m_Sprites[i];
+
+			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
+
+			//spr.SetScale(1.0f, 1.0f);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+			float xpos = x + data.bearingX;
+			float ypos = -(float)data.bearingY + (lineCount * font->GetLineSpacing());
+
+			xpos += (float)position.x;
+			ypos += (float)position.y;
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos)
+				maxY = ypos;
+
+
+			//m_GlyphPos[i] = { xpos, ypos };
+
+			x += (float)data.advance;
+
+			Vector2f uvMin = { (float)data.x , (float)data.y };
+			Vector2f uvMax = { (float)data.x + (float)data.w, (float)data.y + (float)data.h };
+
+			Vector2f texDim = { (float)font->GetTexture(alphabet)->GetWidth(), (float)font->GetTexture(alphabet)->GetHeight() };
+
+			uvMin = uvMin / texDim;
+			uvMax = uvMax / texDim;
+
+			std::vector<Vertex> vertices(4);
+			vertices[0].colour = col;
+			vertices[0].position = { xpos, ypos };
+			vertices[0].texCoord = uvMin;
+
+			vertices[1].colour = col;
+			vertices[1].position = { xpos + (float)data.w, ypos };
+			vertices[1].texCoord = { uvMax.x, uvMin.y };
+
+			vertices[2].colour = col;
+			vertices[2].position = { xpos + (float)data.w, ypos + (float)data.h };
+			vertices[2].texCoord = uvMax;
+
+			vertices[3].colour = col;
+			vertices[3].position = { xpos , ypos + (float)data.h };
+			vertices[3].texCoord = { uvMin.x, uvMax.y };
+
+			std::vector<uint32_t> indices = { 0, 1, 3, 1, 2, 3 };
+
+			
+
+			list.Add(vertices, indices, font->GetTexture(alphabet));
+
+		}
+
+	}
+
+	inline float GetTextLength(const std::string& text, Font* font)
+	{
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		//if (m_String == m_PreviousString)
+		//	return;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+
+
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				continue;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				continue;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+			float xpos = x + data.bearingX;
+			float ypos = -(float)data.bearingY + (lineCount * font->GetLineSpacing());
+
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			x += (float)data.advance;
+		}
+
+		return maxX;
 	}
 }
