@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\FileViewers\PlainTextViewer.cpp" />
     <ClCompile Include="Source\Font.cpp" />
     <ClCompile Include="Source\Image.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -141,6 +142,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Colour.h" />
+    <ClInclude Include="Source\FileViewers\FileViewer.h" />
+    <ClInclude Include="Source\FileViewers\PlainTextViewer.h" />
     <ClInclude Include="Source\Font.h" />
     <ClInclude Include="Source\Icons.h" />
     <ClInclude Include="Source\Image.h" />
@@ -162,12 +165,14 @@
     <ClInclude Include="Source\UI\DropDown.h" />
     <ClInclude Include="Source\UI\EventHandler.h" />
     <ClInclude Include="Source\UI\FontManager.h" />
+    <ClInclude Include="Source\UI\List.h" />
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Text.h" />
     <ClInclude Include="Source\UI\Utility.h" />
     <ClInclude Include="Source\UI\Widget.h" />
     <ClInclude Include="Source\Vendor\tinyfiledialogs.h" />
     <ClInclude Include="Source\Workspace.h" />
+    <ClInclude Include="Source\WorkspaceUI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />

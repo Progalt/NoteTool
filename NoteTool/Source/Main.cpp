@@ -8,7 +8,9 @@
 
 #ifdef _WIN32
 #include <dwmapi.h>
+#include <shlobj.h>
 #pragma comment(lib, "dwmapi.lib")
+#pragma comment(lib, "shell32.lib")
 #endif
 
 #include "Platform.h"
@@ -30,6 +32,9 @@ bool open = true;
 #include "UI/Text.h"
 #include "UI/FontManager.h"
 #include "UI/DropDown.h"
+
+#include "Workspace.h"
+#include "WorkspaceUI.h"
 
 #include "Vendor/tinyfiledialogs.h"
 
@@ -66,12 +71,28 @@ void ToggleDarkModeForHwnd(SDL_Window* window)
 #endif
 }
 
+std::string GetDocumentsPath()
+{
+#ifdef _WIN32
+
+	CHAR my_documents[MAX_PATH];
+	HRESULT result = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, my_documents);
+
+
+	return std::string(my_documents);
+#endif
+
+}
+
 gui::Panel* windowPanel;
 Renderer renderer;
 Theme theme;
 SDL_Window* win;
 GPUTexture whiteTexture;
 Matrix4x4f screen;
+
+Workspace currentWorkspace;
+WorkspaceUI workspaceUI;
 
 void Render()
 {
@@ -166,18 +187,29 @@ int main(int argc, char* argv)
 	screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
 
 
+
 	FloatRect fullWindowBounds;
 	fullWindowBounds.size = { (float)window_width, (float)window_height };
 	windowPanel = new gui::Panel();
 	windowPanel->SetBounds(fullWindowBounds);
 	windowPanel->SetDummyPanel(true);
 
+
+	gui::Panel* workspaceUIPanel = windowPanel->NewChild<gui::Panel>();
+	workspaceUIPanel->SetBounds({ 0.0f, 0.0f, 250.0f, windowPanel->GetBounds().h, });
+	workspaceUIPanel->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	workspaceUIPanel->SetTransparency(1.0f);
+	workspaceUIPanel->SetAnchor(gui::Anchor::CentreLeft);
+	workspaceUIPanel->SetTransparency(1.0f);
+	workspaceUIPanel->SetVisible(false);
+
+
 	Vector2f modalSize = { 500.0f, 450.0f };
 
 	gui::Panel* modal = windowPanel->NewChild<gui::Panel>();
 	modal->SetDummyPanel(false);
 	modal->SetBounds({ (float)window_width / 2.0f - modalSize.x / 2.0f, (float)window_height / 2.0f - modalSize.y / 2.0f, modalSize.x, modalSize.y});
-	modal->SetColour({ 0.03f, 0.03f, 0.03f, 1.0f });
+	modal->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
 	modal->SetRounding(theme.buttonRounding);
 	modal->SetTransparency(1.0f);
 	modal->SetAnchor(gui::Anchor::Centre);
@@ -220,7 +252,15 @@ int main(int argc, char* argv)
 
 	gui::Button* openButton = modal->NewChild<gui::Button>();
 	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
-	openButton->SetOnClick([&](void*) {});
+	openButton->SetOnClick([&](void*) 
+		{ 
+			currentWorkspace.OpenWorkspace(tinyfd_selectFolderDialog("Open Workspace", GetDocumentsPath().c_str())); 
+			if (currentWorkspace.IsValid())
+				modal->SetVisible(false); 
+
+			workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
+			workspaceUIPanel->SetVisible(true);
+		});
 	openButton->SetColour(theme.accentColour);
 	openButton->SetHighlightColour(theme.accentHighlight);
 	openButton->SetHoveredColour(theme.accentColour + theme.hoverModifier);
@@ -241,6 +281,8 @@ int main(int argc, char* argv)
 	openTextDesc->SetPosition({ 60.0f, openButtonY + 10.0f + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
 	openTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
 
+	//modal->SetVisible(false);
+
 	//gui::DropDown* dropDown = modal->NewChild<gui::DropDown>();
 	//dropDown->SetBounds({ 60.0f, 350.0f, 350.0f + 100.0f - 60.0f, 30.0f});
 	//dropDown->SetColour(theme.accentColour);
@@ -257,6 +299,10 @@ int main(int argc, char* argv)
 
 	gui::EventHandler::initial_window_width = window_width;
 	gui::EventHandler::initial_window_height = window_height;
+
+
+
+	
 
 	SDL_Event evnt;
 	while (open)

@@ -56,6 +56,16 @@ namespace gui
 
 		switch (dir)
 		{
+		case 0:
+
+			// Right 
+			output.vertices = {
+				{ min, zeroUV, col },
+				{ {min.x + (max.x - min.x) / 2.0f, min.y + (max.y - min.y) / 2.0f}, zeroUV, col},
+				{ { min.x, max.y }, zeroUV, col}
+			};
+
+			break;
 		case 2:
 
 			// Down
