@@ -18,9 +18,15 @@ namespace gui
 		{
 			GPUTexture* texture;
 			uint32_t firstIndex, indexCount;
+			IntRect scissor;
 		};
 
 		std::vector<Call> drawcalls;
+
+		void SetScissor(IntRect scissor)
+		{
+			m_CurrentScissor = scissor;
+		}
 
 		void Add(std::vector<Vertex> newVertices, std::vector<uint32_t> newIndices, GPUTexture* tex = nullptr)
 		{
@@ -30,16 +36,18 @@ namespace gui
 
 				m_CurrentCall = &drawcalls[drawcalls.size() - 1ui64];
 				m_CurrentCall->texture = tex;
+				m_CurrentCall->scissor = m_CurrentScissor;
 
 				m_CurrentCall->firstIndex = 0;
 			}
 
-			if (m_CurrentCall->texture != tex)
+			if (m_CurrentCall->texture != tex || m_CurrentCall->scissor != m_CurrentScissor)
 			{
 				drawcalls.push_back(Call());
 
 				m_CurrentCall = &drawcalls[drawcalls.size() - 1ui64];
 				m_CurrentCall->texture = tex;
+				m_CurrentCall->scissor = m_CurrentScissor;
 
 				m_CurrentCall->firstIndex = indices.size();
 			}
@@ -60,6 +68,7 @@ namespace gui
 	private:
 
 		Call* m_CurrentCall;
+		IntRect m_CurrentScissor = IntRect();
 		
 	};
 

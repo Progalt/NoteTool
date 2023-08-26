@@ -77,10 +77,12 @@ void Render()
 
 	windowPanel->HandleEvents();
 
-	renderer.BeginRenderpass(theme.backgroundColour);
-
 	renderer.SetViewport(0, 0, window_width, window_height);
 	renderer.SetScissor(0, 0, window_width, window_height);
+
+	renderer.BeginRenderpass(theme.backgroundColour);
+
+
 
 	// Draw the titleBar
 
@@ -93,7 +95,13 @@ void Render()
 	//gui::RenderText(drawList, "BOLD", &fontBold, { 400, 300 }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 	for (auto& cmd : drawList.drawcalls)
+	{
+		if (cmd.scissor.IsNull())
+			renderer.SetScissor(0, 0, window_width, window_height);
+		else 
+			renderer.SetScissor(cmd.scissor.x, window_height - cmd.scissor.y - cmd.scissor.h, cmd.scissor.w, cmd.scissor.h);
 		renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount);
+	}
 
 
 	renderer.EndRenderpass();
@@ -176,7 +184,7 @@ int main(int argc, char* argv)
 	gui::Button* button = modal->NewChild<gui::Button>();
 	button->SetBounds({ 10.0f, 10.0f, 100.0f, 30.0f });
 	button->SetOnClick([&]() { printf("Click"); });
-	button->SetButtonColour(theme.accentColour);
+	button->SetColour(theme.accentColour);
 	button->SetHighlightColour(theme.accentHighlight);
 	button->SetHoveredColour(theme.accentColour + theme.hoverModifier);
 	button->SetRounding(theme.buttonRounding);
@@ -187,7 +195,7 @@ int main(int argc, char* argv)
 	gui::Button* button2 = modal->NewChild<gui::Button>();
 	button2->SetBounds({ 10.0f, 50.0f, 100.0f, 30.0f });
 	button2->SetOnClick([&]() { });
-	button2->SetButtonColour(theme.accentColour);
+	button2->SetColour(theme.accentColour);
 	button2->SetHighlightColour(theme.accentHighlight);
 	button2->SetHoveredColour(theme.accentColour + theme.hoverModifier);
 	button2->SetRounding(theme.buttonRounding);

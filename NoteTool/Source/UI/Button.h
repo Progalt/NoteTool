@@ -22,7 +22,7 @@ namespace gui
 			}
 			else
 			{
-				m_Temp = Lerp(m_Temp, m_Base, EventHandler::deltaTime * m_HoverSpeed);
+				m_Temp = Lerp(m_Temp, m_Colour, EventHandler::deltaTime * m_HoverSpeed);
 			}
 
 			if (m_Clicked)
@@ -107,7 +107,6 @@ namespace gui
 		
 		void SetOnClick(std::function<void()> callback) { m_Callback = callback; }
 
-		void SetButtonColour(Colour col) { m_Base = col; m_Temp = col; }
 
 		void SetHighlightColour(Colour col) { m_Highlight = col; }
 		void SetShadowColour(Colour col) { m_ShadowColour = col; }
@@ -128,12 +127,11 @@ namespace gui
 
 		bool m_Clicked = false;
 
-		Colour m_Base;
 		Colour m_Highlight = Colour(1.0f, 1.0f, 1.0f, 0.0f);
 		Colour m_HoveredColour;
 		Colour m_ShadowColour = Colour(1.0f, 1.0f, 1.0f, 0.0f);
 
-		Colour m_Temp = m_Base;
+		Colour m_Temp = m_Colour;
 
 		float m_HoverSpeed = 30.0f;
 

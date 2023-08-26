@@ -25,8 +25,12 @@ namespace gui
 
 		void GenerateVertexList(DrawList& drawList) override 
 		{ 
+			drawList.SetScissor(m_GlobalBounds);
+
 			if (!m_DummyPanel)
 			{
+				
+
 				Colour col = m_Colour;
 				col.a *= GetTransparency();
 
@@ -57,9 +61,14 @@ namespace gui
 				}
 
 				drawList.Add(panelBg.vertices, panelBg.indices);
+
 			}
 
 			GenerateChildVertexLists(drawList);
+
+			drawList.SetScissor(IntRect());
+
+			
 		}
 
 		void OnEvent()
