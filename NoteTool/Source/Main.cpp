@@ -27,6 +27,8 @@ bool open = true;
 #include "UI/Dock.h"
 #include "UI/Utility.h"
 #include "UI/Button.h"
+#include "UI/Text.h"
+#include "UI/FontManager.h"
 
 #include "Vendor/tinyfiledialogs.h"
 
@@ -137,14 +139,11 @@ int main(int argc, char* argv)
 	// Init base content
 
 
+	gui::FontManager fontManager;
+	fontManager.SetInitialFont("DMSans");
+	Font* fontRegular = fontManager.Get(gui::FontWeight::Regular, 12);
+	Font* fontBold = fontManager.Get(gui::FontWeight::Bold, 12);
 
-	Font fontRegular;
-	fontRegular.SetFont("Themes/DMSans-Regular.ttf", 12);
-	fontRegular.LoadAlphabet(Alphabet::Latin);
-
-	Font fontBold;
-	fontBold.SetFont("Themes/DMSans-Bold.ttf", 32);
-	fontBold.LoadAlphabet(Alphabet::Latin);
 
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
 	whiteTexture.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
@@ -183,7 +182,7 @@ int main(int argc, char* argv)
 	button->SetRounding(theme.buttonRounding);
 	button->SetShadowColour(theme.accentColour);
 
-	button->SetText("New", &fontRegular);
+	button->SetText("New", fontRegular);
 
 	gui::Button* button2 = modal->NewChild<gui::Button>();
 	button2->SetBounds({ 10.0f, 50.0f, 100.0f, 30.0f });
@@ -194,7 +193,8 @@ int main(int argc, char* argv)
 	button2->SetRounding(theme.buttonRounding);
 	button2->SetShadowColour(theme.accentColour);
 
-	button2->SetText("Close", &fontRegular);
+	button2->SetText("Close", fontBold);
+
 
 	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
@@ -209,7 +209,7 @@ int main(int argc, char* argv)
 		LAST = NOW;
 		NOW = SDL_GetPerformanceCounter();
 
-		deltaTime = (double)((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency());
+		deltaTime = (double)((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency()) * 0.001;
 
 		gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks = 0;
 		gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].clicks = 0;

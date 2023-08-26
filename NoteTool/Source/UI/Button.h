@@ -14,11 +14,15 @@ namespace gui
 		void GenerateVertexList(DrawList& drawList)
 		{
 
-			Colour col = m_Base;
+		
 
 			if (m_Hovered && !m_Clicked)
 			{
-				col = m_HoveredColour;
+				m_Temp = Lerp(m_Temp, m_HoveredColour, EventHandler::deltaTime * m_HoverSpeed);
+			}
+			else
+			{
+				m_Temp = Lerp(m_Temp, m_Base, EventHandler::deltaTime * m_HoverSpeed);
 			}
 
 			if (m_Clicked)
@@ -30,6 +34,7 @@ namespace gui
 
 			Colour borderCol = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+			Colour col = m_Temp;
 
 			col.a *= GetTransparency();
 
@@ -102,7 +107,7 @@ namespace gui
 		
 		void SetOnClick(std::function<void()> callback) { m_Callback = callback; }
 
-		void SetButtonColour(Colour col) { m_Base = col; }
+		void SetButtonColour(Colour col) { m_Base = col; m_Temp = col; }
 
 		void SetHighlightColour(Colour col) { m_Highlight = col; }
 		void SetShadowColour(Colour col) { m_ShadowColour = col; }
@@ -127,6 +132,10 @@ namespace gui
 		Colour m_Highlight = Colour(1.0f, 1.0f, 1.0f, 0.0f);
 		Colour m_HoveredColour;
 		Colour m_ShadowColour = Colour(1.0f, 1.0f, 1.0f, 0.0f);
+
+		Colour m_Temp = m_Base;
+
+		float m_HoverSpeed = 30.0f;
 
 		struct
 		{

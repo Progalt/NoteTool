@@ -152,6 +152,14 @@ namespace gui
 			m_GlobalBounds = m_Bounds;
 			if (m_Parent)
 				m_GlobalBounds.position += m_Parent->GetBounds().position;
+
+			//RecalculateAllBounds();
+		}
+
+		void SetPosition(Vector2f pos)
+		{
+			SetBounds({ pos.x, pos.y, m_Bounds.x, m_Bounds.y });
+			RecalculateAllBounds();
 		}
 
 		FloatRect GetBounds() { return m_GlobalBounds; }
@@ -159,6 +167,7 @@ namespace gui
 		void SetRounding(float rounding) { m_Rounding = rounding; }
 
 		void SetColour(Colour col) { m_Colour = col; }
+
 
 		void SetTransparency(float transparency)
 		{

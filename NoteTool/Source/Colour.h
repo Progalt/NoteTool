@@ -40,3 +40,19 @@ inline Colour operator+(Colour col, Colour col2)
 	out.a = col.a + col2.a;
 	return out;
 }
+
+inline bool operator==(Colour c, Colour c2)
+{
+	if (c.r == c2.r && c.g == c2.g && c.b == c2.b && c.a == c2.a)
+		return true;
+
+	return false;
+}
+
+inline bool operator!=(Colour c, Colour c2)
+{
+	if (c.r != c2.r && c.g != c2.g && c.b != c2.b && c.a != c2.a)
+		return true;
+
+	return false;
+}
