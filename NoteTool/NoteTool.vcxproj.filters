@@ -42,6 +42,9 @@
     <ClCompile Include="Source\UI\FontManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Workspace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Theme.h">
@@ -117,6 +120,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\UI\FontManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\Dividor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\DropDown.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Workspace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

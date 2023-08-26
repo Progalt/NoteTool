@@ -46,6 +46,35 @@ namespace gui
 		return output;
 	}
 
+	// 0 up and 2 down
+	inline Shape GenerateAlignedEqualTri(Vector2f min, Vector2f max, Colour col, int dir)
+	{
+		Shape output;
+		output.indices = { 0, 1, 2 };
+
+		Vector2f zeroUV = { 0.0f, 0.0f };
+
+		switch (dir)
+		{
+		case 2:
+
+			// Down
+			output.vertices = {
+				{ min, zeroUV, col },
+				{ {max.x, min.y}, zeroUV, col},
+				{ { min.x + (max.x - min.x) / 2.0f, max.y}, zeroUV, col}
+			};
+
+			break;
+		case 1:
+			break;
+		case 3:
+			break;
+		}
+
+		return output;
+	}
+
 	inline Shape GenerateRoundedQuad(Vector2f rmin, Vector2f rmax, Colour col, float rounding)
 	{
 		uint32_t detail = 4;

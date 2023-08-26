@@ -137,6 +137,7 @@
     <ClCompile Include="Source\UI\EventHandler.cpp" />
     <ClCompile Include="Source\UI\FontManager.cpp" />
     <ClCompile Include="Source\Vendor\tinyfiledialogs.c" />
+    <ClCompile Include="Source\Workspace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Colour.h" />
@@ -156,7 +157,9 @@
     <ClInclude Include="Source\Renderer\GPUTexture.h" />
     <ClInclude Include="Source\Theme.h" />
     <ClInclude Include="Source\UI\Button.h" />
+    <ClInclude Include="Source\UI\Dividor.h" />
     <ClInclude Include="Source\UI\Dock.h" />
+    <ClInclude Include="Source\UI\DropDown.h" />
     <ClInclude Include="Source\UI\EventHandler.h" />
     <ClInclude Include="Source\UI\FontManager.h" />
     <ClInclude Include="Source\UI\Panel.h" />
@@ -164,6 +167,7 @@
     <ClInclude Include="Source\UI\Utility.h" />
     <ClInclude Include="Source\UI\Widget.h" />
     <ClInclude Include="Source\Vendor\tinyfiledialogs.h" />
+    <ClInclude Include="Source\Workspace.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />

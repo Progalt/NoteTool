@@ -135,10 +135,21 @@ namespace gui
 				}
 			}
 
-			OnEvent();
+			/*if (m_Parent)
+			{
+				if (m_Parent->GetBounds().Contains(m_GlobalBounds))
+					OnEvent();
+			}
+			else */
+				OnEvent();
 
 			for (auto& child : m_Children)
-				child->HandleEvents();
+			{
+				if (child->m_Visible)
+				{
+					child->HandleEvents();
+				}
+			}
 		}
 
 		template<typename _Ty, class ... Args>
@@ -160,7 +171,7 @@ namespace gui
 			m_Bounds = bounds; 
 			m_GlobalBounds = m_Bounds;
 			if (m_Parent)
-				m_GlobalBounds.position += m_Parent->GetBounds().position;
+				m_GlobalBounds.position += m_Parent->GetBounds().position - m_Parent->m_VisibleOffset;
 
 			//RecalculateAllBounds();
 		}
@@ -209,13 +220,18 @@ namespace gui
 				child->RecalculateAllBounds();
 		}
 
+		void SetVisible(bool vis) { m_Visible = vis; }
+
 	protected:
 
 		bool m_Hovered = false;
 
+		bool m_Visible = true;
+
 		FloatRect m_Bounds;
 		FloatRect m_GlobalBounds;
 
+		bool m_HandleChildEventsOutsideBounds = false;
 
 		void GenerateChildVertexLists(DrawList& drawList)
 		{
@@ -237,5 +253,7 @@ namespace gui
 		float m_GlobalTransparency = 1.0f;
 
 		Anchor m_Anchor = Anchor::None;
+
+		Vector2f m_VisibleOffset = Vector2f(0.0f, 0.0f);
 	};
 }

@@ -29,6 +29,7 @@ bool open = true;
 #include "UI/Button.h"
 #include "UI/Text.h"
 #include "UI/FontManager.h"
+#include "UI/DropDown.h"
 
 #include "Vendor/tinyfiledialogs.h"
 
@@ -180,29 +181,75 @@ int main(int argc, char* argv)
 	modal->SetRounding(theme.buttonRounding);
 	modal->SetTransparency(1.0f);
 	modal->SetAnchor(gui::Anchor::Centre);
+	modal->SetTransparency(1.0f);
+	
 
-	gui::Button* button = modal->NewChild<gui::Button>();
-	button->SetBounds({ 10.0f, 10.0f, 100.0f, 30.0f });
-	button->SetOnClick([&]() { printf("Click"); });
-	button->SetColour(theme.accentColour);
-	button->SetHighlightColour(theme.accentHighlight);
-	button->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	button->SetRounding(theme.buttonRounding);
-	button->SetShadowColour(theme.accentColour);
+	gui::Text* versionText = modal->NewChild<gui::Text>();
+	versionText->SetString("Version 0.01a");
+	versionText->SetFont(fontRegular);
+	float bounds = gui::GetTextLength(versionText->GetString(), fontRegular);
+	versionText->SetPosition({ modal->GetBounds().w / 2.0f - bounds / 2.0f, 160.0f });
+	versionText->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
 
-	button->SetText("New", fontRegular);
 
-	gui::Button* button2 = modal->NewChild<gui::Button>();
-	button2->SetBounds({ 10.0f, 50.0f, 100.0f, 30.0f });
-	button2->SetOnClick([&]() { });
-	button2->SetColour(theme.accentColour);
-	button2->SetHighlightColour(theme.accentHighlight);
-	button2->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	button2->SetRounding(theme.buttonRounding);
-	button2->SetShadowColour(theme.accentColour);
+	float createButtonY = 210.0f;
+	float openButtonY = 280.0f;
 
-	button2->SetText("Close", fontBold);
+	gui::Button* createButton = modal->NewChild<gui::Button>();
+	createButton->SetBounds({ 350.0f, createButtonY, 100.0f, 30.0f });
+	createButton->SetOnClick([&](void*) { printf("Click"); });
+	createButton->SetColour(theme.accentColour);
+	createButton->SetHighlightColour(theme.accentHighlight);
+	createButton->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	createButton->SetRounding(theme.buttonRounding);
+	createButton->SetShadowColour(theme.accentColour);
 
+	createButton->SetText("Create", fontRegular);
+
+	gui::Text* createText = modal->NewChild<gui::Text>();
+	createText->SetString("Create new workspace");
+	createText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
+	createText->SetPosition({ 60.0f, createButtonY + 10.0f });
+	createText->SetColour({ 0.65f, 0.65f, 0.65f, 1.0f });
+
+	gui::Text* createTextDesc = modal->NewChild<gui::Text>();
+	createTextDesc->SetString("Create a new folder and open as workspace");
+	createTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
+	createTextDesc->SetPosition({ 60.0f, createButtonY + 10.0f + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
+	createTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+
+	gui::Button* openButton = modal->NewChild<gui::Button>();
+	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
+	openButton->SetOnClick([&](void*) {});
+	openButton->SetColour(theme.accentColour);
+	openButton->SetHighlightColour(theme.accentHighlight);
+	openButton->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	openButton->SetRounding(theme.buttonRounding);
+	openButton->SetShadowColour(theme.accentColour);
+
+	openButton->SetText("Open", fontRegular);
+
+	gui::Text* openText = modal->NewChild<gui::Text>();
+	openText->SetString("Open folder as workspace");
+	openText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
+	openText->SetPosition({ 60.0f, openButtonY + 10.0f });
+	openText->SetColour({ 0.65f, 0.65f, 0.65f, 1.0f });
+
+	gui::Text* openTextDesc = modal->NewChild<gui::Text>();
+	openTextDesc->SetString("Open an existing folder as a workspace");
+	openTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
+	openTextDesc->SetPosition({ 60.0f, openButtonY + 10.0f + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
+	openTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+
+	//gui::DropDown* dropDown = modal->NewChild<gui::DropDown>();
+	//dropDown->SetBounds({ 60.0f, 350.0f, 350.0f + 100.0f - 60.0f, 30.0f});
+	//dropDown->SetColour(theme.accentColour);
+	//dropDown->SetHighlightColour(theme.accentHighlight);
+	//dropDown->SetShadowColour(theme.accentColour);
+	//dropDown->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	//dropDown->SetRounding(theme.buttonRounding);
+	//dropDown->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
+	//dropDown->SetList({ "English", "French", "German", "Swedish", "Russian", "Japanese", "Korean", "Chinese", "Spanish", "Dutch", "Norwegian", "Finnish"});
 
 	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
@@ -225,6 +272,7 @@ int main(int argc, char* argv)
 		gui::EventHandler::deltaTime = (float)deltaTime;
 
 		gui::EventHandler::resizeEvent = false;
+		gui::EventHandler::verticalScroll = 0;
 
 		while (SDL_PollEvent(&evnt))
 		{
@@ -288,6 +336,9 @@ int main(int argc, char* argv)
 				gui::EventHandler::mouseButton[button].down = (evnt.button.state == SDL_PRESSED) ? true : false;
 			}
 			break;
+			case SDL_MOUSEWHEEL:
+				gui::EventHandler::verticalScroll = evnt.wheel.y;
+				break;
 			} 
 		}
 

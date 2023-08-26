@@ -18,5 +18,7 @@ namespace gui
 
 	bool EventHandler::resizeEvent = false;
 
+	int EventHandler::verticalScroll = 0;
+
 	EventHandler::MouseButton EventHandler::mouseButton[MOUSE_BUTTON_COUNT];
 }

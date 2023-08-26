@@ -13,7 +13,8 @@ namespace gui
 
 		void GenerateVertexList(DrawList& drawList)
 		{
-
+			if (!m_Visible)
+				return;
 		
 
 			if (m_Hovered && !m_Clicked)
@@ -70,7 +71,7 @@ namespace gui
 			{
 				float lineSpacing = (float)m_Text.font->GetLineSpacing();
 				Vector2i position;
-				position.y = m_GlobalBounds.y + lineSpacing;
+				position.y = m_GlobalBounds.y + ( m_GlobalBounds.h / 2.0f ) + ((float)m_Text.font->GetPixelSize() / 3.0f);
 				float textLength = gui::GetTextLength(m_Text.str, m_Text.font);
 
 				switch (m_Text.alignment)
@@ -81,31 +82,44 @@ namespace gui
 				case Alignment::Right:
 					break;
 				case Alignment::Left:
-					position.x = m_GlobalBounds.x;
+					position.x = m_GlobalBounds.x + 5.0f;
 					break;
 				}
 
-				gui::RenderText(drawList, m_Text.str, m_Text.font, position, 0.0f, Colour{ 1.0f, 1.0f, 1.0f, 1.0f });
+				Colour textCol = { 1.0f, 1.0f, 1.0f, 1.0f };
+				textCol.a *= GetTransparency();
+
+				gui::RenderText(drawList, m_Text.str, m_Text.font, position, 0.0f, textCol);
 			}
 		}
 
 		void OnEvent() override
 		{
+
 			m_Hovered = false;
 			if (m_GlobalBounds.Contains((float)EventHandler::x, (float)EventHandler::y))
 			{
 				m_Hovered = true;
 			}
 
-			if (m_Hovered && EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks > 0)
+			if (m_Hovered)
 			{
-				m_Callback();
-				m_Clicked = true;
+				if (m_RequireDoubleClick && EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks >= 2)
+				{
+					m_Callback(m_UserData);
+					m_Clicked = true;
+				}
+				else if (!m_RequireDoubleClick && EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
+				{
+					m_Callback(m_UserData);
+					m_Clicked = true;
+				}
+
 			}
 
 		}
 		
-		void SetOnClick(std::function<void()> callback) { m_Callback = callback; }
+		void SetOnClick(std::function<void(void*)> callback) { m_Callback = callback; }
 
 
 		void SetHighlightColour(Colour col) { m_Highlight = col; }
@@ -121,11 +135,20 @@ namespace gui
 			m_Text.alignment = alignment;
 		}
 
+		void SetRequireDoubleClick(bool doubleClick)
+		{
+			m_RequireDoubleClick = doubleClick;
+		}
+
+		void SetUserData(void* userData) { m_UserData = userData; }
+
 	private:
 
-		std::function<void()> m_Callback;
+		std::function<void(void*)> m_Callback;
 
 		bool m_Clicked = false;
+
+		bool m_RequireDoubleClick = false;
 
 		Colour m_Highlight = Colour(1.0f, 1.0f, 1.0f, 0.0f);
 		Colour m_HoveredColour;
@@ -141,6 +164,8 @@ namespace gui
 			Font* font;
 			Alignment alignment;
 		} m_Text;
+
+		void* m_UserData;
 
 	};
 }

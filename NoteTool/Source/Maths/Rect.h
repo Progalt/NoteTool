@@ -33,6 +33,14 @@ public:
 		return false;
 	}
 
+	bool Contains(Rect<_Ty> r2)
+	{
+		if (Contains(r2.x, r2.y) && Contains(r2.x + r2.w, r2.y + r2.h))
+			return true;
+
+		return false;
+	}
+
 	bool Intersects(Rect<_Ty> r2)
 	{
 		auto valueInRange = [](_Ty value, _Ty min, _Ty max)

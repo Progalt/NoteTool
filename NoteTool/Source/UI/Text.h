@@ -11,9 +11,15 @@ namespace gui
 
 		void GenerateVertexList(DrawList& drawList) override
 		{
+			if (!m_Visible)
+				return;
+
 			if (!m_String.empty() && m_Font)
 			{
-				gui::RenderText(drawList, m_String, m_Font, m_GlobalBounds.position, 0.0f, m_Colour);
+				Colour col = m_Colour;
+				col.a *= GetTransparency();
+
+				gui::RenderText(drawList, m_String, m_Font, m_GlobalBounds.position, 0.0f, col);
 			}
 
 			GenerateChildVertexLists(drawList);
@@ -33,6 +39,10 @@ namespace gui
 				m_Bounds.w = gui::GetTextLength(m_String, m_Font);
 		}
 
+		const std::string GetString()
+		{
+			return m_String;
+		}
 
 	private:
 

@@ -32,6 +32,8 @@ namespace gui
 
 		static bool resizeEvent;
 
+		static int verticalScroll;
+
 		struct MouseButton
 		{
 			unsigned char clicks = 0;
