@@ -37,6 +37,8 @@ public:
 
 	void DisplayModal(ModalType type, const std::string& str, float xPos)
 	{
+		m_Panel->SetPosition({ xPos - (float)250.0f / 2.0f, 0.0f });
+
 		m_Text->SetString(str);
 		float textXPos = m_Panel->GetBounds().w / 2.0f - gui::GetTextLength(str, m_FontManager->Get(gui::FontWeight::Bold, 18)) / 2.0f;
 		m_Text->SetPosition({ textXPos, 21.0f });

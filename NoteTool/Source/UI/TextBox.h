@@ -52,8 +52,7 @@ namespace gui
 
 		void OnEvent() override
 		{
-			if (!m_Visible)
-				return;
+			
 
 			m_Hovered = false;
 			if (m_GlobalBounds.Contains((float)EventHandler::x, (float)EventHandler::y))

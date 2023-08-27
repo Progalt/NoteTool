@@ -47,6 +47,45 @@ WorkspaceUI workspaceUI;
 
 ModalPopup modalPopup;
 
+
+gui::FontManager fontManager;
+gui::FontManager codeFontManager;
+
+// workspace gui 
+
+gui::Panel* workspaceUIPanel;
+gui::Panel* textArea;
+gui::Panel* tabsArea;
+
+
+
+void CreatePanelsForWorkspace()
+{
+	workspaceUIPanel->SetBounds({ 0.0f, 0.0f, 250.0f, windowPanel->GetBounds().h, });
+	workspaceUIPanel->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	workspaceUIPanel->SetTransparency(1.0f);
+	workspaceUIPanel->SetAnchor(gui::Anchor::CentreLeft);
+	workspaceUIPanel->SetVisible(false);
+
+	float editableWidth = windowPanel->GetBounds().w - 250.0f;
+
+
+	textArea->SetBounds({ 250.0f, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
+	textArea->SetColour(theme.backgroundColour);
+	textArea->SetVisible(false);
+
+	tabsArea->SetBounds({ 250.0f, 0.0f, editableWidth, 30.0f });
+	tabsArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	tabsArea->SetVisible(false);
+	tabsArea->SetAnchor(gui::Anchor::TopRight);
+	tabsArea->SetLockPosition(true);
+
+	workspaceUI.SetTextArea(textArea);
+	workspaceUI.SetFontManager(&fontManager);
+	workspaceUI.SetCodeFontManager(&codeFontManager);
+
+}
+
 enum Icons
 {
 	ICON_FILESYSTEM_ARROW,
@@ -133,12 +172,12 @@ int main(int argc, char* argv)
 	// Init base content
 
 
-	gui::FontManager fontManager;
+
 	fontManager.SetInitialFont("DMSans");
 	Font* fontRegular = fontManager.Get(gui::FontWeight::Regular, 12);
 	Font* fontBold = fontManager.Get(gui::FontWeight::Bold, 12);
 
-	gui::FontManager codeFontManager;
+
 	codeFontManager.SetInitialFont("Hack");
 
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
@@ -155,28 +194,11 @@ int main(int argc, char* argv)
 	windowPanel->SetBounds(fullWindowBounds);
 	windowPanel->SetDummyPanel(true);
 
-	gui::Panel* workspaceUIPanel = windowPanel->NewChild<gui::Panel>();
-	workspaceUIPanel->SetBounds({ 0.0f, 0.0f, 250.0f, windowPanel->GetBounds().h, });
-	workspaceUIPanel->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	workspaceUIPanel->SetTransparency(1.0f);
-	workspaceUIPanel->SetAnchor(gui::Anchor::CentreLeft);
-	workspaceUIPanel->SetVisible(false);
+	workspaceUIPanel = windowPanel->NewChild<gui::Panel>();
+	textArea = windowPanel->NewChild<gui::Panel>();
+	tabsArea = windowPanel->NewChild<gui::Panel>();
 
-	float editableWidth = windowPanel->GetBounds().w - 250.0f;
-
-	gui::Panel* textArea = windowPanel->NewChild<gui::Panel>();
-	textArea->SetBounds({ 250.0f, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f});
-	textArea->SetColour(theme.backgroundColour);
-	textArea->SetVisible(false);
-
-	gui::Panel* tabsArea = windowPanel->NewChild<gui::Panel>();
-	tabsArea->SetBounds({ 250.0f, 0.0f, editableWidth, 30.0f });
-	tabsArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	tabsArea->SetVisible(false);
-
-	workspaceUI.SetTextArea(textArea);
-	workspaceUI.SetFontManager(&fontManager);
-	workspaceUI.SetCodeFontManager(&codeFontManager);
+	CreatePanelsForWorkspace();
 
 	Vector2f modalSize = { 500.0f, 450.0f };
 
@@ -235,6 +257,8 @@ int main(int argc, char* argv)
 				currentWorkspace.OpenWorkspace(folder);
 				if (currentWorkspace.IsValid())
 					modal->SetVisible(false);
+
+				CreatePanelsForWorkspace();
 
 				workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
 				workspaceUIPanel->SetVisible(true);

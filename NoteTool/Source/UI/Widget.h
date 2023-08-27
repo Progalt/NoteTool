@@ -126,14 +126,19 @@ namespace gui
 					OnEvent();
 			}
 			else */
+
+			if (m_Visible)
 				OnEvent();
+
 
 			for (auto& child : m_Children)
 			{
+	
 				if (child->m_Visible)
 				{
 					child->HandleEvents();
 				}
+				
 			}
 		}
 
@@ -251,6 +256,11 @@ namespace gui
 				anchorPosition = { 0.0f, 0.0f };
 
 				break;
+			case Anchor::TopRight:
+
+				anchorPosition = { parentBounds.w, 0.0f };
+
+				break;
 			case Anchor::BottomRight:
 
 				anchorPosition = parentBounds.size;
@@ -311,6 +321,7 @@ namespace gui
 			case Anchor::BottomRight:
 			case Anchor::BottomLeft:
 			case Anchor::TopLeft:
+			case Anchor::TopRight:
 
 				if (m_Parent)
 				{
