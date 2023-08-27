@@ -152,6 +152,7 @@
     <ClInclude Include="Source\Maths\Vector2.h" />
     <ClInclude Include="Source\Maths\Vector3.h" />
     <ClInclude Include="Source\Maths\Vector4.h" />
+    <ClInclude Include="Source\OS.h" />
     <ClInclude Include="Source\Renderer\GLImpl\GPUTextureGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\RendererGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\Shader.h" />
@@ -168,8 +169,10 @@
     <ClInclude Include="Source\UI\List.h" />
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Text.h" />
+    <ClInclude Include="Source\UI\TextBox.h" />
     <ClInclude Include="Source\UI\Utility.h" />
     <ClInclude Include="Source\UI\Widget.h" />
+    <ClInclude Include="Source\UserPrefs.h" />
     <ClInclude Include="Source\Vendor\tinyfiledialogs.h" />
     <ClInclude Include="Source\Workspace.h" />
     <ClInclude Include="Source\WorkspaceUI.h" />

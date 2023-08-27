@@ -3,18 +3,22 @@
 #include "Panel.h"
 #include "Button.h"
 #include "EventHandler.h"
+#include "../Icons.h"
+#include "../Image.h"
 
 namespace gui
 {
+
 	struct ListEntry
 	{
 		ListEntry() { }
-		ListEntry(const std::string& text, std::function<void(void*)> callback) : text(text), callback(callback) { }
+		ListEntry(const std::string& text, std::function<void(void*)> callback, void* userData = nullptr) : text(text), callback(callback), userData(userData) { }
 
 		void AddChild(ListEntry entry) { children.push_back(entry); }
 
 		std::string text;
 		std::function<void(void*)> callback;
+		void* userData = nullptr;
 
 		std::vector<ListEntry> children;
 
@@ -46,6 +50,8 @@ namespace gui
 
 		void OnEvent()
 		{
+
+
 			for (auto& entry : m_Entries)
 				HandleEventsForEntry(entry);
 		}
@@ -64,6 +70,9 @@ namespace gui
 
 		void HandleEventsForEntry(ListEntry& entry)
 		{
+			if (!m_Visible)
+				return;
+
 			entry.hovered = false;
 			if (!entry.boundingBox.IsNull())
 			{
@@ -82,6 +91,9 @@ namespace gui
 						if (m_Selected)
 							m_Selected->selected = false;
 						entry.selected = true;
+
+						if (entry.callback)
+							entry.callback(entry.userData);
 
 						m_Selected = &entry;
 					}
@@ -128,11 +140,13 @@ namespace gui
 			if (entry.children.size() > 0)
 			{
 				float yCentre = yPos + m_EntrySize / 2.0f;
+
+
 				Shape tri;
-		
+
 				if (entry.expanded)
 				{
-					tri = gui::GenerateAlignedEqualTri({ xPos - 18.0f, yCentre - 3.0f }, { xPos - 9.0f, yCentre + 3.0f }, m_TextColour,  2);
+					tri = gui::GenerateAlignedEqualTri({ xPos - 18.0f, yCentre - 3.0f }, { xPos - 9.0f, yCentre + 3.0f }, m_TextColour, 2);
 				}
 				else
 				{
@@ -140,6 +154,7 @@ namespace gui
 					tri = gui::GenerateAlignedEqualTri({ xPos - 18.0f + 4.5f, yCentre - triHeight }, { xPos - 8.0f + 4.5f, yCentre + triHeight }, m_TextColour, 0);
 				}
 				list.Add(tri.vertices, tri.indices);
+
 			}
 
 			if (entry.expanded && entry.children.size() > 0)

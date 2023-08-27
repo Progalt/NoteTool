@@ -14,6 +14,8 @@ struct File
 	FileType type;
 	std::string name;
 	std::string extension;
+	
+	bool isCodeFile = false;
 
 	std::filesystem::path path;		// includes name and file extension
 
@@ -22,20 +24,38 @@ struct File
 		type = FileType::Unrecognised;
 
 		// TODO: Add more extensions 
-		if (extension == "txt")
+		if (extension == ".txt")
 		{
 			type = FileType::PlainText;
 		}
 
-		if (extension == "png" ||
-			extension == "jpg" ||
-			extension == "bmp" ||
-			extension == "tga")
+		if (extension == ".cpp" || extension == ".hpp" ||
+			extension == ".c" || extension == "h" ||
+			extension == ".rs" || extension == ".java" ||
+			extension == ".js" || extension == ".py" ||
+			extension == ".dart")
+		{
+			type = FileType::PlainText;
+			isCodeFile = true;
+		}
+
+		if (extension == ".png" ||
+			extension == ".jpg" ||
+			extension == ".bmp" ||
+			extension == ".tga")
 		{
 			type = FileType::Image;
 		}
 
 		
+	}
+
+	bool operator==(const File& f2)
+	{
+		if (type == f2.type && name == f2.name && extension == f2.extension)
+			return true;
+
+		return false;
 	}
 };
 

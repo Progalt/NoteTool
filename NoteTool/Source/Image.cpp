@@ -42,9 +42,14 @@ void Image::LoadFromFile(const std::string& path)
 void Image::LoadFromMemory(std::vector<uint8_t> mem)
 {
 
+	LoadFromMemory(mem.data(), mem.size());
+}
+
+void Image::LoadFromMemory(uint8_t* mem, size_t size)
+{
 	int x, y, c;
 
-	uint8_t* pixels = stbi_load_from_memory(mem.data(), mem.size(), &x, &y, &c, STBI_rgb_alpha);
+	uint8_t* pixels = stbi_load_from_memory(mem, size, &x, &y, &c, STBI_rgb_alpha);
 
 
 

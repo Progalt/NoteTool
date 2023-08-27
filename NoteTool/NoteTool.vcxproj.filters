@@ -146,6 +146,15 @@
     <ClInclude Include="Source\UI\List.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\OS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UserPrefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UI\TextBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />

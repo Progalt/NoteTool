@@ -19,6 +19,8 @@ public:
 
 	void LoadFromMemory(std::vector<uint8_t> mem);
 
+	void LoadFromMemory(uint8_t* mem, size_t size);
+
 	void CreateIcon(float* icon, uint32_t w, uint32_t h);
 
 	void New(uint32_t w, uint32_t h, uint32_t channels);

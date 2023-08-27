@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 
 namespace gui
@@ -33,6 +34,9 @@ namespace gui
 		static bool resizeEvent;
 
 		static int verticalScroll;
+
+		static std::string* textInput;
+		static int cursorOffset;
 
 		struct MouseButton
 		{

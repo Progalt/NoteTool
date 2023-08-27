@@ -377,4 +377,101 @@ namespace gui
 
 		return maxX;
 	}
+
+	inline Vector2f GetPositionOfChar(uint32_t idx, const std::string& text, Font* font, float textWrap)
+	{
+		assert(idx <= text.size());
+
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		//if (m_String == m_PreviousString)
+		//	return;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		for (uint32_t i = 0; i < idx; i++)
+		{
+
+
+
+			uint32_t codepoint = text[i];
+
+			bool controlChar = false;
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				controlChar = true;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				controlChar = true;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+			//Sprite& spr = m_Sprites[i];
+
+			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
+
+			//spr.SetScale(1.0f, 1.0f);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ' || text[w] == '\n')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+			float xpos = x + data.bearingX;
+			float ypos = lineCount * font->GetLineSpacing();
+
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos)
+				maxY = ypos;
+
+
+			//m_GlyphPos[i] = { xpos, ypos };
+
+			x += (float)data.advance;
+
+
+			if (i == idx - 1)
+			{
+				if (controlChar)
+					return { xpos + data.bearingX, ypos };
+				else 
+					return { xpos, ypos };
+			}
+		}
+
+	}
 }

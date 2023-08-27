@@ -5,13 +5,7 @@
 
 #include <SDL2/SDL_syswm.h>
 
-
-#ifdef _WIN32
-#include <dwmapi.h>
-#include <shlobj.h>
-#pragma comment(lib, "dwmapi.lib")
-#pragma comment(lib, "shell32.lib")
-#endif
+#include "OS.h"
 
 #include "Platform.h"
 #include "Icons.h"
@@ -38,51 +32,7 @@ bool open = true;
 
 #include "Vendor/tinyfiledialogs.h"
 
-void ToggleDarkModeForHwnd(SDL_Window* window)
-{
-	static bool darkMode = false;
-	darkMode = !darkMode;
 
-#ifdef _WIN32
-	SDL_SysWMinfo wmInfo;
-	SDL_VERSION(&wmInfo.version);
-	SDL_GetWindowWMInfo(window, &wmInfo);
-	HWND hwnd = wmInfo.info.win.window;
-
-
-	// https://stackoverflow.com/questions/39261826/change-the-color-of-the-title-bar-caption-of-a-win32-application/70693198#70693198
-	// Set the window to a dark theme mode.. Windows 11 allows for more customisation on this but... I have windows 10... so
-	// Anyway
-	// TODO: Add support for windows 11 border colours
-	// Surely this can come from the theme
-
-	BOOL USE_DARK_MODE = darkMode;
-	BOOL SET_IMMERSIVE_DARK_MODE_SUCCESS = SUCCEEDED(DwmSetWindowAttribute(
-		hwnd, DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE,
-		&USE_DARK_MODE, sizeof(USE_DARK_MODE)));
-
-	if (!SET_IMMERSIVE_DARK_MODE_SUCCESS)
-		printf("Failed to set dark mode");
-
-
-	// Hacky way to get it being drawn in dark mode without the window being redrawn due to input
-	SDL_HideWindow(window);
-	SDL_ShowWindow(window);
-#endif
-}
-
-std::string GetDocumentsPath()
-{
-#ifdef _WIN32
-
-	CHAR my_documents[MAX_PATH];
-	HRESULT result = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, my_documents);
-
-
-	return std::string(my_documents);
-#endif
-
-}
 
 gui::Panel* windowPanel;
 Renderer renderer;
@@ -94,6 +44,23 @@ Matrix4x4f screen;
 Workspace currentWorkspace;
 WorkspaceUI workspaceUI;
 
+enum Icons
+{
+	ICON_FILESYSTEM_ARROW,
+
+	ICON_COUNT
+};
+
+GPUTexture icons[ICON_COUNT];
+
+void InitIcons()
+{
+	Image img;
+	img.LoadFromMemory(filesystemarrow, filesystemarrowcnt);
+
+	icons[ICON_FILESYSTEM_ARROW].CreateFromImage(img);
+}
+
 void Render()
 {
 
@@ -104,17 +71,9 @@ void Render()
 
 	renderer.BeginRenderpass(theme.backgroundColour);
 
-
-
-	// Draw the titleBar
-
 	gui::DrawList drawList;
 
 	windowPanel->GenerateVertexList(drawList);
-
-	//gui::RenderText(drawList, "Hello World", &fontRegular, { 400, 200 }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
-
-	//gui::RenderText(drawList, "BOLD", &fontBold, { 400, 300 }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 	for (auto& cmd : drawList.drawcalls)
 	{
@@ -166,6 +125,8 @@ int main(int argc, char* argv)
 
 	renderer.Initialise(win);
 
+	InitIcons();
+
 	// Init base content
 
 
@@ -178,11 +139,7 @@ int main(int argc, char* argv)
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
 	whiteTexture.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
 
-	Image exitImg;
-	exitImg.CreateIcon(exitIcon, 10, 10);
 
-	GPUTexture exitIcon;
-	exitIcon.CreateFromImage(exitImg);
 
 	screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
 
@@ -203,6 +160,13 @@ int main(int argc, char* argv)
 	workspaceUIPanel->SetTransparency(1.0f);
 	workspaceUIPanel->SetVisible(false);
 
+	gui::Panel* textArea = windowPanel->NewChild<gui::Panel>();
+	textArea->SetBounds({ 250.0f, 0.0f, 400.0f, windowPanel->GetBounds().h });
+	textArea->SetColour(theme.backgroundColour);
+	textArea->SetVisible(false);
+
+	workspaceUI.SetTextArea(textArea);
+	workspaceUI.SetFontManager(&fontManager);
 
 	Vector2f modalSize = { 500.0f, 450.0f };
 
@@ -254,12 +218,21 @@ int main(int argc, char* argv)
 	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
 	openButton->SetOnClick([&](void*) 
 		{ 
-			currentWorkspace.OpenWorkspace(tinyfd_selectFolderDialog("Open Workspace", GetDocumentsPath().c_str())); 
-			if (currentWorkspace.IsValid())
-				modal->SetVisible(false); 
+			const char* folder = tinyfd_selectFolderDialog("Open Workspace", GetDocumentsPath().c_str());
 
-			workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
-			workspaceUIPanel->SetVisible(true);
+			if (folder != NULL)
+			{
+				currentWorkspace.OpenWorkspace(folder);
+				if (currentWorkspace.IsValid())
+					modal->SetVisible(false);
+
+				workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
+				workspaceUIPanel->SetVisible(true);
+				textArea->SetVisible(true);
+
+				std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
+				SDL_SetWindowTitle(win, title.c_str());
+			}
 		});
 	openButton->SetColour(theme.accentColour);
 	openButton->SetHighlightColour(theme.accentHighlight);
@@ -293,6 +266,11 @@ int main(int argc, char* argv)
 	//dropDown->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	//dropDown->SetList({ "English", "French", "German", "Swedish", "Russian", "Japanese", "Korean", "Chinese", "Spanish", "Dutch", "Norwegian", "Finnish"});
 
+
+	
+
+
+
 	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
 	double deltaTime = 0;
@@ -319,6 +297,8 @@ int main(int argc, char* argv)
 
 		gui::EventHandler::resizeEvent = false;
 		gui::EventHandler::verticalScroll = 0;
+
+		SDL_StartTextInput();
 
 		while (SDL_PollEvent(&evnt))
 		{
@@ -384,6 +364,52 @@ int main(int argc, char* argv)
 			break;
 			case SDL_MOUSEWHEEL:
 				gui::EventHandler::verticalScroll = evnt.wheel.y;
+				break;
+			case SDL_TEXTINPUT:
+				if (gui::EventHandler::textInput)
+				{
+					uint32_t oldSize = gui::EventHandler::textInput->size();
+					gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, evnt.text.text);
+					uint32_t newSize = gui::EventHandler::textInput->size();
+					gui::EventHandler::cursorOffset += newSize - oldSize;
+				}
+				break;
+			case SDL_KEYDOWN:
+
+				if (gui::EventHandler::textInput)
+				{
+					if (evnt.key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
+					{
+						gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1);
+						gui::EventHandler::cursorOffset--;
+					}
+
+					if (evnt.key.keysym.sym == SDLK_RETURN)
+					{
+						gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\n");
+						gui::EventHandler::cursorOffset++;
+					}
+
+					if (evnt.key.keysym.sym == SDLK_LEFT)
+					{
+						if (gui::EventHandler::cursorOffset > 0)
+							gui::EventHandler::cursorOffset--;
+					}
+
+					if (evnt.key.keysym.sym == SDLK_RIGHT)
+					{
+						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
+							gui::EventHandler::cursorOffset++;
+					}
+				}
+
+				if (evnt.key.keysym.sym == SDLK_s && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					printf("Saving...\n");
+					workspaceUI.TriggerSave();
+				}
+				
+
 				break;
 			} 
 		}

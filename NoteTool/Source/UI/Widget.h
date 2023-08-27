@@ -246,7 +246,7 @@ namespace gui
 
 
 		float m_Rounding = 0.0f;
-		Colour m_Colour;
+		Colour m_Colour = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		float m_Transparency = 1.0f;
 
