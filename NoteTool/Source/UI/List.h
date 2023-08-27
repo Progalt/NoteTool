@@ -118,7 +118,7 @@ namespace gui
 
 			if (entry.hovered || entry.selected)
 			{
-				Shape shape = gui::GenerateRoundedQuad({ m_GlobalBounds.position.x, yPos }, { m_Parent->GetBounds().w, yPos + m_EntrySize}, m_HoveredColour, 4.0f);
+				Shape shape = gui::GenerateRoundedQuad({ m_GlobalBounds.position.x, yPos }, { m_GlobalBounds.w, yPos + m_EntrySize}, m_HoveredColour, 4.0f);
 
 				list.Add(shape.vertices, shape.indices);
 			}

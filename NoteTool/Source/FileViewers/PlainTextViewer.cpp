@@ -24,9 +24,11 @@ void PlainTextViewer::InitialiseGUIElements()
 
 	Font* titleFont = m_FontManager->Get(gui::FontWeight::Bold, 28);
 
+
 	m_Title = m_Panel->NewChild<gui::Text>();
 	m_Title->SetFont(titleFont);
 	m_Title->SetString(m_File->NameWithoutExtension());
+
 
 	
 
@@ -41,13 +43,25 @@ void PlainTextViewer::InitialiseGUIElements()
 	float xPos = gui::GetTextLength(m_File->NameWithoutExtension(), titleFont);
 	m_FileExt->SetPosition({ xPos + 35.0f, yPos });
 
+	
 	m_TextBox = m_Panel->NewChild<gui::TextBox>();
-	m_TextBox->SetFont(m_FontManager->Get(gui::FontWeight::ExtraLight, 16));
 
+	if (m_File->isCodeFile)
+	{
+		m_TextBox->SetFont(m_CodeFontManager->Get(gui::FontWeight::Regular, 14));
+		m_ShowLineNumbers = true;
+	}
+	else
+	{
+		m_TextBox->SetFont(m_FontManager->Get(gui::FontWeight::ExtraLight, 16));
+	}
 	
 
 	m_TextBox->SetBounds({ padding, yPos + 30.0f, m_Panel->GetBounds().w - padding * 2.0f, m_Panel->GetBounds().h });
 	m_TextBox->string = m_FileContents;
+	m_TextBox->SetAnchor(gui::Anchor::BottomRight);
+	m_TextBox->SetLockPosition(true);
+
 }
 
 void PlainTextViewer::Save()

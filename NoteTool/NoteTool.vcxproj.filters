@@ -155,8 +155,15 @@
     <ClInclude Include="Source\UI\TextBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ModalPopup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThreadManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />
+    <None Include="Themes\cpp.json" />
   </ItemGroup>
 </Project>

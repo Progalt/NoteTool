@@ -21,6 +21,7 @@ public:
 		this->m_Panel = panel;
 		m_Workspace = workspace;
 		m_Font = font;
+		m_Panel->SetAnchor(gui::Anchor::CentreLeft);
 
 		SetupGUI();
 	}
@@ -29,6 +30,8 @@ public:
 	void SetTextArea(gui::Panel* panel) { m_TextArea = panel; }
 
 	void SetFontManager(gui::FontManager* fontManager) { m_FontManager = fontManager; }
+
+	void SetCodeFontManager(gui::FontManager* codeManager) { m_CodeFontManager = codeManager; }
 	
 	void TriggerSave() 
 	{ 
@@ -44,6 +47,9 @@ private:
 	{
 		m_FileList = m_Panel->NewChild<gui::List>();
 
+		m_Panel->SetAnchor(gui::Anchor::BottomLeft);
+		m_Panel->SetLockPosition(true);
+
 		Directory& root = m_Workspace->GetRoot();
 
 		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
@@ -52,10 +58,13 @@ private:
 
 
 		m_FileList->SetFont(m_Font);
-		m_FileList->SetBounds({ 0.0f, 30.0f, 240.0f, 400.0f });
+		m_FileList->SetBounds({ 5.0f, 30.0f, m_Panel->GetBounds().w - 5.0f, 400.0f});
 		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
 		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 
+
+		m_TextArea->SetAnchor(gui::Anchor::BottomRight);
+		m_TextArea->SetLockPosition(true);
 	}
 
 	void AddDirectoryToList(Directory& dir, gui::ListEntry* entry)
@@ -81,7 +90,7 @@ private:
 		{
 			File& file = dir.GetFile(i);
 
-			gui::ListEntry fileEntry = gui::ListEntry(file.NameWithoutExtension(), [&](void* userData)
+			gui::ListEntry fileEntry = gui::ListEntry(file.isCodeFile ? file.name : file.NameWithoutExtension(), [&](void* userData)
 				{
 					File* file = (File*)userData;
 
@@ -111,6 +120,7 @@ private:
 							PlainTextViewer* viewer = new PlainTextViewer;
 							viewer->SetFontManager(m_FontManager);
 							viewer->SetParentPanel(m_TextArea);
+							viewer->SetCodeFontManager(m_CodeFontManager);
 							viewer->SetFile(file);
 
 							m_Viewers.push_back(viewer);
@@ -145,6 +155,7 @@ private:
 
 	gui::Panel* m_TextArea;
 	gui::FontManager* m_FontManager;
+	gui::FontManager* m_CodeFontManager;
 
 	FileViewer* m_CurrentView;
 	std::vector<FileViewer*> m_Viewers;

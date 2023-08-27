@@ -1,0 +1,5 @@
+{
+  "types": [ "int", "char", "short", "long", "float", "double", "void", "const","unsigned", "bool", "class", "struct", "public", "private", "protected" ],
+
+  "keywords": ["return", "if", "else", "switch", "while","for","catch","try", "continue", "case", "break", "default" ]
+}

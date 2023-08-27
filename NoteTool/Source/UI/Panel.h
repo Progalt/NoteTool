@@ -45,7 +45,7 @@ namespace gui
 				{
 					Colour highlightCol = m_Highlight;
 					highlightCol.a *= GetTransparency();
-					Shape highlight = gui::GenerateRoundedQuad({ m_GlobalBounds.position - Vector2f(1.0f, 1.0f) }, { m_GlobalBounds.position + m_GlobalBounds.size + Vector2f(1.0f, 1.0f) }, highlightCol, m_Rounding);
+					Shape highlight = gui::GenerateRoundedQuad({ m_GlobalBounds.position - Vector2f(4.0f, 4.0f) }, { m_GlobalBounds.position + m_GlobalBounds.size + Vector2f(4.0f, 4.0f) }, highlightCol, m_Rounding);
 					drawList.Add(highlight.vertices, highlight.indices);
 				}
 				

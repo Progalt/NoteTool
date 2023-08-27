@@ -42,4 +42,6 @@ private:
 	gui::Text* m_Title;
 	gui::Text* m_FileExt;
 
+	gui::Text* m_LineNumbers;
+
 };

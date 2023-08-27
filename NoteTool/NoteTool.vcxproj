@@ -152,6 +152,7 @@
     <ClInclude Include="Source\Maths\Vector2.h" />
     <ClInclude Include="Source\Maths\Vector3.h" />
     <ClInclude Include="Source\Maths\Vector4.h" />
+    <ClInclude Include="Source\ModalPopup.h" />
     <ClInclude Include="Source\OS.h" />
     <ClInclude Include="Source\Renderer\GLImpl\GPUTextureGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\RendererGL.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Source\Renderer\Renderer.h" />
     <ClInclude Include="Source\Renderer\GPUTexture.h" />
     <ClInclude Include="Source\Theme.h" />
+    <ClInclude Include="Source\ThreadManager.h" />
     <ClInclude Include="Source\UI\Button.h" />
     <ClInclude Include="Source\UI\Dividor.h" />
     <ClInclude Include="Source\UI\Dock.h" />
@@ -178,6 +180,7 @@
     <ClInclude Include="Source\WorkspaceUI.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Themes\cpp.json" />
     <None Include="Themes\dark.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

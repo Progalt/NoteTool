@@ -26,6 +26,7 @@ bool open = true;
 #include "UI/Text.h"
 #include "UI/FontManager.h"
 #include "UI/DropDown.h"
+#include "ModalPopup.h"
 
 #include "Workspace.h"
 #include "WorkspaceUI.h"
@@ -43,6 +44,8 @@ Matrix4x4f screen;
 
 Workspace currentWorkspace;
 WorkspaceUI workspaceUI;
+
+ModalPopup modalPopup;
 
 enum Icons
 {
@@ -135,6 +138,8 @@ int main(int argc, char* argv)
 	Font* fontRegular = fontManager.Get(gui::FontWeight::Regular, 12);
 	Font* fontBold = fontManager.Get(gui::FontWeight::Bold, 12);
 
+	gui::FontManager codeFontManager;
+	codeFontManager.SetInitialFont("Hack");
 
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
 	whiteTexture.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
@@ -144,20 +149,17 @@ int main(int argc, char* argv)
 	screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
 
 
-
 	FloatRect fullWindowBounds;
 	fullWindowBounds.size = { (float)window_width, (float)window_height };
 	windowPanel = new gui::Panel();
 	windowPanel->SetBounds(fullWindowBounds);
 	windowPanel->SetDummyPanel(true);
 
-
 	gui::Panel* workspaceUIPanel = windowPanel->NewChild<gui::Panel>();
 	workspaceUIPanel->SetBounds({ 0.0f, 0.0f, 250.0f, windowPanel->GetBounds().h, });
 	workspaceUIPanel->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
 	workspaceUIPanel->SetTransparency(1.0f);
 	workspaceUIPanel->SetAnchor(gui::Anchor::CentreLeft);
-	workspaceUIPanel->SetTransparency(1.0f);
 	workspaceUIPanel->SetVisible(false);
 
 	float editableWidth = windowPanel->GetBounds().w - 250.0f;
@@ -174,6 +176,7 @@ int main(int argc, char* argv)
 
 	workspaceUI.SetTextArea(textArea);
 	workspaceUI.SetFontManager(&fontManager);
+	workspaceUI.SetCodeFontManager(&codeFontManager);
 
 	Vector2f modalSize = { 500.0f, 450.0f };
 
@@ -277,6 +280,8 @@ int main(int argc, char* argv)
 
 	
 
+	modalPopup.Initialise(windowPanel, &fontManager, (float)window_width / 2.0f);
+
 
 
 	Uint64 NOW = SDL_GetPerformanceCounter();
@@ -324,12 +329,15 @@ int main(int argc, char* argv)
 
 				switch (evnt.window.event)
 				{
-				case SDL_WINDOWEVENT_RESIZED:
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
 
+					printf("Triggering Resize\n");
 					gui::EventHandler::resizeEvent = true;
 
 					window_width = evnt.window.data1;
 					window_height = evnt.window.data2;
+
+					windowPanel->SetOldBounds(fullWindowBounds);
 
 					gui::EventHandler::window_width = window_width;
 					gui::EventHandler::window_height = window_height;
@@ -421,12 +429,15 @@ int main(int argc, char* argv)
 				{
 					printf("Saving...\n");
 					workspaceUI.TriggerSave();
+					modalPopup.DisplayModal(ModalType::Success, "Successfully saved", (float)window_width / 2.0f);
 				}
 				
 
 				break;
 			} 
 		}
+		
+		modalPopup.ModalUpdate();
 
 		Render();
 	}

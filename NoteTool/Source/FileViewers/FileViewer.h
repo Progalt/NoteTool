@@ -14,6 +14,8 @@ public:
 
 	void SetFontManager(gui::FontManager* fontManager) { m_FontManager = fontManager; }
 
+	void SetCodeFontManager(gui::FontManager* fontManager) { m_CodeFontManager = fontManager; }
+
 	virtual void Hide() = 0;
 
 	virtual void Show() = 0;
@@ -35,5 +37,6 @@ protected:
 	bool m_Editable = true;
 
 	gui::FontManager* m_FontManager;
+	gui::FontManager* m_CodeFontManager;
 
 };

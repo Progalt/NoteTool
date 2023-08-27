@@ -35,7 +35,7 @@ namespace gui
 					cursorPos.x += 1.0f;
 
 					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos,
-						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() },
+						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() + 4.0f },
 						{ 0.0f, 0.0f }, { 0.0f, 0.0f }, m_Colour);
 
 					drawList.Add(cursor.vertices, cursor.indices);

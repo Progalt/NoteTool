@@ -380,7 +380,8 @@ namespace gui
 
 	inline Vector2f GetPositionOfChar(uint32_t idx, const std::string& text, Font* font, float textWrap)
 	{
-		assert(idx <= text.size());
+		if (idx > text.size())
+			idx = text.size();
 
 		float x = 0.0f;
 		float y = 0.0f;
@@ -475,6 +476,12 @@ namespace gui
 		uint32_t nearest = 0;
 		float dist = 1000000.0f;
 
+		uint32_t mouseLine = 0;
+
+		float my = point.y;
+
+		mouseLine = (int)(my / (float)font->GetLineSpacing());
+
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
 
@@ -537,17 +544,25 @@ namespace gui
 				x += (float)data.advance;
 			y = (float)lineCount * (float)font->GetLineSpacing();
 
-			// test the distance the point
-			Vector2f charPoint(x, y);
-			float newDist = point.Distance(charPoint);
-
-			// if the new distance is closer than the current closest set this as the current closest
-			if (newDist < dist)
+			if (lineCount == mouseLine)
 			{
-				dist = newDist;
-				nearest = i;
+
+				// test the distance the point
+				Vector2f charPoint(x, y);
+				float newDist = point.Distance(charPoint);
+
+				// if the new distance is closer than the current closest set this as the current closest
+				if (newDist < dist)
+				{
+					dist = newDist;
+					nearest = i;
+				}
 			}
+
 		}
+
+		if (nearest == 0)
+			nearest = text.size();
 
 		return nearest;
 	}
