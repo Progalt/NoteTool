@@ -28,6 +28,15 @@ namespace gui
 		case FontWeight::Italics:
 			weightStr = "Italic";
 			break;
+		case FontWeight::Light:
+			weightStr = "Light";
+			break;
+		case FontWeight::Black:
+			weightStr = "Black";
+			break;
+		case FontWeight::ExtraLight:
+			weightStr = "ExtraLight";
+			break;
 		}
 
 		std::string filepath = "Themes/" + m_InitialFont + "-" + weightStr + ".ttf";

@@ -19,6 +19,29 @@ struct File
 
 	std::filesystem::path path;		// includes name and file extension
 
+	bool NameHasFileExtension()
+	{
+		if (name.find(extension))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	std::string NameWithoutExtension()
+	{
+		if (!NameHasFileExtension())
+			return name;
+
+
+		uint32_t offset = name.find(extension);
+
+		std::string output = name.substr(0, offset);
+
+		return output;
+	}
+
 	void TypeFromExtension()
 	{
 		type = FileType::Unrecognised;

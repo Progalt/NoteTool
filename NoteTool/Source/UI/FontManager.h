@@ -7,7 +7,8 @@ namespace gui
 {
 	enum class FontWeight
 	{
-		Regular, Bold, Italics
+		Regular, Bold, Italics, Light,
+		Black, ExtraLight
 	};
 
 	struct FontEntry

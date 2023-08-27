@@ -383,6 +383,7 @@ namespace gui
 		assert(idx <= text.size());
 
 		float x = 0.0f;
+		float y = 0.0f;
 
 		uint32_t lineCount = 0;
 
@@ -417,11 +418,90 @@ namespace gui
 			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
 			GlyphData data = font->GetCodePointData(codepoint);
 
-			//Sprite& spr = m_Sprites[i];
 
-			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ' || text[w] == '\n')
+						break;
 
-			//spr.SetScale(1.0f, 1.0f);
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+
+
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap )
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+
+
+			//m_GlyphPos[i] = { xpos, ypos };
+
+			if (!controlChar)
+				x += (float)data.advance;
+			y = (float)lineCount * (float)font->GetLineSpacing();
+
+		}
+
+		return { x, y };
+
+	}
+
+	inline uint32_t GetNearestCharFromPoint(Vector2f point, const std::string& text, Font* font, float textWrap)
+	{
+
+		float x = 0.0f;
+		float y = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		//if (m_String == m_PreviousString)
+		//	return;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		uint32_t nearest = 0;
+		float dist = 1000000.0f;
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+
+
+
+			uint32_t codepoint = text[i];
+
+			bool controlChar = false;
+
+			// Handle control characters
+			// These aren't actually rendered but do effect how the text should be rendered
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				controlChar = true;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				controlChar = true;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
 
 
 			// This is if word wrapped is enabled
@@ -438,6 +518,8 @@ namespace gui
 
 					GlyphData d = font->GetCodePointData(cp);
 					wordOffset += d.advance;
+
+
 				}
 
 				// if the word length is greater than the wrap limit go onto a new line 
@@ -448,30 +530,25 @@ namespace gui
 				}
 			}
 
-			float xpos = x + data.bearingX;
-			float ypos = lineCount * font->GetLineSpacing();
 
 
-			if (maxX < xpos + (float)data.advance)
-				maxX = xpos + (float)data.advance;
 
-			if (maxY < ypos)
-				maxY = ypos;
+			if (!controlChar)
+				x += (float)data.advance;
+			y = (float)lineCount * (float)font->GetLineSpacing();
 
+			// test the distance the point
+			Vector2f charPoint(x, y);
+			float newDist = point.Distance(charPoint);
 
-			//m_GlyphPos[i] = { xpos, ypos };
-
-			x += (float)data.advance;
-
-
-			if (i == idx - 1)
+			// if the new distance is closer than the current closest set this as the current closest
+			if (newDist < dist)
 			{
-				if (controlChar)
-					return { xpos + data.bearingX, ypos };
-				else 
-					return { xpos, ypos };
+				dist = newDist;
+				nearest = i;
 			}
 		}
 
+		return nearest;
 	}
 }

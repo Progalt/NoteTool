@@ -7,7 +7,7 @@
   "font-bold": "Poppins-Bold.ttf",
 
 
-  "background": [ 2, 2, 2 ],
+  "background": [ 3, 3, 3 ],
   "button-accent": [ 16, 16, 16 ],
   "button-highlight": [ 27, 27, 27 ],
   "button-shadow": [ 3, 3, 3 ],

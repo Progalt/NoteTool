@@ -52,7 +52,7 @@ private:
 
 
 		m_FileList->SetFont(m_Font);
-		m_FileList->SetBounds({ 0.0f, 0.0f, 240.0f, 400.0f });
+		m_FileList->SetBounds({ 0.0f, 30.0f, 240.0f, 400.0f });
 		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
 		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 
@@ -81,7 +81,7 @@ private:
 		{
 			File& file = dir.GetFile(i);
 
-			gui::ListEntry fileEntry = gui::ListEntry(file.name, [&](void* userData)
+			gui::ListEntry fileEntry = gui::ListEntry(file.NameWithoutExtension(), [&](void* userData)
 				{
 					File* file = (File*)userData;
 

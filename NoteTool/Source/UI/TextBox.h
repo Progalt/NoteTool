@@ -19,7 +19,9 @@ namespace gui
 				Colour col = m_Colour;
 				col.a *= GetTransparency();
 
-				gui::RenderText(drawList, string, m_Font, m_GlobalBounds.position, m_GlobalBounds.w, col);
+				Vector2f pos = m_GlobalBounds.position;
+				pos.y += m_Font->GetPixelSize();
+				gui::RenderText(drawList, string, m_Font, pos, m_GlobalBounds.w, col);
 			}
 
 			// Render cursor
@@ -33,7 +35,7 @@ namespace gui
 					cursorPos.x += 1.0f;
 
 					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos,
-						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y - (float)m_Font->GetPixelSize() },
+						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() },
 						{ 0.0f, 0.0f }, { 0.0f, 0.0f }, m_Colour);
 
 					drawList.Add(cursor.vertices, cursor.indices);
@@ -64,7 +66,9 @@ namespace gui
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks >= 1)
 				{
 					m_Editing = true;
-					EventHandler::cursorOffset = string.size();
+					Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
+					mpoint = mpoint - m_GlobalBounds.position;
+					EventHandler::cursorOffset = gui::GetNearestCharFromPoint(mpoint, string, m_Font, m_GlobalBounds.w) + 1;
 					EventHandler::textInput = &string;
 				}
 			}

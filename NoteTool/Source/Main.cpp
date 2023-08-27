@@ -160,10 +160,17 @@ int main(int argc, char* argv)
 	workspaceUIPanel->SetTransparency(1.0f);
 	workspaceUIPanel->SetVisible(false);
 
+	float editableWidth = windowPanel->GetBounds().w - 250.0f;
+
 	gui::Panel* textArea = windowPanel->NewChild<gui::Panel>();
-	textArea->SetBounds({ 250.0f, 0.0f, 400.0f, windowPanel->GetBounds().h });
+	textArea->SetBounds({ 250.0f, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f});
 	textArea->SetColour(theme.backgroundColour);
 	textArea->SetVisible(false);
+
+	gui::Panel* tabsArea = windowPanel->NewChild<gui::Panel>();
+	tabsArea->SetBounds({ 250.0f, 0.0f, editableWidth, 30.0f });
+	tabsArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	tabsArea->SetVisible(false);
 
 	workspaceUI.SetTextArea(textArea);
 	workspaceUI.SetFontManager(&fontManager);
@@ -229,6 +236,7 @@ int main(int argc, char* argv)
 				workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
 				workspaceUIPanel->SetVisible(true);
 				textArea->SetVisible(true);
+				tabsArea->SetVisible(true);
 
 				std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
 				SDL_SetWindowTitle(win, title.c_str());
@@ -380,13 +388,19 @@ int main(int argc, char* argv)
 				{
 					if (evnt.key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
 					{
-						gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1);
+						gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
 						gui::EventHandler::cursorOffset--;
 					}
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
 					{
 						gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\n");
+						gui::EventHandler::cursorOffset++;
+					}
+
+					if (evnt.key.keysym.sym == SDLK_TAB)
+					{
+						gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\t");
 						gui::EventHandler::cursorOffset++;
 					}
 
