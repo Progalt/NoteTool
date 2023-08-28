@@ -14,6 +14,80 @@ namespace gui
 			if (!m_Visible)
 				return;
 
+			float cursorMod = 4.0f;
+
+			// Draw selection box
+			if (EventHandler::selectionStart != EventHandler::cursorOffset)
+			{
+				uint32_t firstLine = gui::GetLineOfChar(EventHandler::selectionStart, string, m_Font, m_GlobalBounds.w);
+				uint32_t lastLine = gui::GetLineOfChar(EventHandler::cursorOffset, string, m_Font, m_GlobalBounds.w);
+
+				uint32_t first, last;
+				first = std::min(firstLine, lastLine);
+				last = std::max(firstLine, lastLine);
+
+				uint32_t startSelection = std::min(EventHandler::selectionStart, EventHandler::cursorOffset);
+				uint32_t endSelection = std::max(EventHandler::selectionStart, EventHandler::cursorOffset);
+
+				if (first == last)
+				{
+					Vector2f startPos = gui::GetPositionOfChar(startSelection, string, m_Font, m_GlobalBounds.w);
+					Vector2f endPos = gui::GetPositionOfChar(endSelection, string, m_Font, m_GlobalBounds.w);
+
+					endPos.y += (float)m_Font->GetPixelSize();
+
+					Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
+
+					drawList.Add(selection.vertices, selection.indices);
+				}
+				else
+				{
+					for (uint32_t i = first; i <= last; i++)
+					{
+						uint32_t firstOfLine = gui::GetLastIdxOfLine(i - 1, string, m_Font, m_GlobalBounds.w) + 2;
+						uint32_t lastOfLine = gui::GetLastIdxOfLine(i, string, m_Font, m_GlobalBounds.w) + 1;
+
+						if (i == first)
+						{
+							Vector2f startPos = gui::GetPositionOfChar(startSelection, string, m_Font, m_GlobalBounds.w);
+							Vector2f endPos = gui::GetPositionOfChar(lastOfLine, string, m_Font, m_GlobalBounds.w);
+
+							endPos.y += (float)m_Font->GetPixelSize();
+
+							Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
+
+							drawList.Add(selection.vertices, selection.indices);
+						}
+						else if (i == last)
+						{
+							Vector2f startPos = gui::GetPositionOfChar(firstOfLine, string, m_Font, m_GlobalBounds.w);
+							Vector2f endPos = gui::GetPositionOfChar(endSelection, string, m_Font, m_GlobalBounds.w);
+
+							endPos.y += (float)m_Font->GetPixelSize();
+
+							Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
+
+							drawList.Add(selection.vertices, selection.indices);
+
+						}
+						else
+						{
+							Vector2f startPos = gui::GetPositionOfChar(firstOfLine, string, m_Font, m_GlobalBounds.w);
+							Vector2f endPos = gui::GetPositionOfChar(lastOfLine, string, m_Font, m_GlobalBounds.w);
+
+							endPos.y += (float)m_Font->GetPixelSize();
+
+							Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
+
+							drawList.Add(selection.vertices, selection.indices);
+						}
+
+					}
+				}
+			}
+
+			
+
 			if (!string.empty() && m_Font)
 			{
 				Colour col = m_Colour;
@@ -24,6 +98,7 @@ namespace gui
 				gui::RenderText(drawList, string, m_Font, pos, m_GlobalBounds.w, col);
 			}
 
+		
 			// Render cursor
 
 			if (m_Editing)
@@ -35,7 +110,7 @@ namespace gui
 					cursorPos.x += 1.0f;
 
 					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos,
-						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() + 4.0f },
+						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() + cursorMod },
 						{ 0.0f, 0.0f }, { 0.0f, 0.0f }, m_Colour);
 
 					drawList.Add(cursor.vertices, cursor.indices);
@@ -69,6 +144,11 @@ namespace gui
 					mpoint = mpoint - m_GlobalBounds.position;
 					EventHandler::cursorOffset = gui::GetNearestCharFromPoint(mpoint, string, m_Font, m_GlobalBounds.w) + 1;
 					EventHandler::textInput = &string;
+
+					if (EventHandler::cursorOffset > EventHandler::textInput->size())
+						EventHandler::cursorOffset = EventHandler::textInput->size();
+
+					EventHandler::selectionStart = EventHandler::cursorOffset;
 				}
 			}
 

@@ -420,8 +420,18 @@ int main(int argc, char* argv)
 				{
 					if (evnt.key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
 					{
-						gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
-						gui::EventHandler::cursorOffset--;
+						if (gui::EventHandler::selecting)
+						{
+							uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
+							uint32_t maxSelect = std::max(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
+							gui::EventHandler::textInput->erase(minSelect, maxSelect - minSelect);
+							gui::EventHandler::cursorOffset = minSelect;
+						}
+						else
+						{
+							gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
+							gui::EventHandler::cursorOffset--;
+						}
 					}
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
@@ -436,16 +446,46 @@ int main(int argc, char* argv)
 						gui::EventHandler::cursorOffset++;
 					}
 
-					if (evnt.key.keysym.sym == SDLK_LEFT)
+					if (evnt.key.keysym.mod & KMOD_LSHIFT)
 					{
-						if (gui::EventHandler::cursorOffset > 0)
-							gui::EventHandler::cursorOffset--;
+						gui::EventHandler::selecting = true;
+					}
+					else
+					{
+						gui::EventHandler::selecting = false;
 					}
 
-					if (evnt.key.keysym.sym == SDLK_RIGHT)
+					if (!gui::EventHandler::selecting)
 					{
-						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
-							gui::EventHandler::cursorOffset++;
+						if (evnt.key.keysym.sym == SDLK_LEFT)
+						{
+							if (gui::EventHandler::cursorOffset > 0)
+								gui::EventHandler::cursorOffset--;
+						}
+						if (evnt.key.keysym.sym == SDLK_RIGHT)
+						{
+							if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
+								gui::EventHandler::cursorOffset++;
+
+
+						}
+
+						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
+					}
+					else
+					{
+						if (evnt.key.keysym.sym == SDLK_LEFT)
+						{
+							if (gui::EventHandler::cursorOffset > 0)
+								gui::EventHandler::cursorOffset--;
+						}
+						if (evnt.key.keysym.sym == SDLK_RIGHT)
+						{
+							if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
+								gui::EventHandler::cursorOffset++;
+
+
+						}
 					}
 				}
 
