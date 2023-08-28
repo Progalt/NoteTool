@@ -640,10 +640,11 @@ namespace gui
 		//	return;
 
 		float maxX = 0.0f, maxY = 0.0f;
+		bool controlCharacter = false;
 
 		for (uint32_t i = 0; i < idx; i++)
 		{
-
+			controlCharacter = false;
 
 
 			uint32_t codepoint = text[i];
@@ -652,13 +653,13 @@ namespace gui
 			{
 				x = 0;
 				lineCount++;
-				continue;
+				controlCharacter = true;
 			}
 
 			if (codepoint == '\t')
 			{
 				x += font->GetCodePointData(' ').advance * 4;
-				continue;
+				controlCharacter = true;
 			}
 
 
@@ -696,11 +697,18 @@ namespace gui
 				}
 			}
 
-			x += (float)data.advance;
+
+			if (!controlCharacter)
+			{
+				x += (float)data.advance;
+			}
 
 			xpos = x + data.bearingX;
+			
 			ypos = lineCount * font->GetLineSpacing();
 
+
+			
 			
 			if (maxX < xpos + (float)data.advance)
 				maxX = xpos + (float)data.advance;
