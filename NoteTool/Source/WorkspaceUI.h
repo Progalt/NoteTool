@@ -106,6 +106,7 @@ private:
 							m_CurrentView = viewer;
 							m_CurrentView->Show();
 							gui::EventHandler::cursorOffset = 0;
+							gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 
 							found = true;
 						}

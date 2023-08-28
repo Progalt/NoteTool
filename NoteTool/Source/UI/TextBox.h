@@ -16,6 +16,9 @@ namespace gui
 
 			float cursorMod = 4.0f;
 
+			if (EventHandler::selectionStart > string.size())
+				EventHandler::selectionStart = EventHandler::cursorOffset;
+
 			// Draw selection box
 			if (EventHandler::selectionStart != EventHandler::cursorOffset)
 			{
@@ -107,7 +110,7 @@ namespace gui
 				{
 					Vector2f cursorPos = gui::GetPositionOfChar(gui::EventHandler::cursorOffset, string, m_Font, m_GlobalBounds.w);
 
-					cursorPos.x += 1.0f;
+					//cursorPos.x += 1.0f;
 
 					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos,
 						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() + cursorMod },

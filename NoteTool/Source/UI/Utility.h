@@ -630,7 +630,9 @@ namespace gui
 			idx = text.size();
 
 		float x = 0.0f;
-		float y = 0.0f;
+
+		float xpos = 0.0f;
+		float ypos = 0.0f;
 
 		uint32_t lineCount = 0;
 
@@ -646,24 +648,28 @@ namespace gui
 
 			uint32_t codepoint = text[i];
 
-			bool controlChar = false;
-
 			if (codepoint == '\n')
 			{
-				x = 0.0f;
+				x = 0;
 				lineCount++;
-				controlChar = true;
+				continue;
 			}
 
 			if (codepoint == '\t')
 			{
 				x += font->GetCodePointData(' ').advance * 4;
-				controlChar = true;
+				continue;
 			}
 
 
 			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
 			GlyphData data = font->GetCodePointData(codepoint);
+
+			//Sprite& spr = m_Sprites[i];
+
+			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
+
+			//spr.SetScale(1.0f, 1.0f);
 
 
 			// This is if word wrapped is enabled
@@ -673,38 +679,41 @@ namespace gui
 				int wordOffset = x;
 				for (uint32_t w = i; w < text.size(); w++)
 				{
-					if (text[w] == ' ' || text[w] == '\n')
+					if (text[w] == ' ')
 						break;
 
 					uint32_t cp = text[w];
 
 					GlyphData d = font->GetCodePointData(cp);
 					wordOffset += d.advance;
-
-
 				}
 
 				// if the word length is greater than the wrap limit go onto a new line 
-				if (wordOffset > textWrap )
+				if (wordOffset > textWrap)
 				{
-					x = 0.0f;
+					x = 0;
 					lineCount++;
-					// Fluke control char
-					controlChar = true;
 				}
 			}
 
+			x += (float)data.advance;
+
+			xpos = x + data.bearingX;
+			ypos = lineCount * font->GetLineSpacing();
+
+			
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos)
+				maxY = ypos;
 
 
-			//m_GlyphPos[i] = { xpos, ypos };
 
-			if (!controlChar)
-				x += (float)data.advance;
-			y = (float)lineCount * (float)font->GetLineSpacing();
-
+			
 		}
 
-		return { x, y };
+		return { xpos, ypos };
 
 	}
 

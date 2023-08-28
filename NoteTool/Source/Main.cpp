@@ -412,6 +412,7 @@ int main(int argc, char* argv)
 					gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, evnt.text.text);
 					uint32_t newSize = gui::EventHandler::textInput->size();
 					gui::EventHandler::cursorOffset += newSize - oldSize;
+					gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 				}
 				break;
 			case SDL_KEYDOWN:
