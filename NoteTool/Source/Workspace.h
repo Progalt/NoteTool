@@ -94,6 +94,7 @@ struct Directory
 
 	void ParseDirectory(const std::filesystem::path& path);
 
+
 	Directory& GetDirectory(size_t idx) 
 	{ 
 		assert(idx < subdirectories.size());
@@ -117,6 +118,8 @@ class Workspace
 public:
 
 	void OpenWorkspace(const std::filesystem::path& path);
+
+	void Refresh();
 
 	bool IsValid() { return !m_Root.name.empty(); }
 

@@ -140,7 +140,9 @@ namespace gui
 
 			if (m_Hovered)
 			{
-				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks >= 1)
+				
+				
+				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
 				{
 					m_Editing = true;
 					Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
@@ -153,6 +155,26 @@ namespace gui
 
 					EventHandler::selectionStart = EventHandler::cursorOffset;
 				}
+
+				// double click so select word
+				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 2)
+				{
+
+				}
+
+				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].down)
+				{
+					Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
+					mpoint = mpoint - m_GlobalBounds.position;
+
+					EventHandler::selectionStart = gui::GetNearestCharFromPoint(mpoint, string, m_Font, m_GlobalBounds.w) + 1;
+
+					EventHandler::selecting = true;
+
+					if (EventHandler::selectionStart > EventHandler::textInput->size())
+						EventHandler::selectionStart = EventHandler::textInput->size();
+				}
+
 			}
 
 		
@@ -160,13 +182,19 @@ namespace gui
 
 		std::string string;
 
-		void SetFont(Font* font) 
+		void SetFontManager(FontManager* font)
 		{
-			m_Font = font;
+			m_FontManager = font;
 		} 
+
+		void SetFontSize(uint32_t size)
+		{
+			m_Font = m_FontManager->Get(gui::FontWeight::ExtraLight, size);
+		}
 
 	private:
 
+		FontManager* m_FontManager;
 		Font* m_Font;
 		bool m_Editing = false;
 

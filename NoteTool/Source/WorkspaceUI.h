@@ -41,6 +41,30 @@ public:
 		}
 	}
 
+	void Refresh()
+	{
+		m_Workspace->Refresh();
+		RefreshGUI();
+	}
+
+	std::string GetSelectedPath()
+	{
+		gui::ListEntry* sel = m_FileList->GetSelected();
+
+		if (sel)
+		{
+			if (sel->directory)
+			{
+				Directory* dir = (Directory*)sel->userData;
+				assert(dir);
+				return dir->path.generic_string();
+			}
+			
+		}
+
+		return "";
+	}
+
 private:
 
 	void SetupGUI()
@@ -50,21 +74,27 @@ private:
 		m_Panel->SetAnchor(gui::Anchor::BottomLeft);
 		m_Panel->SetLockPosition(true);
 
-		Directory& root = m_Workspace->GetRoot();
-
-		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
-		
-		AddDirectoryToList(root, nullptr);
-
+		RefreshGUI();
 
 		m_FileList->SetFont(m_Font);
-		m_FileList->SetBounds({ 5.0f, 30.0f, m_Panel->GetBounds().w - 5.0f, 400.0f});
+		m_FileList->SetBounds({ 5.0f, 30.0f, m_Panel->GetBounds().w - 5.0f, m_Panel->GetBounds().h - 30.0f });
 		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
 		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 
 
 		m_TextArea->SetAnchor(gui::Anchor::BottomRight);
 		m_TextArea->SetLockPosition(true);
+	}
+
+	void RefreshGUI()
+	{
+		m_FileList->Clear();
+
+		Directory& root = m_Workspace->GetRoot();
+
+		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
+
+		AddDirectoryToList(root, nullptr);
 	}
 
 	void AddDirectoryToList(Directory& dir, gui::ListEntry* entry)
@@ -76,7 +106,7 @@ private:
 		{
 			Directory& directory = dir.GetDirectory(i);
 
-			gui::ListEntry dirEntry = gui::ListEntry(directory.name, NULL);
+			gui::ListEntry dirEntry = gui::ListEntry(directory.name, NULL, &directory, true);
 			
 			AddDirectoryToList(dir.GetDirectory(i), &dirEntry);
 
@@ -130,7 +160,7 @@ private:
 						}
 					}
 
-				}, &file);
+				}, &file, false);
 			
 			if (entry)
 				entry->AddChild(fileEntry);

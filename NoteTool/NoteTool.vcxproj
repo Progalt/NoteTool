@@ -145,6 +145,7 @@
     <ClInclude Include="Source\FileViewers\FileViewer.h" />
     <ClInclude Include="Source\FileViewers\PlainTextViewer.h" />
     <ClInclude Include="Source\Font.h" />
+    <ClInclude Include="Source\History.h" />
     <ClInclude Include="Source\Icons.h" />
     <ClInclude Include="Source\Image.h" />
     <ClInclude Include="Source\Maths\Matrix.h" />
@@ -164,7 +165,6 @@
     <ClInclude Include="Source\ThreadManager.h" />
     <ClInclude Include="Source\UI\Button.h" />
     <ClInclude Include="Source\UI\Dividor.h" />
-    <ClInclude Include="Source\UI\Dock.h" />
     <ClInclude Include="Source\UI\DropDown.h" />
     <ClInclude Include="Source\UI\EventHandler.h" />
     <ClInclude Include="Source\UI\FontManager.h" />
@@ -180,6 +180,7 @@
     <ClInclude Include="Source\WorkspaceUI.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="Themes\cpp.json" />
     <None Include="Themes\dark.json" />
   </ItemGroup>

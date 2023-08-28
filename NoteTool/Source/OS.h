@@ -2,6 +2,9 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <fstream>
+#include <cassert>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <dwmapi.h>
@@ -12,7 +15,7 @@
 
 #include <string>
 
-void ToggleDarkModeForHwnd(SDL_Window* window)
+inline void ToggleDarkModeForHwnd(SDL_Window* window)
 {
 	static bool darkMode = false;
 	darkMode = !darkMode;
@@ -45,7 +48,7 @@ void ToggleDarkModeForHwnd(SDL_Window* window)
 #endif
 }
 
-std::string GetDocumentsPath()
+inline std::string GetDocumentsPath()
 {
 #ifdef _WIN32
 
@@ -56,4 +59,59 @@ std::string GetDocumentsPath()
 	return std::string(my_documents);
 #endif
 
+}
+
+
+inline uint32_t GetNextFreeIndexOfFileName(std::string path, uint32_t& currentIdx)
+{
+	if (std::filesystem::exists(path + std::to_string(currentIdx)))
+	{
+		currentIdx++;
+		return GetNextFreeIndexOfFileName(path, currentIdx);
+	}
+
+	return currentIdx;
+}
+
+inline bool CreateNewFolder(const std::string in_path)
+{
+	std::string path = in_path;
+
+	if (std::filesystem::exists(path))
+	{
+		uint32_t startIdx = 1;
+		uint32_t idx = GetNextFreeIndexOfFileName(path, startIdx);
+
+		path += std::to_string(idx);
+	}
+
+	std::filesystem::create_directory(path);
+
+	return true;
+}
+
+inline bool CreateNewFile(const std::string in_path, const std::string ext)
+{
+	std::string path = in_path;
+
+	if (std::filesystem::exists(path))
+	{
+		uint32_t startIdx = 1;
+		uint32_t idx = GetNextFreeIndexOfFileName(path, startIdx);
+
+		path += std::to_string(idx);
+	}
+
+	path += ext;
+
+
+	std::ofstream file(path);
+	
+	if (!file.is_open())
+		return false;
+
+	file << "";
+	file.close();
+
+	return true;
 }

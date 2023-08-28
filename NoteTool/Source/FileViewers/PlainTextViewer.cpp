@@ -48,12 +48,14 @@ void PlainTextViewer::InitialiseGUIElements()
 
 	if (m_File->isCodeFile)
 	{
-		m_TextBox->SetFont(m_CodeFontManager->Get(gui::FontWeight::Regular, 14));
+		m_TextBox->SetFontManager(m_CodeFontManager);
+		m_TextBox->SetFontSize(14);
 		m_ShowLineNumbers = true;
 	}
 	else
 	{
-		m_TextBox->SetFont(m_FontManager->Get(gui::FontWeight::ExtraLight, 16));
+		m_TextBox->SetFontManager(m_FontManager);
+		m_TextBox->SetFontSize(16);
 	}
 	
 

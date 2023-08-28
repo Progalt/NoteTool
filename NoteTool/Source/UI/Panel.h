@@ -8,7 +8,8 @@ namespace gui
 {
 	enum class PanelFlags
 	{
-
+		None = 1 << 0,
+		DrawBorder = 1 << 1
 	};
 
 	inline PanelFlags operator|(PanelFlags lh, PanelFlags rh)
@@ -16,6 +17,10 @@ namespace gui
 		return static_cast<PanelFlags>(static_cast<int>(lh) | static_cast<int>(rh));
 	}
 
+	inline bool operator&(PanelFlags lh, PanelFlags rh)
+	{
+		return static_cast<int>(lh) & static_cast<int>(rh);
+	}
 
 
 	class Panel : public Widget
@@ -28,7 +33,7 @@ namespace gui
 			if (!m_Visible)
 				return;
 
-			drawList.SetScissor(m_GlobalBounds);
+			
 
 			if (!m_DummyPanel)
 			{
@@ -41,11 +46,11 @@ namespace gui
 
 
 			
-				if (m_Highlight.a != 0.0f)
+				if (m_Flags & PanelFlags::DrawBorder)
 				{
 					Colour highlightCol = m_Highlight;
 					highlightCol.a *= GetTransparency();
-					Shape highlight = gui::GenerateRoundedQuad({ m_GlobalBounds.position - Vector2f(4.0f, 4.0f) }, { m_GlobalBounds.position + m_GlobalBounds.size + Vector2f(4.0f, 4.0f) }, highlightCol, m_Rounding);
+					Shape highlight = gui::GenerateRoundedQuad({ m_GlobalBounds.position - Vector2f(1.0f, 1.0f) }, { m_GlobalBounds.position + m_GlobalBounds.size + Vector2f(1.0f, 1.0f) }, highlightCol, m_Rounding);
 					drawList.Add(highlight.vertices, highlight.indices);
 				}
 				
@@ -73,7 +78,11 @@ namespace gui
 
 					drawList.Add(scrollBar.vertices, scrollBar.indices);
 				}
+
+
 			} 
+
+			drawList.SetScissor(m_GlobalBounds);
 
 			if (m_Scrollable)
 			{
@@ -137,7 +146,11 @@ namespace gui
 		
 		void SetScrollableArea(Vector2f area) { m_MaxScrollableArea = area; }
 
+		void SetFlags(PanelFlags flag) { m_Flags = flag; }
+
 	private:
+
+		PanelFlags m_Flags;
 
 		bool m_DummyPanel;
 

@@ -98,9 +98,6 @@
     <ClInclude Include="Source\UI\Widget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\UI\Dock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Icons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -161,9 +158,13 @@
     <ClInclude Include="Source\ThreadManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\History.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />
     <None Include="Themes\cpp.json" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

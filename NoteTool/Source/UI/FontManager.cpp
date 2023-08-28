@@ -49,6 +49,12 @@ namespace gui
 		if (m_Fonts.find({ weight, pixelSize }) != m_Fonts.end())
 			return &m_Fonts[{ weight, pixelSize }];
 
+		std::string filepath = GetFontPath(weight, pixelSize);
+
+		bool exists = std::filesystem::exists(filepath);
+
+		if (!exists)
+			return Get(gui::FontWeight::Regular, pixelSize);
 		
 		AddFont(weight, pixelSize);
 

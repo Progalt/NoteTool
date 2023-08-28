@@ -51,3 +51,8 @@ bool Workspace::Exists(const std::string& file)
 {
 	return true;
 }
+
+void Workspace::Refresh()
+{
+	OpenWorkspace(m_Root.path);
+}

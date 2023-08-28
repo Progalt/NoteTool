@@ -12,7 +12,7 @@ namespace gui
 	struct ListEntry
 	{
 		ListEntry() { }
-		ListEntry(const std::string& text, std::function<void(void*)> callback, void* userData = nullptr) : text(text), callback(callback), userData(userData) { }
+		ListEntry(const std::string& text, std::function<void(void*)> callback, void* userData = nullptr, bool directory = false) : text(text), callback(callback), userData(userData), directory(directory) { }
 
 		void AddChild(ListEntry entry) { children.push_back(entry); }
 
@@ -21,6 +21,8 @@ namespace gui
 		void* userData = nullptr;
 
 		std::vector<ListEntry> children;
+
+		bool directory = false;
 
 		FloatRect boundingBox;
 		bool hovered = false;
@@ -66,6 +68,16 @@ namespace gui
 		void SetHoveredColour(Colour col) { m_HoveredColour = col; }
 		void SetTextColour(Colour col) { m_TextColour = col; }
 
+		void Clear()
+		{
+			m_Entries.clear();
+		}
+
+		ListEntry* GetSelected()
+		{
+			return m_Selected;
+		}
+
 	private:
 
 		void HandleEventsForEntry(ListEntry& entry)
@@ -86,7 +98,7 @@ namespace gui
 			{
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks > 0)
 				{
-					if (entry.children.size() == 0)
+					if (!entry.directory)
 					{
 						if (m_Selected)
 							m_Selected->selected = false;
@@ -99,7 +111,13 @@ namespace gui
 					}
 					else
 					{
+						if (m_Selected)
+							m_Selected->selected = false;
+						entry.selected = true;
+
 						entry.expanded = !entry.expanded;
+
+						m_Selected = &entry;
 					}
 				}
 			}
@@ -114,11 +132,11 @@ namespace gui
 			float xPos = xPosNoIndents + (float)indents * m_IndentSize;
 			float yPos = m_GlobalBounds.position.y + m_CurrentYOffset;
 
-			entry.boundingBox = { xPos, yPos,  m_GlobalBounds.w, m_EntrySize };
+			entry.boundingBox = { m_GlobalBounds.position.x + 2.0f, yPos,  m_GlobalBounds.w - 10.0f, m_EntrySize };
 
 			if (entry.hovered || entry.selected)
 			{
-				Shape shape = gui::GenerateRoundedQuad({ m_GlobalBounds.position.x, yPos }, { m_GlobalBounds.w, yPos + m_EntrySize}, m_HoveredColour, 4.0f);
+				Shape shape = gui::GenerateRoundedQuad(entry.boundingBox.position, entry.boundingBox.position + entry.boundingBox.size, m_HoveredColour, 4.0f);
 
 				list.Add(shape.vertices, shape.indices);
 			}
@@ -137,7 +155,7 @@ namespace gui
 
 			m_CurrentYOffset = m_CurrentYOffset + m_EntrySize;
 
-			if (entry.children.size() > 0)
+			if (entry.directory && entry.children.size() > 0)
 			{
 				float yCentre = yPos + m_EntrySize / 2.0f;
 

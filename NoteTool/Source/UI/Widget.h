@@ -271,6 +271,9 @@ namespace gui
 				anchorPosition = { 0.0f, parentBounds.h };
 
 				break;
+			case Anchor::CentreLeft:
+				anchorPosition = { 0.0f, parentBounds.h / 2.0f };
+				break;
 			}
 
 			return anchorPosition;
@@ -309,19 +312,12 @@ namespace gui
 				}
 			}
 			break;
-			case Anchor::CentreLeft:
-
-				if (m_Parent)
-				{
-					//m_Bounds.size.y = m_Parent->GetBounds().h;
-					RecalculateAllBounds();
-				}
-
-				break;
+		
 			case Anchor::BottomRight:
 			case Anchor::BottomLeft:
 			case Anchor::TopLeft:
 			case Anchor::TopRight:
+			case Anchor::CentreLeft:
 
 				if (m_Parent)
 				{

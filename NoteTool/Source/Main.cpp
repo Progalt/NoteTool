@@ -20,7 +20,6 @@ bool open = true;
 #include "Theme.h"
 
 #include "UI/Panel.h"
-#include "UI/Dock.h"
 #include "UI/Utility.h"
 #include "UI/Button.h"
 #include "UI/Text.h"
@@ -56,34 +55,121 @@ gui::FontManager codeFontManager;
 gui::Panel* workspaceUIPanel;
 gui::Panel* textArea;
 gui::Panel* tabsArea;
+gui::Panel* dock;
 
-
+float dockSize = 40.0f;
+float borderSize = 1.0f;
 
 void CreatePanelsForWorkspace()
 {
-	workspaceUIPanel->SetBounds({ 0.0f, 0.0f, 250.0f, windowPanel->GetBounds().h, });
+	workspaceUIPanel->SetBounds({ dockSize , 0.0f, 250.0f, windowPanel->GetBounds().h, });
 	workspaceUIPanel->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	workspaceUIPanel->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
 	workspaceUIPanel->SetTransparency(1.0f);
 	workspaceUIPanel->SetAnchor(gui::Anchor::CentreLeft);
 	workspaceUIPanel->SetVisible(false);
+	workspaceUIPanel->SetFlags(gui::PanelFlags::DrawBorder);
 
 	float editableWidth = windowPanel->GetBounds().w - 250.0f;
 
 
-	textArea->SetBounds({ 250.0f, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
+	textArea->SetBounds({ 250.0f + borderSize + dockSize, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
 	textArea->SetColour(theme.backgroundColour);
 	textArea->SetVisible(false);
 
-	tabsArea->SetBounds({ 250.0f, 0.0f, editableWidth, 30.0f });
+	tabsArea->SetBounds({ 250.0f + borderSize + dockSize, 0.0f, editableWidth, 30.0f });
 	tabsArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
 	tabsArea->SetVisible(false);
 	tabsArea->SetAnchor(gui::Anchor::TopRight);
 	tabsArea->SetLockPosition(true);
+	tabsArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	tabsArea->SetFlags(gui::PanelFlags::DrawBorder);
+
+	dock->SetBounds({ 0.0f, 0.0f, dockSize,  windowPanel->GetBounds().h });
+	dock->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	dock->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	dock->SetVisible(false);
+	dock->SetAnchor(gui::Anchor::BottomLeft);
+	dock->SetFlags(gui::PanelFlags::DrawBorder);
+	dock->SetLockPosition(true);
 
 	workspaceUI.SetTextArea(textArea);
 	workspaceUI.SetFontManager(&fontManager);
 	workspaceUI.SetCodeFontManager(&codeFontManager);
 
+
+
+}
+
+
+void InitDock()
+{
+	float dockButtonSize = dockSize - 6.0f;
+
+	gui::Button* createNewDirectory = dock->NewChild<gui::Button>();
+
+	createNewDirectory->SetAnchor(gui::Anchor::TopLeft);
+	createNewDirectory->SetBounds({ 3.0f, dockButtonSize, dockButtonSize, dockButtonSize });
+	createNewDirectory->SetOnClick([&](void*) 
+		{ 
+			// Create a new folder in the selected directory
+
+			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
+
+			if (!workspaceUI.GetSelectedPath().empty())
+				basePath = workspaceUI.GetSelectedPath();
+
+			std::string path = basePath + "/New Folder";
+
+			assert(CreateNewFolder(path));
+
+			workspaceUI.Refresh();
+
+		});
+	createNewDirectory->SetColour(theme.accentColour);
+	createNewDirectory->SetHighlightColour(theme.accentHighlight);
+	createNewDirectory->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	createNewDirectory->SetRounding(theme.buttonRounding);
+	createNewDirectory->SetShadowColour(theme.accentColour);
+
+	gui::Button* createNewFile = dock->NewChild<gui::Button>();
+
+	createNewFile->SetAnchor(gui::Anchor::TopLeft);
+	createNewFile->SetBounds({ 3.0f, dockButtonSize * 2.0f + 3.0f, dockButtonSize, dockButtonSize });
+	createNewFile->SetOnClick([&](void*)
+		{
+			// Create a new file in the selected directory
+
+			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
+
+			if (!workspaceUI.GetSelectedPath().empty())
+				basePath = workspaceUI.GetSelectedPath();
+
+			std::string path = basePath + "/NewFile";
+
+			assert(CreateNewFile(path, ".txt"));
+
+			workspaceUI.Refresh();
+		});
+	createNewFile->SetColour(theme.accentColour);
+	createNewFile->SetHighlightColour(theme.accentHighlight);
+	createNewFile->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	createNewFile->SetRounding(theme.buttonRounding);
+	createNewFile->SetShadowColour(theme.accentColour);
+
+	gui::Button* settings = dock->NewChild<gui::Button>();
+
+	settings->SetAnchor(gui::Anchor::BottomLeft);
+	settings->SetBounds({ 3.0f, dock->GetBounds().h - dockButtonSize - 10.0f, dockButtonSize, dockButtonSize});
+	settings->SetOnClick([&](void*)
+		{
+
+		});
+	settings->SetColour(theme.accentColour);
+	settings->SetHighlightColour(theme.accentHighlight);
+	settings->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	settings->SetRounding(theme.buttonRounding);
+	settings->SetShadowColour(theme.accentColour);
 }
 
 enum Icons
@@ -197,6 +283,7 @@ int main(int argc, char* argv)
 	workspaceUIPanel = windowPanel->NewChild<gui::Panel>();
 	textArea = windowPanel->NewChild<gui::Panel>();
 	tabsArea = windowPanel->NewChild<gui::Panel>();
+	dock = windowPanel->NewChild<gui::Panel>();
 
 	CreatePanelsForWorkspace();
 
@@ -210,10 +297,11 @@ int main(int argc, char* argv)
 	modal->SetTransparency(1.0f);
 	modal->SetAnchor(gui::Anchor::Centre);
 	modal->SetTransparency(1.0f);
-	
+	modal->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	modal->SetFlags(gui::PanelFlags::DrawBorder);
 
 	gui::Text* versionText = modal->NewChild<gui::Text>();
-	versionText->SetString("Version 0.01a");
+	versionText->SetString("Version 0.01d");
 	versionText->SetFont(fontRegular);
 	float bounds = gui::GetTextLength(versionText->GetString(), fontRegular);
 	versionText->SetPosition({ modal->GetBounds().w / 2.0f - bounds / 2.0f, 160.0f });
@@ -258,12 +346,15 @@ int main(int argc, char* argv)
 				if (currentWorkspace.IsValid())
 					modal->SetVisible(false);
 
-				CreatePanelsForWorkspace();
+				CreatePanelsForWorkspace(); 
+				InitDock();
+				
 
 				workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
 				workspaceUIPanel->SetVisible(true);
 				textArea->SetVisible(true);
 				tabsArea->SetVisible(true);
+				dock->SetVisible(true);
 
 				std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
 				SDL_SetWindowTitle(win, title.c_str());
@@ -291,15 +382,15 @@ int main(int argc, char* argv)
 
 	//modal->SetVisible(false);
 
-	//gui::DropDown* dropDown = modal->NewChild<gui::DropDown>();
-	//dropDown->SetBounds({ 60.0f, 350.0f, 350.0f + 100.0f - 60.0f, 30.0f});
-	//dropDown->SetColour(theme.accentColour);
-	//dropDown->SetHighlightColour(theme.accentHighlight);
-	//dropDown->SetShadowColour(theme.accentColour);
-	//dropDown->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	//dropDown->SetRounding(theme.buttonRounding);
-	//dropDown->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
-	//dropDown->SetList({ "English", "French", "German", "Swedish", "Russian", "Japanese", "Korean", "Chinese", "Spanish", "Dutch", "Norwegian", "Finnish"});
+	/*gui::DropDown* dropDown = modal->NewChild<gui::DropDown>();
+	dropDown->SetBounds({ 60.0f, 350.0f, 350.0f + 100.0f - 60.0f, 30.0f});
+	dropDown->SetColour(theme.accentColour);
+	dropDown->SetHighlightColour(theme.accentHighlight);
+	dropDown->SetShadowColour(theme.accentColour);
+	dropDown->SetHoveredColour(theme.accentColour + theme.hoverModifier);
+	dropDown->SetRounding(theme.buttonRounding);
+	dropDown->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
+	dropDown->SetList({ "Plain Text", "Code" });*/
 
 
 	
@@ -401,7 +492,7 @@ int main(int argc, char* argv)
 				gui::EventHandler::mouseButton[button].clicks = (evnt.type == SDL_MOUSEBUTTONDOWN) ? evnt.button.clicks : 0;
 				gui::EventHandler::mouseButton[button].down = (evnt.button.state == SDL_PRESSED) ? true : false;
 			}
-			break;
+			break; 
 			case SDL_MOUSEWHEEL:
 				gui::EventHandler::verticalScroll = evnt.wheel.y;
 				break;
@@ -496,6 +587,14 @@ int main(int argc, char* argv)
 					workspaceUI.TriggerSave();
 					modalPopup.DisplayModal(ModalType::Success, "Successfully saved", (float)window_width / 2.0f);
 				}
+
+				if (evnt.key.keysym.sym == SDLK_a && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					gui::EventHandler::selectionStart = 0;
+					gui::EventHandler::cursorOffset = gui::EventHandler::textInput->size();
+					gui::EventHandler::selecting = true;
+				}
+
 				
 
 				break;
