@@ -344,13 +344,13 @@ int main(int argc, char* argv)
 	gui::Text* createText = modal->NewChild<gui::Text>();
 	createText->SetString("Create new workspace");
 	createText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
-	createText->SetPosition({ 60.0f, createButtonY + 10.0f });
+	createText->SetPosition({ 60.0f, createButtonY });
 	createText->SetColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 
 	gui::Text* createTextDesc = modal->NewChild<gui::Text>();
 	createTextDesc->SetString("Create a new folder and open as workspace");
 	createTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
-	createTextDesc->SetPosition({ 60.0f, createButtonY + 10.0f + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
+	createTextDesc->SetPosition({ 60.0f, createButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
 	createTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
 
 	gui::Button* openButton = modal->NewChild<gui::Button>();
@@ -392,13 +392,13 @@ int main(int argc, char* argv)
 	gui::Text* openText = modal->NewChild<gui::Text>();
 	openText->SetString("Open folder as workspace");
 	openText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
-	openText->SetPosition({ 60.0f, openButtonY + 10.0f });
+	openText->SetPosition({ 60.0f, openButtonY });
 	openText->SetColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 
 	gui::Text* openTextDesc = modal->NewChild<gui::Text>();
 	openTextDesc->SetString("Open an existing folder as a workspace");
 	openTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
-	openTextDesc->SetPosition({ 60.0f, openButtonY + 10.0f + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
+	openTextDesc->SetPosition({ 60.0f, openButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
 	openTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
 
 	//modal->SetVisible(false);

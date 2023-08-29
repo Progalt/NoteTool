@@ -36,9 +36,13 @@ private:
 
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
+
+		uint32_t currentVertexSize, currentIndexSize;
 	} m_Buffer;
 
-	void InitBuffers();
+	void CreateBuffers(uint32_t vertexSize, uint32_t indexSize);
 	void CleanupBuffers();
+
+	void ResizeBuffers(uint32_t newVertexSize, uint32_t newIndexSize);
 
 };

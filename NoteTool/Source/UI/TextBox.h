@@ -98,7 +98,7 @@ namespace gui
 
 				Vector2f pos = m_GlobalBounds.position;
 				pos.y += m_Font->GetPixelSize();
-				gui::RenderText(drawList, string, m_Font, pos, m_GlobalBounds.w, col);
+				gui::RenderText(drawList, string, m_Font, pos, m_GlobalBounds.w, col, m_GlobalBounds);
 			}
 
 		

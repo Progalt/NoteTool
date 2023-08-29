@@ -6,8 +6,12 @@
 
 #include "../Font.h"
 
+
+
 namespace gui
 {
+	constexpr uint32_t TextPadding = 2;
+
 	template<typename _Ty>
 	inline _Ty Lerp(_Ty a, _Ty b, _Ty t)
 	{
@@ -212,7 +216,7 @@ namespace gui
 		return out;
 	}
 
-	inline void RenderText(DrawList& list, const std::string& text, Font* font, Vector2i position, float textWrap, Colour col)
+	inline void RenderText(DrawList& list, const std::string& text, Font* font, Vector2i position, float textWrap, Colour col, FloatRect bounds)
 	{
 		float x = 0.0f;
 
@@ -322,10 +326,108 @@ namespace gui
 
 			std::vector<uint32_t> indices = { 0, 1, 3, 1, 2, 3 };
 
-			
+			FloatRect glyphBounds;
+			glyphBounds.position = vertices[0].position;
+			glyphBounds.size = vertices[2].position - vertices[0].position;
+
+			if (!bounds.IsNull())
+				if (!bounds.Intersects(glyphBounds))
+					continue;
 
 			list.Add(vertices, indices, font->GetTexture(alphabet));
 
+		}
+
+	}
+
+	// This software rasterizes text into an image
+	inline void RenderTextSoftware(Image& img, const std::string& text, Font* font, Vector2i position, float textWrap, Colour col, FloatRect bounds, float baseLine)
+	{
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+
+
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				continue;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				continue;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+			//Sprite& spr = m_Sprites[i];
+
+			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
+
+			//spr.SetScale(1.0f, 1.0f);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+			float xpos = x + data.bearingX;
+			float ypos = -(float)data.bearingY + (lineCount * font->GetLineSpacing()) + baseLine;
+
+			//xpos += (float)position.x;
+			//ypos += (float)position.y;
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos)
+				maxY = ypos;
+
+
+			//m_GlyphPos[i] = { xpos, ypos };
+
+			x += (float)data.advance;
+			
+			font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos);
+
+			
 		}
 
 	}

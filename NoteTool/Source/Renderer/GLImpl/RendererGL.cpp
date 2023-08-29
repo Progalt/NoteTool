@@ -40,7 +40,7 @@ void RendererGL::Initialise(SDL_Window* win)
 
 	m_DefaultShader.UseDefaultShaders();
 
-	InitBuffers();
+	CreateBuffers(VertexSize, IndexSize);
 }
 
 void RendererGL::Shutdown()
@@ -65,12 +65,12 @@ void RendererGL::EndRenderpass()
 
 void RendererGL::SetViewport(int x, int y, int w, int h)
 {
-	glViewport(x, y, w, h);
+	glCheck(glViewport(x, y, w, h));
 }
 
 void RendererGL::SetScissor(int x, int y, int w, int h)
 {
-	glScissor(x, y, w, h);
+	glCheck(glScissor(x, y, w, h));
 
 }
 
@@ -81,32 +81,39 @@ void RendererGL::SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32
 
 	size_t offset = m_Buffer.vboOffset;
 
-	std::vector<uint32_t> offsetIndices;
+	//std::vector<uint32_t> offsetIndices;
 
-	for (auto& idx : indices)
-		offsetIndices.push_back(idx + offset);
+	//for (auto& idx : indices)
+	//	offsetIndices.push_back(idx + offset);
 
+	if (vertices.size() > m_Buffer.currentVertexSize)
+	{
+		ResizeBuffers(m_Buffer.currentVertexSize + VertexSize, m_Buffer.currentIndexSize + IndexSize);
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo);
+	assert(vertices.size() < m_Buffer.currentVertexSize);
+	assert(indices.size() < m_Buffer.currentIndexSize);
+
+	glCheck(glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo));
+	glCheck(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data()));
+	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
 
 	uint32_t count = indexCount;
 	if (count + indexOffset > indices.size())
 		count = indices.size() - indexOffset;
 
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data());
+	glCheck(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data()));
 
-	glBindVertexArray(m_Buffer.vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo);
+	glCheck(glBindVertexArray(m_Buffer.vao));
+	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
 
 	if (tex)
 	{
-		glBindTexture(GL_TEXTURE_2D, tex->GetGLId());
+		glCheck((glBindTexture(GL_TEXTURE_2D, tex->GetGLId())));
 	}
 
 
-	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (const void*)(indexOffset * sizeof(uint32_t)));
+	glCheck(glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (const void*)(indexOffset * sizeof(uint32_t)), 0));
 
 	m_Buffer.vboOffset += vertices.size();
 	m_Buffer.iboOffset += indices.size();
@@ -114,7 +121,7 @@ void RendererGL::SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32
 }
 
 
-void RendererGL::InitBuffers()
+void RendererGL::CreateBuffers(uint32_t vertexSize, uint32_t indexSize)
 {
 	glCheck(glGenBuffers(1, &m_Buffer.vbo));
 	glCheck(glGenBuffers(1, &m_Buffer.ibo));
@@ -123,10 +130,10 @@ void RendererGL::InitBuffers()
 	glCheck(glBindVertexArray(m_Buffer.vao));
 
 	glCheck(glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo));
-	glCheck(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * VertexSize, nullptr, GL_DYNAMIC_DRAW));
+	glCheck(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexSize, nullptr, GL_DYNAMIC_DRAW));
 
 	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
-	glCheck(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * IndexSize, nullptr, GL_DYNAMIC_DRAW));
+	glCheck(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indexSize, nullptr, GL_DYNAMIC_DRAW));
 
 	glCheck(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0));
 	glCheck(glEnableVertexAttribArray(0));
@@ -137,10 +144,21 @@ void RendererGL::InitBuffers()
 	glCheck(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, colour)));
 	glCheck(glEnableVertexAttribArray(2));
 
-	
+
+	m_Buffer.currentVertexSize = vertexSize;
+	m_Buffer.currentIndexSize = indexSize;
+}
+
+void RendererGL::ResizeBuffers(uint32_t newVertexSize, uint32_t newIndexSize)
+{
+	CleanupBuffers();
+	CreateBuffers(newVertexSize, newIndexSize);
 }
 
 void RendererGL::CleanupBuffers()
 {
+	uint32_t buffers[2] = { m_Buffer.vbo, m_Buffer.ibo };
+	glDeleteBuffers(2, buffers);
 
+	glDeleteVertexArrays(1, &m_Buffer.vao);
 }

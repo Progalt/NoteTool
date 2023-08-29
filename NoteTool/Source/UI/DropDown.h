@@ -92,7 +92,7 @@ namespace gui
 
 			position.x = m_GlobalBounds.x + 5.0f;
 
-			gui::RenderText(drawList, text, m_Font, position, 0.0f, textCol);
+			gui::RenderText(drawList, text, m_Font, position, 0.0f, textCol, m_GlobalBounds);
 
 			if (m_IsOpen)
 				m_DropDownPanel->SetVisible(true);

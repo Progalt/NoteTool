@@ -12,7 +12,7 @@ namespace gui
 	struct ListEntry
 	{
 		ListEntry() { }
-		ListEntry(const std::string& text, std::function<void(void*)> callback, void* userData = nullptr, bool directory = false) : text(text), callback(callback), userData(userData), directory(directory) { }
+		ListEntry(const std::string& text, std::function<void(void*)> callback, void* userData = nullptr, bool directory = false) : text(text), callback(callback), userData(userData), directory(directory) { textData.rerender = true; }
 
 		void AddChild(ListEntry entry) { children.push_back(entry); }
 
@@ -28,6 +28,30 @@ namespace gui
 		bool hovered = false;
 		bool expanded = true;
 		bool selected = false;
+
+		struct TextEntry
+		{
+			GPUTexture texture;
+			Image image;
+			bool rerender = true;
+			FloatRect textBounds;
+
+
+			void RasterizeText(const std::string& str, Font* font)
+			{
+				textBounds.w = gui::GetTextLength(str, font) + gui::TextPadding;
+				textBounds.h = font->GetMaxHeight() + gui::TextPadding;
+
+				image.New((int)textBounds.w, textBounds.h, 4);
+				image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f });
+
+				float baseLine = (float)font->GetAscent();
+
+				gui::RenderTextSoftware(image, str, font, {}, textBounds.w, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine);
+
+				texture.CreateFromImage(image);
+			}
+		} textData;
 	};
 
 	class List : public Widget
@@ -150,8 +174,20 @@ namespace gui
 				list.Add(line.vertices, line.indices);
 			}
 
-			float textYPos = yPos + (m_EntrySize / 2.0f) + ((float)m_Font->GetPixelSize() / 3.0f);
-			gui::RenderText(list, entry.text, m_Font, { (int)xPos,  (int)textYPos   }, 0.0f, m_TextColour);
+			float textYPos = yPos + (m_EntrySize / 2.0f) - (float)m_Font->GetMaxHeight() / 2.0f;// + ((float)m_Font->GetPixelSize() / 3.0f);
+			//gui::RenderText(list, entry.text, m_Font, { (int)xPos,  (int)textYPos   }, 0.0f, m_TextColour, m_GlobalBounds);
+
+			// Render the text
+			if (entry.textData.rerender)
+			{
+				entry.textData.RasterizeText(entry.text, m_Font);
+				entry.textData.rerender = false;
+			}
+			
+			Vector2f position = { xPos,  textYPos };
+			Shape quad = gui::GenerateQuad(position, position + entry.textData.textBounds.size, { 0.0f, 0.0f }, { 1.0f, 1.0f }, m_TextColour);
+
+			list.Add(quad.vertices, quad.indices, &entry.textData.texture);
 
 			m_CurrentYOffset = m_CurrentYOffset + m_EntrySize;
 
@@ -200,6 +236,8 @@ namespace gui
 		Colour m_TextColour;
 
 		ListEntry* m_Selected;
+
+		
 
 		std::vector<ListEntry> m_Entries;
 	};

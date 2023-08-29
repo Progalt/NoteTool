@@ -32,7 +32,7 @@ void PlainTextViewer::InitialiseGUIElements()
 
 	
 
-	float yPos = titleFont->GetPixelSize() + 10.0f;
+	float yPos = titleFont->GetPixelSize();
 	m_Title->SetPosition({ padding, yPos });
 
 	m_FileExt = m_Panel->NewChild<gui::Text>();
@@ -40,8 +40,10 @@ void PlainTextViewer::InitialiseGUIElements()
 	m_FileExt->SetString(m_File->extension);
 	m_FileExt->SetColour({ 0.08f, 0.08f ,0.08f , 1.0f });
 
+	float dif = titleFont->GetAscent() - m_FontManager->Get(gui::FontWeight::Italics, 22)->GetAscent();
+
 	float xPos = gui::GetTextLength(m_File->NameWithoutExtension(), titleFont);
-	m_FileExt->SetPosition({ xPos + 35.0f, yPos });
+	m_FileExt->SetPosition({ xPos + 35.0f, yPos + dif });
 
 	
 	m_TextBox = m_Panel->NewChild<gui::TextBox>();
@@ -59,7 +61,7 @@ void PlainTextViewer::InitialiseGUIElements()
 	}
 	
 
-	m_TextBox->SetBounds({ padding, yPos + 30.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
+	m_TextBox->SetBounds({ padding, yPos + 45.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
 	m_TextBox->string = m_FileContents;
 	m_TextBox->SetAnchor(gui::Anchor::BottomRight);
 	m_TextBox->SetLockPosition(true);

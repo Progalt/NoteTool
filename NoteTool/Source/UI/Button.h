@@ -71,7 +71,7 @@ namespace gui
 			{
 				float lineSpacing = (float)m_Text.font->GetLineSpacing();
 				Vector2i position;
-				position.y = m_GlobalBounds.y + ( m_GlobalBounds.h / 2.0f ) + ((float)m_Text.font->GetPixelSize() / 3.0f);
+				position.y = m_GlobalBounds.y + (m_GlobalBounds.h / 2.0f) - (float)m_Text.font->GetMaxHeight() / 2.0f;
 				float textLength = gui::GetTextLength(m_Text.str, m_Text.font);
 
 				switch (m_Text.alignment)
@@ -89,7 +89,17 @@ namespace gui
 				Colour textCol = { 1.0f, 1.0f, 1.0f, 1.0f };
 				textCol.a *= GetTransparency();
 
-				gui::RenderText(drawList, m_Text.str, m_Text.font, position, 0.0f, textCol);
+				//gui::RenderText(drawList, m_Text.str, m_Text.font, position, 0.0f, textCol, m_GlobalBounds);
+
+				if (m_Text.rerender)
+				{
+					RasterizeText();
+					m_Text.rerender = false;
+				}
+
+				Shape quad = gui::GenerateQuad(position, position + m_Text.textBounds.size, { 0.0f, 0.0f }, { 1.0f, 1.0f }, textCol);
+
+				drawList.Add(quad.vertices, quad.indices, &m_Text.texture);
 			}
 		}
 
@@ -134,6 +144,7 @@ namespace gui
 			m_Text.str = str;
 			m_Text.font = font;
 			m_Text.alignment = alignment;
+			m_Text.rerender = true;
 		}
 
 		void SetRequireDoubleClick(bool doubleClick)
@@ -164,9 +175,35 @@ namespace gui
 			std::string str = "";
 			Font* font;
 			Alignment alignment;
+
+			FloatRect textBounds{};
+
+			GPUTexture texture;
+			Image image;
+			bool rerender = true;
+
+		
+
 		} m_Text;
 
+		void RasterizeText()
+		{
+			m_Text.textBounds.w = gui::GetTextLength(m_Text.str, m_Text.font) + gui::TextPadding;
+			m_Text.textBounds.h = m_Text.font->GetMaxHeight() + gui::TextPadding;
+
+			m_Text.image.New((int)m_Text.textBounds.w, m_Text.textBounds.h, 4);
+			m_Text.image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f });
+
+			float baseLine = (float)m_Text.font->GetAscent();
+
+			gui::RenderTextSoftware(m_Text.image, m_Text.str, m_Text.font, {}, m_Text.textBounds.w, { 1.0f, 1.0f, 1.0f, 1.0f }, m_Text.textBounds, baseLine);
+
+			m_Text.texture.CreateFromImage(m_Text.image);
+		}
+
 		void* m_UserData;
+
+
 
 	};
 }

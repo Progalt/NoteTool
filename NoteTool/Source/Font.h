@@ -47,6 +47,21 @@ public:
 
 	uint32_t GetLineSpacing() { return (uint32_t)m_Face->height / 64; }
 
+	int GetMaxHeight()
+	{
+		Vector2i output;
+
+		output.x = FT_MulFix(m_Face->bbox.yMax, m_Face->size->metrics.y_scale) >> 6;
+		output.y = FT_MulFix(m_Face->bbox.yMin, m_Face->size->metrics.y_scale) >> 6;
+
+		return output.x - output.y;
+	}
+
+	int GetAscent()
+	{
+		return m_Face->size->metrics.ascender >> 6;
+	}
+
 private:
 
 	void LoadGlyphData(const uint32_t codepoint);

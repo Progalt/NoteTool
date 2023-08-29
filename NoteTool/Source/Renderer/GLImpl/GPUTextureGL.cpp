@@ -19,6 +19,11 @@ GPUTextureGL::~GPUTextureGL()
 void GPUTextureGL::CreateFromImage(Image& img)
 {
 
+	if (m_Id)
+	{
+		glDeleteTextures(1, &m_Id);
+	}
+
 	glCheck(glGenTextures(1, &m_Id));
 	glCheck(glBindTexture(GL_TEXTURE_2D, m_Id));
 
@@ -37,6 +42,12 @@ void GPUTextureGL::CreateFromImage(Image& img)
 
 void GPUTextureGL::CreateFromPixels(void* pixels, uint32_t w, uint32_t h, GPUFormat format)
 {
+	if (m_Id)
+	{
+		glDeleteTextures(1, &m_Id);
+	}
+
+
 	glCheck(glGenTextures(1, &m_Id));
 	glCheck(glBindTexture(GL_TEXTURE_2D, m_Id));
 

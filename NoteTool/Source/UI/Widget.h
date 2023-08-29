@@ -28,6 +28,7 @@ namespace gui
 			m_CurrentScissor = scissor;
 		}
 
+
 		void Add(std::vector<Vertex> newVertices, std::vector<uint32_t> newIndices, GPUTexture* tex = nullptr)
 		{
 			if (m_CurrentCall == nullptr)
