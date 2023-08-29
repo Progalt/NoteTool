@@ -36,11 +36,11 @@ void PlainTextViewer::InitialiseGUIElements()
 	m_Title->SetPosition({ padding, yPos });
 
 	m_FileExt = m_Panel->NewChild<gui::Text>();
-	m_FileExt->SetFont(m_FontManager->Get(gui::FontWeight::Italics, 22));
+	m_FileExt->SetFont(m_FontManager->Get(gui::FontWeight::Italic, 22));
 	m_FileExt->SetString(m_File->extension);
 	m_FileExt->SetColour({ 0.08f, 0.08f ,0.08f , 1.0f });
 
-	float dif = titleFont->GetAscent() - m_FontManager->Get(gui::FontWeight::Italics, 22)->GetAscent();
+	float dif = titleFont->GetAscent() - m_FontManager->Get(gui::FontWeight::Italic, 22)->GetAscent();
 
 	float xPos = gui::GetTextLength(m_File->NameWithoutExtension(), titleFont);
 	m_FileExt->SetPosition({ xPos + 35.0f, yPos + dif });

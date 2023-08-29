@@ -2,6 +2,7 @@
 #include "Widget.h"
 #include "Utility.h"
 #include "EventHandler.h"
+#include "Formatter.h"
 
 namespace gui
 {
@@ -34,8 +35,8 @@ namespace gui
 
 				if (first == last)
 				{
-					Vector2f startPos = gui::GetPositionOfChar(startSelection, string, m_Font, m_GlobalBounds.w);
-					Vector2f endPos = gui::GetPositionOfChar(endSelection, string, m_Font, m_GlobalBounds.w);
+					Vector2f startPos = gui::GetPositionOfCharFormatted(startSelection, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
+					Vector2f endPos = gui::GetPositionOfCharFormatted(endSelection, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
 
 					endPos.y += (float)m_Font->GetPixelSize();
 
@@ -52,8 +53,8 @@ namespace gui
 
 						if (i == first)
 						{
-							Vector2f startPos = gui::GetPositionOfChar(startSelection, string, m_Font, m_GlobalBounds.w);
-							Vector2f endPos = gui::GetPositionOfChar(lastOfLine, string, m_Font, m_GlobalBounds.w);
+							Vector2f startPos = gui::GetPositionOfCharFormatted(startSelection, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
+							Vector2f endPos = gui::GetPositionOfCharFormatted(lastOfLine, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
 
 							endPos.y += (float)m_Font->GetPixelSize();
 
@@ -63,8 +64,8 @@ namespace gui
 						}
 						else if (i == last)
 						{
-							Vector2f startPos = gui::GetPositionOfChar(firstOfLine, string, m_Font, m_GlobalBounds.w);
-							Vector2f endPos = gui::GetPositionOfChar(endSelection, string, m_Font, m_GlobalBounds.w);
+							Vector2f startPos = gui::GetPositionOfCharFormatted(firstOfLine, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
+							Vector2f endPos = gui::GetPositionOfCharFormatted(endSelection, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
 
 							endPos.y += (float)m_Font->GetPixelSize();
 
@@ -75,8 +76,8 @@ namespace gui
 						}
 						else
 						{
-							Vector2f startPos = gui::GetPositionOfChar(firstOfLine, string, m_Font, m_GlobalBounds.w);
-							Vector2f endPos = gui::GetPositionOfChar(lastOfLine, string, m_Font, m_GlobalBounds.w);
+							Vector2f startPos = gui::GetPositionOfCharFormatted(firstOfLine, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
+							Vector2f endPos = gui::GetPositionOfCharFormatted(lastOfLine, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
 
 							endPos.y += (float)m_Font->GetPixelSize();
 
@@ -91,7 +92,7 @@ namespace gui
 
 			
 
-			if (!string.empty() && m_Font)
+			/*if (!string.empty() && m_Font)
 			{
 				Colour col = m_Colour;
 				col.a *= GetTransparency();
@@ -99,8 +100,28 @@ namespace gui
 				Vector2f pos = m_GlobalBounds.position;
 				pos.y += m_Font->GetPixelSize();
 				gui::RenderText(drawList, string, m_Font, pos, m_GlobalBounds.w, col, m_GlobalBounds);
+			}*/
+
+			if (m_FullRerender && !string.empty() && m_FontManager)
+			{
+				
+
+				text.RasterizeTextFormatted(string, m_FontManager, m_FontSize, m_Bounds.w);
+
+				m_FullRerender = false;
 			}
 
+			if (!string.empty() && m_Font)
+			{
+				Colour col = m_Colour;
+				col.a *= GetTransparency();
+
+				Vector2f position = m_GlobalBounds.position;
+				//position.y += m_Font->GetPixelSize() + m_Font->GetAscent();
+				Shape quad = gui::GenerateQuad(position, position + text.textBounds.size, { 0.0f, 0.0f }, { 1.0f, 1.0f }, col);
+
+				drawList.Add(quad.vertices, quad.indices, &text.texture);
+			}
 		
 			// Render cursor
 
@@ -108,7 +129,7 @@ namespace gui
 			{
 				if (m_CursorTime < m_CursorBlinkTime)
 				{
-					Vector2f cursorPos = gui::GetPositionOfChar(gui::EventHandler::cursorOffset, string, m_Font, m_GlobalBounds.w);
+					Vector2f cursorPos = gui::GetPositionOfCharFormatted(gui::EventHandler::cursorOffset, string, m_FontManager, m_FontSize, gui::FontWeight::ExtraLight, m_GlobalBounds.w, text.formatting);
 
 					//cursorPos.x += 1.0f;
 
@@ -154,6 +175,8 @@ namespace gui
 						EventHandler::cursorOffset = EventHandler::textInput->size();
 
 					EventHandler::selectionStart = EventHandler::cursorOffset;
+
+					EventHandler::selecting = false;
 				}
 
 				// double click so select word
@@ -177,10 +200,19 @@ namespace gui
 
 			}
 
-		
+			if (string != m_CachedString || m_Bounds != m_CachedBounds)
+				TriggerRerender();
 		}
 
 		std::string string;
+
+		void TriggerRerender()
+		{
+			m_FullRerender = true;
+
+			m_CachedString = string;
+			m_CachedBounds = m_Bounds;
+		}
 
 		void SetFontManager(FontManager* font)
 		{
@@ -190,15 +222,82 @@ namespace gui
 		void SetFontSize(uint32_t size)
 		{
 			m_Font = m_FontManager->Get(gui::FontWeight::ExtraLight, size);
+			m_FontSize = size;
+			m_FullRerender = true;
+
 		}
 
 	private:
 
+		std::string m_CachedString;
+		FloatRect m_CachedBounds;
+
 		FontManager* m_FontManager;
 		Font* m_Font;
+		uint32_t m_FontSize;
 		bool m_Editing = false;
 
 		float m_CursorTime = 0.0f;
 		float m_CursorBlinkTime = 0.5f;
+
+		bool m_FullRerender = true;
+
+		struct TextEntry
+		{
+			GPUTexture texture;
+			Image image;
+			bool rerender = true;
+			FloatRect textBounds;
+			std::vector<TextFormat> formatting;
+
+
+			void RasterizeText(const std::string& str, Font* font, float textWrap)
+			{
+				textBounds.w = textWrap + gui::TextPadding;
+				textBounds.h = gui::TextPadding + ((gui::GetLineCount(str, font, textWrap) + 1) * font->GetLineSpacing());
+
+				image.New((int)textBounds.w, textBounds.h, 4);
+				image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f });
+
+				float baseLine = (float)font->GetAscent();
+
+				printf("Rerasterising Textbox...\n");
+
+				gui::RenderTextSoftware(image, str, font, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine);
+
+
+				texture.CreateFromImage(image);
+
+				
+			}
+
+			void RasterizeTextFormatted(const std::string& str, FontManager* fontManager, uint32_t fontSize, float textWrap)
+			{
+				Font* font = fontManager->Get(gui::FontWeight::Bold, fontSize);
+
+				gui::Formatter formatter(str);
+
+				textBounds.w = textWrap + gui::TextPadding;
+				textBounds.h = gui::TextPadding + ((gui::GetLineCount(str, font, textWrap) + 1) * font->GetLineSpacing());
+
+				image.New((int)textBounds.w, textBounds.h, 4);
+				image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f });
+
+				float baseLine = (float)font->GetAscent();
+
+				printf("Rerasterising Textbox...\n");
+
+				gui::RenderTextSoftwareFormatted(image, str, fontManager, fontSize, gui::FontWeight::ExtraLight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatter.GetFormatting());
+
+				formatting = formatter.GetFormatting();
+
+				texture.CreateFromImage(image);
+
+
+			}
+			
+		};
+
+		TextEntry text;
 	};
 }

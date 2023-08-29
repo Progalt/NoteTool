@@ -137,6 +137,7 @@
     <ClCompile Include="Source\Renderer\GLImpl\Shader.cpp" />
     <ClCompile Include="Source\UI\EventHandler.cpp" />
     <ClCompile Include="Source\UI\FontManager.cpp" />
+    <ClCompile Include="Source\UI\Formatter.cpp" />
     <ClCompile Include="Source\Vendor\tinyfiledialogs.c" />
     <ClCompile Include="Source\Workspace.cpp" />
   </ItemGroup>
@@ -169,6 +170,7 @@
     <ClInclude Include="Source\UI\DropDown.h" />
     <ClInclude Include="Source\UI\EventHandler.h" />
     <ClInclude Include="Source\UI\FontManager.h" />
+    <ClInclude Include="Source\UI\Formatter.h" />
     <ClInclude Include="Source\UI\List.h" />
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Text.h" />

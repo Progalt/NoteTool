@@ -5,7 +5,8 @@
 #include "Widget.h"
 
 #include "../Font.h"
-
+#include "FontManager.h"
+#include "Formatter.h"
 
 
 namespace gui
@@ -347,8 +348,6 @@ namespace gui
 
 		uint32_t lineCount = 0;
 
-
-
 		float maxX = 0.0f, maxY = 0.0f;
 
 		
@@ -424,6 +423,7 @@ namespace gui
 			//m_GlyphPos[i] = { xpos, ypos };
 
 			x += (float)data.advance;
+			
 			
 			font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos);
 
@@ -936,5 +936,251 @@ namespace gui
 			nearest = text.size();
 
 		return nearest;
+	}
+
+	inline void RenderTextSoftwareFormatted(Image& img, const std::string& text,
+		FontManager* fontManager,
+		uint32_t textSize,
+		FontWeight defaultWeight,
+		Vector2i position,
+		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting)
+	{
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		Font* font = fontManager->Get(defaultWeight, textSize);
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+			// lets see if this index is formatted
+			TextFormatOption formatOption = TextFormatOption::None;
+
+			for (auto& formats : formatting)
+			{
+				if (i > formats.start && i < formats.end)
+					formatOption = formats.option;
+			}
+
+			switch (formatOption)
+			{
+			case TextFormatOption::None:
+				font = fontManager->Get(defaultWeight, textSize);
+				break;
+			case TextFormatOption::Bold:
+				font = fontManager->Get(FontWeight::Bold, textSize);
+				break;
+			case TextFormatOption::Italic:
+				font = fontManager->Get((defaultWeight == FontWeight::ExtraLight) ? FontWeight::ExtraLightItalic : FontWeight::Italic, textSize);
+				break;
+			case TextFormatOption::Emphasis:
+				font = fontManager->Get(FontWeight::BoldItalic, textSize);
+				break;
+			default:
+				font = fontManager->Get(defaultWeight, textSize);
+				break;
+			}
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				continue;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				continue;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+			float xpos = x + data.bearingX;
+			float ypos = -(float)data.bearingY + (lineCount * font->GetLineSpacing()) + baseLine;
+
+			//xpos += (float)position.x;
+			//ypos += (float)position.y;
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos)
+				maxY = ypos;
+
+
+			//m_GlyphPos[i] = { xpos, ypos };
+
+			x += (float)data.advance;
+
+
+			font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos);
+
+
+		}
+
+	}
+
+	inline Vector2f GetPositionOfCharFormatted(uint32_t idx, const std::string& text, FontManager* fontManager,
+		uint32_t textSize,
+		FontWeight defaultWeight, float textWrap, std::vector<TextFormat> formatting)
+	{
+		if (idx > text.size())
+			idx = text.size();
+
+		float x = 0.0f;
+
+		float xpos = 0.0f;
+		float ypos = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		//if (m_String == m_PreviousString)
+		//	return;
+
+		float maxX = 0.0f, maxY = 0.0f;
+		bool controlCharacter = false;
+
+		Font* font = fontManager->Get(defaultWeight, textSize);
+
+		for (uint32_t i = 0; i < idx; i++)
+		{
+			controlCharacter = false;
+
+			TextFormatOption formatOption = TextFormatOption::None;
+
+			for (auto& formats : formatting)
+			{
+				if (i > formats.start && i < formats.end)
+					formatOption = formats.option;
+			}
+
+			switch (formatOption)
+			{
+			case TextFormatOption::None:
+				font = fontManager->Get(defaultWeight, textSize);
+				break;
+			case TextFormatOption::Bold:
+				font = fontManager->Get(FontWeight::Bold, textSize);
+				break;
+			case TextFormatOption::Italic:
+				font = fontManager->Get((defaultWeight == FontWeight::ExtraLight) ? FontWeight::ExtraLightItalic : FontWeight::Italic, textSize);
+				break;
+			case TextFormatOption::Emphasis:
+				font = fontManager->Get(FontWeight::BoldItalic, textSize);
+				break;
+			default:
+				font = fontManager->Get(defaultWeight, textSize);
+				break;
+			}
+
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				controlCharacter = true;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				controlCharacter = true;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+			//Sprite& spr = m_Sprites[i];
+
+			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
+
+			//spr.SetScale(1.0f, 1.0f);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+
+			if (!controlCharacter)
+			{
+				x += (float)data.advance;
+			}
+
+			xpos = x + data.bearingX;
+
+			ypos = lineCount * font->GetLineSpacing();
+
+
+
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos)
+				maxY = ypos;
+
+
+
+
+		}
+
+		return { xpos, ypos };
+
 	}
 }

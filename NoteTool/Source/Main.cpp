@@ -527,6 +527,8 @@ int main(int argc, char* argv)
 					gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;*/
 
 					textedit::Insert(evnt.text.text);
+
+					gui::EventHandler::selecting = false;
 				}
 				break;
 			case SDL_KEYDOWN:
@@ -553,27 +555,14 @@ int main(int argc, char* argv)
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
 					{
-						/*gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\n");
-						gui::EventHandler::cursorOffset++;*/
-
 						textedit::Insert("\n");
+
+						gui::EventHandler::selecting = false;
 					}
 
 					if (evnt.key.keysym.sym == SDLK_TAB)
 					{
-						/*gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\t");
-						gui::EventHandler::cursorOffset++;*/
-
 						textedit::Insert("\t");
-					}
-
-
-					if (evnt.key.keysym.sym == SDLK_RIGHT && !evnt.key.keysym.mod & KMOD_LSHIFT)
-					{
-						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
-							gui::EventHandler::cursorOffset++;
-
-						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 
 						gui::EventHandler::selecting = false;
 					}

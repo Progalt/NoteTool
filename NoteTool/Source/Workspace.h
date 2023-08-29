@@ -47,7 +47,7 @@ struct File
 		type = FileType::Unrecognised;
 
 		// TODO: Add more extensions 
-		if (extension == ".txt")
+		if (extension == ".txt" || extension == ".md")
 		{
 			type = FileType::PlainText;
 		}

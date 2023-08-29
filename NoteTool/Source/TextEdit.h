@@ -6,18 +6,20 @@
 namespace textedit
 {
 	inline void Remove()
-	{
+	{ 
 		if (gui::EventHandler::selecting)
 		{
 			uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
 			uint32_t maxSelect = std::max(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
 			gui::EventHandler::textInput->erase(minSelect, maxSelect - minSelect);
 			gui::EventHandler::cursorOffset = minSelect;
+			gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 		}
 		else
 		{
 			gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
 			gui::EventHandler::cursorOffset--;
+			gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 		}
 	}
 

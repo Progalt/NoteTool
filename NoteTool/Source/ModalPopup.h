@@ -41,7 +41,7 @@ public:
 
 		m_Text->SetString(str);
 		float textXPos = m_Panel->GetBounds().w / 2.0f - gui::GetTextLength(str, m_FontManager->Get(gui::FontWeight::Bold, 18)) / 2.0f;
-		m_Text->SetPosition({ textXPos, 21.0f });
+		m_Text->SetPosition({ textXPos, 5.0f });
 
 		switch (type)
 		{

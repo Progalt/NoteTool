@@ -25,7 +25,7 @@ namespace gui
 		case FontWeight::Bold:
 			weightStr = "Bold";
 			break;
-		case FontWeight::Italics:
+		case FontWeight::Italic:
 			weightStr = "Italic";
 			break;
 		case FontWeight::Light:
@@ -36,6 +36,12 @@ namespace gui
 			break;
 		case FontWeight::ExtraLight:
 			weightStr = "ExtraLight";
+			break;
+		case FontWeight::BoldItalic:
+			weightStr = "BoldItalic";
+			break;
+		case FontWeight::ExtraLightItalic:
+			weightStr = "ExtraLightItalic";
 			break;
 		}
 
