@@ -32,6 +32,8 @@ bool open = true;
 
 #include "Vendor/tinyfiledialogs.h"
 
+#include "TextEdit.h"
+
 
 
 gui::Panel* windowPanel;
@@ -53,45 +55,47 @@ gui::FontManager codeFontManager;
 // workspace gui 
 
 gui::Panel* workspaceUIPanel;
+
+gui::Panel* filelistArea;
 gui::Panel* textArea;
 gui::Panel* tabsArea;
-gui::Panel* dock;
+gui::Panel* dockArea;
 
 float dockSize = 40.0f;
 float borderSize = 1.0f;
 
 void CreatePanelsForWorkspace()
 {
-	workspaceUIPanel->SetBounds({ dockSize , 0.0f, 250.0f, windowPanel->GetBounds().h, });
-	workspaceUIPanel->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	workspaceUIPanel->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
-	workspaceUIPanel->SetTransparency(1.0f);
-	workspaceUIPanel->SetAnchor(gui::Anchor::CentreLeft);
-	workspaceUIPanel->SetVisible(false);
-	workspaceUIPanel->SetFlags(gui::PanelFlags::DrawBorder);
+	filelistArea->SetBounds({ dockSize , 0.0f, 250.0f, windowPanel->GetBounds().h, });
+	filelistArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	filelistArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	filelistArea->SetTransparency(1.0f);
+	filelistArea->SetAnchor(gui::Anchor::CentreLeft);
+	//filelistArea->SetVisible(false);
+	filelistArea->SetFlags(gui::PanelFlags::DrawBorder);
 
 	float editableWidth = windowPanel->GetBounds().w - 250.0f;
 
 
 	textArea->SetBounds({ 250.0f + borderSize + dockSize, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
 	textArea->SetColour(theme.backgroundColour);
-	textArea->SetVisible(false);
+	//textArea->SetVisible(false);
 
 	tabsArea->SetBounds({ 250.0f + borderSize + dockSize, 0.0f, editableWidth, 30.0f });
 	tabsArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	tabsArea->SetVisible(false);
+	//tabsArea->SetVisible(false);
 	tabsArea->SetAnchor(gui::Anchor::TopRight);
 	tabsArea->SetLockPosition(true);
 	tabsArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
 	tabsArea->SetFlags(gui::PanelFlags::DrawBorder);
 
-	dock->SetBounds({ 0.0f, 0.0f, dockSize,  windowPanel->GetBounds().h });
-	dock->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	dock->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
-	dock->SetVisible(false);
-	dock->SetAnchor(gui::Anchor::BottomLeft);
-	dock->SetFlags(gui::PanelFlags::DrawBorder);
-	dock->SetLockPosition(true);
+	dockArea->SetBounds({ 0.0f, 0.0f, dockSize,  windowPanel->GetBounds().h });
+	dockArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	dockArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	//dockArea->SetVisible(false);
+	dockArea->SetAnchor(gui::Anchor::BottomLeft);
+	dockArea->SetFlags(gui::PanelFlags::DrawBorder);
+	dockArea->SetLockPosition(true);
 
 	workspaceUI.SetTextArea(textArea);
 	workspaceUI.SetFontManager(&fontManager);
@@ -106,7 +110,7 @@ void InitDock()
 {
 	float dockButtonSize = dockSize - 6.0f;
 
-	gui::Button* createNewDirectory = dock->NewChild<gui::Button>();
+	gui::Button* createNewDirectory = dockArea->NewChild<gui::Button>();
 
 	createNewDirectory->SetAnchor(gui::Anchor::TopLeft);
 	createNewDirectory->SetBounds({ 3.0f, dockButtonSize, dockButtonSize, dockButtonSize });
@@ -131,10 +135,13 @@ void InitDock()
 	createNewDirectory->SetHoveredColour(theme.accentColour + theme.hoverModifier);
 	createNewDirectory->SetRounding(theme.buttonRounding);
 	createNewDirectory->SetShadowColour(theme.accentColour);
+	createNewDirectory->SetLockPosition(true);
+	createNewDirectory->SetLockSize(true);
+	createNewDirectory->SetAnchor(gui::Anchor::TopLeft);
 
-	gui::Button* createNewFile = dock->NewChild<gui::Button>();
+	gui::Button* createNewFile = dockArea->NewChild<gui::Button>();
 
-	createNewFile->SetAnchor(gui::Anchor::TopLeft);
+	
 	createNewFile->SetBounds({ 3.0f, dockButtonSize * 2.0f + 3.0f, dockButtonSize, dockButtonSize });
 	createNewFile->SetOnClick([&](void*)
 		{
@@ -156,11 +163,14 @@ void InitDock()
 	createNewFile->SetHoveredColour(theme.accentColour + theme.hoverModifier);
 	createNewFile->SetRounding(theme.buttonRounding);
 	createNewFile->SetShadowColour(theme.accentColour);
+	createNewFile->SetLockPosition(true);
+	createNewFile->SetLockSize(true);
+	createNewFile->SetAnchor(gui::Anchor::TopLeft);
 
-	gui::Button* settings = dock->NewChild<gui::Button>();
+	gui::Button* settings = dockArea->NewChild<gui::Button>();
 
-	settings->SetAnchor(gui::Anchor::BottomLeft);
-	settings->SetBounds({ 3.0f, dock->GetBounds().h - dockButtonSize - 10.0f, dockButtonSize, dockButtonSize});
+	
+	settings->SetBounds({ 3.0f, dockArea->GetBounds().h - dockButtonSize - 10.0f, dockButtonSize, dockButtonSize});
 	settings->SetOnClick([&](void*)
 		{
 
@@ -170,6 +180,8 @@ void InitDock()
 	settings->SetHoveredColour(theme.accentColour + theme.hoverModifier);
 	settings->SetRounding(theme.buttonRounding);
 	settings->SetShadowColour(theme.accentColour);
+	settings->SetLockSize(true);
+	settings->SetAnchor(gui::Anchor::BottomLeft);
 }
 
 enum Icons
@@ -281,9 +293,16 @@ int main(int argc, char* argv)
 	windowPanel->SetDummyPanel(true);
 
 	workspaceUIPanel = windowPanel->NewChild<gui::Panel>();
-	textArea = windowPanel->NewChild<gui::Panel>();
-	tabsArea = windowPanel->NewChild<gui::Panel>();
-	dock = windowPanel->NewChild<gui::Panel>();
+
+	workspaceUIPanel->SetBounds(fullWindowBounds);
+	workspaceUIPanel->SetDummyPanel(true);
+	workspaceUIPanel->SetVisible(false);
+	//workspaceUIPanel->SetAnchor(gui::Anchor::TopLeft);
+
+	filelistArea = workspaceUIPanel->NewChild<gui::Panel>();
+	textArea = workspaceUIPanel->NewChild<gui::Panel>();
+	tabsArea = workspaceUIPanel->NewChild<gui::Panel>();
+	dockArea = workspaceUIPanel->NewChild<gui::Panel>();
 
 	CreatePanelsForWorkspace();
 
@@ -350,11 +369,13 @@ int main(int argc, char* argv)
 				InitDock();
 				
 
-				workspaceUI.Init(workspaceUIPanel, &currentWorkspace, fontRegular);
-				workspaceUIPanel->SetVisible(true);
+				workspaceUI.Init(filelistArea, &currentWorkspace, fontRegular);
+				/*filelistArea->SetVisible(true);
 				textArea->SetVisible(true);
 				tabsArea->SetVisible(true);
-				dock->SetVisible(true);
+				dockArea->SetVisible(true);*/
+
+				workspaceUIPanel->SetVisible(true);
 
 				std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
 				SDL_SetWindowTitle(win, title.c_str());
@@ -460,7 +481,7 @@ int main(int argc, char* argv)
 
 					screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
 					windowPanel->SetBounds(fullWindowBounds);
-
+					workspaceUIPanel->SetBounds(fullWindowBounds);
 
 					break;
 				}
@@ -499,11 +520,13 @@ int main(int argc, char* argv)
 			case SDL_TEXTINPUT:
 				if (gui::EventHandler::textInput)
 				{
-					uint32_t oldSize = gui::EventHandler::textInput->size();
+					/*uint32_t oldSize = gui::EventHandler::textInput->size();
 					gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, evnt.text.text);
 					uint32_t newSize = gui::EventHandler::textInput->size();
 					gui::EventHandler::cursorOffset += newSize - oldSize;
-					gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
+					gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;*/
+
+					textedit::Insert(evnt.text.text);
 				}
 				break;
 			case SDL_KEYDOWN:
@@ -512,7 +535,7 @@ int main(int argc, char* argv)
 				{
 					if (evnt.key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
 					{
-						if (gui::EventHandler::selecting)
+						/*if (gui::EventHandler::selecting)
 						{
 							uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
 							uint32_t maxSelect = std::max(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
@@ -523,62 +546,74 @@ int main(int argc, char* argv)
 						{
 							gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
 							gui::EventHandler::cursorOffset--;
-						}
+						}*/
+
+						textedit::Remove();
 					}
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
 					{
-						gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\n");
-						gui::EventHandler::cursorOffset++;
+						/*gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\n");
+						gui::EventHandler::cursorOffset++;*/
+
+						textedit::Insert("\n");
 					}
 
 					if (evnt.key.keysym.sym == SDLK_TAB)
 					{
-						gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\t");
-						gui::EventHandler::cursorOffset++;
+						/*gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, "\t");
+						gui::EventHandler::cursorOffset++;*/
+
+						textedit::Insert("\t");
 					}
 
-					if (evnt.key.keysym.mod & KMOD_LSHIFT)
+
+					if (evnt.key.keysym.sym == SDLK_RIGHT && !evnt.key.keysym.mod & KMOD_LSHIFT)
 					{
-						gui::EventHandler::selecting = true;
-					}
-					else
-					{
+						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
+							gui::EventHandler::cursorOffset++;
+
+						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
+
 						gui::EventHandler::selecting = false;
 					}
 
-					if (!gui::EventHandler::selecting)
+
+					if (evnt.key.keysym.sym == SDLK_LEFT && evnt.key.keysym.mod & KMOD_LSHIFT)
 					{
-						if (evnt.key.keysym.sym == SDLK_LEFT)
-						{
-							if (gui::EventHandler::cursorOffset > 0)
-								gui::EventHandler::cursorOffset--;
-						}
-						if (evnt.key.keysym.sym == SDLK_RIGHT)
-						{
-							if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
-								gui::EventHandler::cursorOffset++;
+						if (gui::EventHandler::cursorOffset > 0)
+							gui::EventHandler::cursorOffset--;
 
-
-						}
+						gui::EventHandler::selecting = true;
+					}
+					else if (evnt.key.keysym.sym == SDLK_LEFT)
+					{
+						if (gui::EventHandler::cursorOffset > 0)
+							gui::EventHandler::cursorOffset--;
 
 						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
+
+						gui::EventHandler::selecting = false;
 					}
-					else
+
+
+					if (evnt.key.keysym.sym == SDLK_RIGHT && evnt.key.keysym.mod & KMOD_LSHIFT)
 					{
-						if (evnt.key.keysym.sym == SDLK_LEFT)
-						{
-							if (gui::EventHandler::cursorOffset > 0)
-								gui::EventHandler::cursorOffset--;
-						}
-						if (evnt.key.keysym.sym == SDLK_RIGHT)
-						{
-							if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
-								gui::EventHandler::cursorOffset++;
+						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
+							gui::EventHandler::cursorOffset++;
 
-
-						}
+						gui::EventHandler::selecting = true;
 					}
+					else if (evnt.key.keysym.sym == SDLK_RIGHT)
+					{
+						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
+							gui::EventHandler::cursorOffset++;
+
+						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
+
+						gui::EventHandler::selecting = false;
+					}
+
 				}
 
 				if (evnt.key.keysym.sym == SDLK_s && evnt.key.keysym.mod & KMOD_CTRL)
@@ -593,6 +628,22 @@ int main(int argc, char* argv)
 					gui::EventHandler::selectionStart = 0;
 					gui::EventHandler::cursorOffset = gui::EventHandler::textInput->size();
 					gui::EventHandler::selecting = true;
+				}
+
+				// Clipboard options
+				if (evnt.key.keysym.sym == SDLK_c && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					std::string selectedText = textedit::GetSelection();
+					SDL_SetClipboardText(selectedText.c_str());
+
+					printf("Added to clipboard: %s\n", selectedText.c_str());
+				}
+
+				if (evnt.key.keysym.sym == SDLK_v && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					std::string clipboard(SDL_GetClipboardText());
+
+					textedit::Insert(clipboard);
 				}
 
 				

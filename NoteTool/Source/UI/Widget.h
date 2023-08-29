@@ -274,6 +274,9 @@ namespace gui
 			case Anchor::CentreLeft:
 				anchorPosition = { 0.0f, parentBounds.h / 2.0f };
 				break;
+			case Anchor::BottomCentre:
+				anchorPosition = { parentBounds.w / 2.0f, parentBounds.h };
+				break;
 			}
 
 			return anchorPosition;
@@ -315,9 +318,11 @@ namespace gui
 		
 			case Anchor::BottomRight:
 			case Anchor::BottomLeft:
+			case Anchor::BottomCentre:
 			case Anchor::TopLeft:
 			case Anchor::TopRight:
 			case Anchor::CentreLeft:
+			
 
 				if (m_Parent)
 				{

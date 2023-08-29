@@ -1,6 +1,8 @@
 #pragma once
 
 
+// Really simple colour class
+// Colours are internally stored as 0 - 1 floats 
 class Colour
 {
 public:

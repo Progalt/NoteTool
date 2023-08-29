@@ -739,7 +739,7 @@ namespace gui
 
 		float maxX = 0.0f, maxY = 0.0f;
 
-		uint32_t nearest = 0;
+		uint32_t nearest = UINT32_MAX;
 		float dist = 1000000.0f;
 
 		uint32_t mouseLine = 0;
@@ -822,12 +822,15 @@ namespace gui
 				{
 					dist = newDist;
 					nearest = i;
+
 				}
+
+				
 			}
 
 		}
 
-		if (nearest == 0)
+		if (nearest == UINT32_MAX)
 			nearest = text.size();
 
 		return nearest;

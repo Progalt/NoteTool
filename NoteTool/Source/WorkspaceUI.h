@@ -5,6 +5,13 @@
 #include "UI/TextBox.h"
 #include "FileViewers/PlainTextViewer.h"
 
+struct WorkspaceTab
+{
+	std::string tabName;
+	bool saved;
+	FileViewer* currentFileView;
+};
+
 // UI to show directory tree
 class WorkspaceUI
 {
@@ -23,6 +30,9 @@ public:
 		m_Font = font;
 		m_Panel->SetAnchor(gui::Anchor::CentreLeft);
 
+		m_Tabs.push_back(WorkspaceTab());
+		m_ActiveTab = &m_Tabs[m_Tabs.size() - 1];
+
 		SetupGUI();
 	}
 
@@ -35,9 +45,9 @@ public:
 	
 	void TriggerSave() 
 	{ 
-		if (m_CurrentView)
+		if (m_ActiveTab->currentFileView)
 		{
-			m_CurrentView->Save();
+			m_ActiveTab->currentFileView->Save();
 		}
 	}
 
@@ -65,6 +75,14 @@ public:
 		return "";
 	}
 
+	void CloseCurrentTab()
+	{
+		m_ActiveTab->currentFileView->Hide();
+		m_ActiveTab->currentFileView = nullptr;
+
+		
+	}
+
 private:
 
 	void SetupGUI()
@@ -84,6 +102,13 @@ private:
 
 		m_TextArea->SetAnchor(gui::Anchor::BottomRight);
 		m_TextArea->SetLockPosition(true);
+
+		m_NothingOpenText = m_TextArea->NewChild<gui::Text>();
+		m_NothingOpenText->SetString("No file is open");
+		m_NothingOpenText->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 24));
+		m_NothingOpenText->SetBounds({ m_TextArea->GetBounds().w / 2.0f - gui::GetTextLength(m_NothingOpenText->GetString(), m_FontManager->Get(gui::FontWeight::Bold, 24)), m_TextArea->GetBounds().h / 2.0f, 300.0f, 50.0f });
+		m_NothingOpenText->SetAnchor(gui::Anchor::Centre);
+		
 	}
 
 	void RefreshGUI()
@@ -124,8 +149,8 @@ private:
 				{
 					File* file = (File*)userData;
 
-					if (m_CurrentView)
-						m_CurrentView->Hide();
+					if (m_ActiveTab->currentFileView)
+						m_ActiveTab->currentFileView->Hide();
 
 					bool found = false;
 
@@ -133,12 +158,14 @@ private:
 					{
 						if (*viewer->GetFile() == *file)
 						{
-							m_CurrentView = viewer;
-							m_CurrentView->Show();
+							m_ActiveTab->currentFileView = viewer;
+							m_ActiveTab->currentFileView->Show();
 							gui::EventHandler::cursorOffset = 0;
 							gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 
 							found = true;
+
+							
 						}
 
 
@@ -156,9 +183,12 @@ private:
 
 							m_Viewers.push_back(viewer);
 
-							m_CurrentView = viewer;
+							m_ActiveTab->currentFileView = viewer;
+
+							m_NothingOpenText->SetVisible(false);
 						}
 					}
+
 
 				}, &file, false);
 			
@@ -188,8 +218,19 @@ private:
 	gui::FontManager* m_FontManager;
 	gui::FontManager* m_CodeFontManager;
 
-	FileViewer* m_CurrentView;
+	gui::Text* m_NothingOpenText;
+
+	//FileViewer* m_CurrentView;
 	std::vector<FileViewer*> m_Viewers;
 
+	WorkspaceTab* m_ActiveTab;
+	std::vector<WorkspaceTab> m_Tabs;
+
+	struct
+	{
+		std::vector<gui::Button*> activeButtons;
+		gui::Panel* panel;
+
+	} m_TabArea;
 
 };

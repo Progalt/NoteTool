@@ -161,6 +161,7 @@
     <ClInclude Include="Source\Platform.h" />
     <ClInclude Include="Source\Renderer\Renderer.h" />
     <ClInclude Include="Source\Renderer\GPUTexture.h" />
+    <ClInclude Include="Source\TextEdit.h" />
     <ClInclude Include="Source\Theme.h" />
     <ClInclude Include="Source\ThreadManager.h" />
     <ClInclude Include="Source\UI\Button.h" />
@@ -180,7 +181,6 @@
     <ClInclude Include="Source\WorkspaceUI.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.md" />
     <None Include="Themes\cpp.json" />
     <None Include="Themes\dark.json" />
   </ItemGroup>

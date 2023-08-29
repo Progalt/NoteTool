@@ -15,6 +15,8 @@
 
 #include <string>
 
+// On some Operating systems dark mode can be toggled for the window
+// Toggle it if available
 inline void ToggleDarkModeForHwnd(SDL_Window* window)
 {
 	static bool darkMode = false;
@@ -48,6 +50,7 @@ inline void ToggleDarkModeForHwnd(SDL_Window* window)
 #endif
 }
 
+// Get the documents folder path for the current system
 inline std::string GetDocumentsPath()
 {
 #ifdef _WIN32
@@ -62,6 +65,8 @@ inline std::string GetDocumentsPath()
 }
 
 
+// This gets the next free filename index of the file name
+// For instance if "new folder" exists it will go to "new folder1" and so on
 inline uint32_t GetNextFreeIndexOfFileName(std::string path, uint32_t& currentIdx)
 {
 	if (std::filesystem::exists(path + std::to_string(currentIdx)))
@@ -73,6 +78,9 @@ inline uint32_t GetNextFreeIndexOfFileName(std::string path, uint32_t& currentId
 	return currentIdx;
 }
 
+// Creates a new folder in the file system
+// It first checks if the name of the file exists already and if it does it adds an index to 
+// the end of the directory name
 inline bool CreateNewFolder(const std::string in_path)
 {
 	std::string path = in_path;
@@ -90,6 +98,7 @@ inline bool CreateNewFolder(const std::string in_path)
 	return true;
 }
 
+// Similar to the CreateNewFolder but creates a file instead
 inline bool CreateNewFile(const std::string in_path, const std::string ext)
 {
 	std::string path = in_path;
@@ -105,6 +114,8 @@ inline bool CreateNewFile(const std::string in_path, const std::string ext)
 	path += ext;
 
 
+	// std::filesystem doesn't have the ability to create a new file so we use std::ofstream 
+	// and write a blank file out
 	std::ofstream file(path);
 	
 	if (!file.is_open())

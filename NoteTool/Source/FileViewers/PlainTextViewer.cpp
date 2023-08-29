@@ -59,7 +59,7 @@ void PlainTextViewer::InitialiseGUIElements()
 	}
 	
 
-	m_TextBox->SetBounds({ padding, yPos + 30.0f, m_Panel->GetBounds().w - padding * 2.0f, m_Panel->GetBounds().h });
+	m_TextBox->SetBounds({ padding, yPos + 30.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
 	m_TextBox->string = m_FileContents;
 	m_TextBox->SetAnchor(gui::Anchor::BottomRight);
 	m_TextBox->SetLockPosition(true);

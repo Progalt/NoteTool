@@ -161,10 +161,12 @@
     <ClInclude Include="Source\History.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\TextEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />
     <None Include="Themes\cpp.json" />
-    <None Include="README.md" />
   </ItemGroup>
 </Project>
