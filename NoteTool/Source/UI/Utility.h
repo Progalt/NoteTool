@@ -938,6 +938,138 @@ namespace gui
 		return nearest;
 	}
 
+	inline Font* GetFontForFormat(TextFormatOption format, FontManager* fontManager, FontWeight defaultWeight, uint32_t textSize)
+	{
+
+		switch (format)
+		{
+		case TextFormatOption::None:
+			return fontManager->Get(defaultWeight, textSize);
+			break;
+		case TextFormatOption::Bold:
+			return fontManager->Get(FontWeight::Bold, textSize);
+			break;
+		case TextFormatOption::Italic:
+			return fontManager->Get((defaultWeight == FontWeight::ExtraLight) ? FontWeight::ExtraLightItalic : FontWeight::Italic, textSize);
+			break;
+		case TextFormatOption::Emphasis:
+			return fontManager->Get(FontWeight::BoldItalic, textSize);
+			break;
+		case TextFormatOption::Header1:
+			return fontManager->Get(FontWeight::Bold, textSize + 24);
+			break;
+		case TextFormatOption::Header2:
+			return fontManager->Get(FontWeight::Bold, textSize + 16);
+			break;
+		case TextFormatOption::Header3:
+			return fontManager->Get(FontWeight::Bold, textSize + 8);
+			break;
+		default:
+			return fontManager->Get(defaultWeight, textSize);
+			break;
+		}
+	}
+
+	inline Vector2f GetTextBoxSizeFormatted(const std::string& text,
+		FontManager* fontManager,
+		uint32_t textSize,
+		FontWeight defaultWeight,
+		Vector2i position,
+		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting)
+	{
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		float lineOffset = 0.0f;
+
+		Font* font = fontManager->Get(defaultWeight, textSize);
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+			// lets see if this index is formatted
+			TextFormatOption formatOption = TextFormatOption::None;
+
+			for (auto& formats : formatting)
+			{
+				if (i > formats.start && i < formats.end)
+					formatOption = formats.option;
+			}
+
+			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				lineOffset += font->GetLineSpacing();
+				//continue;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				//continue;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+					lineOffset += font->GetLineSpacing();
+				}
+			}
+
+			float xpos = x + data.bearingX;
+			float ypos = -(float)data.bearingY + lineOffset + baseLine;
+
+			//xpos += (float)position.x;
+			//ypos += (float)position.y;
+
+			//m_GlyphPos[i] = { xpos, ypos };
+
+			x += (float)data.advance;
+
+
+			if (maxX < xpos + (float)data.advance)
+				maxX = xpos + (float)data.advance;
+
+			if (maxY < ypos + font->GetMaxHeight())
+				maxY = ypos + font->GetMaxHeight();
+
+
+		}
+
+		return { maxX, maxY };
+
+	}
+
 	inline void RenderTextSoftwareFormatted(Image& img, const std::string& text,
 		FontManager* fontManager,
 		uint32_t textSize,
@@ -953,6 +1085,8 @@ namespace gui
 
 		Font* font = fontManager->Get(defaultWeight, textSize);
 
+		float lineOffset = 0.0f;
+
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
 			// lets see if this index is formatted
@@ -964,24 +1098,7 @@ namespace gui
 					formatOption = formats.option;
 			}
 
-			switch (formatOption)
-			{
-			case TextFormatOption::None:
-				font = fontManager->Get(defaultWeight, textSize);
-				break;
-			case TextFormatOption::Bold:
-				font = fontManager->Get(FontWeight::Bold, textSize);
-				break;
-			case TextFormatOption::Italic:
-				font = fontManager->Get((defaultWeight == FontWeight::ExtraLight) ? FontWeight::ExtraLightItalic : FontWeight::Italic, textSize);
-				break;
-			case TextFormatOption::Emphasis:
-				font = fontManager->Get(FontWeight::BoldItalic, textSize);
-				break;
-			default:
-				font = fontManager->Get(defaultWeight, textSize);
-				break;
-			}
+			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
 
 			uint32_t codepoint = text[i];
 
@@ -989,6 +1106,7 @@ namespace gui
 			{
 				x = 0;
 				lineCount++;
+				lineOffset += font->GetLineSpacing();
 				continue;
 			}
 
@@ -1024,23 +1142,18 @@ namespace gui
 				{
 					x = 0;
 					lineCount++;
+					lineOffset += font->GetLineSpacing();
 				}
 			}
 
 			float xpos = x + data.bearingX;
-			float ypos = -(float)data.bearingY + (lineCount * font->GetLineSpacing()) + baseLine;
+			float ypos = -(float)data.bearingY + lineOffset + baseLine;
 
-			//xpos += (float)position.x;
-			//ypos += (float)position.y;
 
 			if (maxX < xpos + (float)data.advance)
 				maxX = xpos + (float)data.advance;
 
-			if (maxY < ypos)
-				maxY = ypos;
 
-
-			//m_GlyphPos[i] = { xpos, ypos };
 
 			x += (float)data.advance;
 
@@ -1074,6 +1187,8 @@ namespace gui
 
 		Font* font = fontManager->Get(defaultWeight, textSize);
 
+		float lineOffset = 0.0f;
+
 		for (uint32_t i = 0; i < idx; i++)
 		{
 			controlCharacter = false;
@@ -1086,24 +1201,7 @@ namespace gui
 					formatOption = formats.option;
 			}
 
-			switch (formatOption)
-			{
-			case TextFormatOption::None:
-				font = fontManager->Get(defaultWeight, textSize);
-				break;
-			case TextFormatOption::Bold:
-				font = fontManager->Get(FontWeight::Bold, textSize);
-				break;
-			case TextFormatOption::Italic:
-				font = fontManager->Get((defaultWeight == FontWeight::ExtraLight) ? FontWeight::ExtraLightItalic : FontWeight::Italic, textSize);
-				break;
-			case TextFormatOption::Emphasis:
-				font = fontManager->Get(FontWeight::BoldItalic, textSize);
-				break;
-			default:
-				font = fontManager->Get(defaultWeight, textSize);
-				break;
-			}
+			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
 
 
 			uint32_t codepoint = text[i];
@@ -1113,6 +1211,7 @@ namespace gui
 				x = 0;
 				lineCount++;
 				controlCharacter = true;
+				lineOffset += font->GetLineSpacing();
 			}
 
 			if (codepoint == '\t')
@@ -1124,12 +1223,6 @@ namespace gui
 
 			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
 			GlyphData data = font->GetCodePointData(codepoint);
-
-			//Sprite& spr = m_Sprites[i];
-
-			//spr.SetTexture(m_Font->GetTexture(alphabet), IntRect(data.x, data.y, data.w, data.h));
-
-			//spr.SetScale(1.0f, 1.0f);
 
 
 			// This is if word wrapped is enabled
@@ -1153,6 +1246,7 @@ namespace gui
 				{
 					x = 0;
 					lineCount++;
+					lineOffset += font->GetLineSpacing();
 				}
 			}
 
@@ -1164,7 +1258,7 @@ namespace gui
 
 			xpos = x + data.bearingX;
 
-			ypos = lineCount * font->GetLineSpacing();
+			ypos = lineOffset;
 
 
 

@@ -86,6 +86,26 @@ namespace gui
 			m_Ptr++;
 		}
 
+
+		ReformatString();
+	}
+
+	void Formatter::ReformatString()
+	{
+		
+		/*for (auto& format : m_Output)
+		{
+			switch (format.option)
+			{
+			case TextFormatOption::Italic:
+
+				m_FormattedString.erase(format.start, 1);
+				m_FormattedString.erase(format.end, 1);
+
+				break;
+			}
+		}*/
+
 	}
 
 	uint32_t Formatter::FindNext(const std::string& str, uint32_t offset)

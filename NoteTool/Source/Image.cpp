@@ -97,6 +97,10 @@ void Image::New(uint32_t w, uint32_t h, uint32_t channels)
 
 void Image::SetPixel(uint32_t x, uint32_t y, Colour c)
 {
+	if (x > m_Width || y > m_Width)
+		return;
+
+
 	uint32_t pixelOffset = (y * m_Width + x) * m_Channels;
 	m_Pixels[pixelOffset] = c.AsByte(0);
 	m_Pixels[pixelOffset + 1] = c.AsByte(1);

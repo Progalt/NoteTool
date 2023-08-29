@@ -51,6 +51,9 @@
     <ClCompile Include="Source\UI\Formatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\FileViewers\MarkdownViewer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Theme.h">
@@ -170,9 +173,13 @@
     <ClInclude Include="Source\UI\Formatter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\FileViewers\MarkdownViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />
     <None Include="Themes\cpp.json" />
+    <None Include="Themes\light.json" />
   </ItemGroup>
 </Project>

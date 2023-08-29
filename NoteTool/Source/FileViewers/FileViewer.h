@@ -24,6 +24,8 @@ public:
 
 	virtual void Save() = 0;
 
+	virtual void Refresh() { }
+
 protected:
 
 	virtual void LoadFileContents() = 0;

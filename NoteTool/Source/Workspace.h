@@ -6,7 +6,8 @@ enum class FileType
 {
 	Unrecognised,
 	PlainText, 
-	Image
+	Image,
+	Markdown
 };
 
 struct File
@@ -47,9 +48,14 @@ struct File
 		type = FileType::Unrecognised;
 
 		// TODO: Add more extensions 
-		if (extension == ".txt" || extension == ".md")
+		if (extension == ".txt")
 		{
 			type = FileType::PlainText;
+		}
+
+		if (extension == ".md")
+		{
+			type = FileType::Markdown;
 		}
 
 		if (extension == ".cpp" || extension == ".hpp" ||

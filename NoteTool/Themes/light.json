@@ -1,0 +1,21 @@
+{
+  "name": "basic light",
+  "version": "1.0",
+  "author": "Henry Gronow",
+  "use-windows-dark-mode": false,
+
+  "background": [ 230, 230, 230 ],
+  "panel-bg": [ 190, 190, 190 ],
+  "panel-highlight": [ 50, 50, 50 ],
+  "button-accent": [ 140, 140, 140 ],
+  "button-highlight": [ 50, 50, 50 ],
+  "button-shadow": [ 3, 3, 3 ],
+  "hover-modifier": [ -20, -20, -20 ],
+  "click-modifier": [ 50, 50, 50 ],
+
+  "button-rounding": 6.0,
+
+  "text-main": [ 5, 5, 5 ],
+  "text-sub": [ 40, 40, 40 ]
+
+}

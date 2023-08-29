@@ -35,6 +35,8 @@ public:
 		}
 
 		backgroundColour = ColourFromJSON(j["background"]);
+		panelBackground = ColourFromJSON(j["panel-bg"]);
+		panelHighlight = ColourFromJSON(j["panel-highlight"]);
 
 		accentColour = ColourFromJSON(j["button-accent"]);
 		accentHighlight = ColourFromJSON(j["button-highlight"]);
@@ -43,6 +45,9 @@ public:
 		hoverModifier = ColourFromJSON(j["hover-modifier"]);
 		clickModifier = ColourFromJSON(j["click-modifier"]);
 		buttonRounding = j["button-rounding"];
+
+		textMain = ColourFromJSON(j["text-main"]);
+		textSub = ColourFromJSON(j["text-sub"]);
 	}
 
 	struct Info
@@ -54,6 +59,8 @@ public:
 
 	bool useWindowsDarkTheme = false;		// Windows Only
 	Colour backgroundColour;
+	Colour panelBackground;
+	Colour panelHighlight;
 
 	Colour accentColour;
 	Colour accentHighlight;
@@ -61,6 +68,9 @@ public:
 
 	Colour hoverModifier;
 	Colour clickModifier;
+
+	Colour textMain;
+	Colour textSub;
 
 	float buttonRounding;
 

@@ -4,6 +4,7 @@
 #include "UI/List.h"
 #include "UI/TextBox.h"
 #include "FileViewers/PlainTextViewer.h"
+#include "FileViewers/MarkdownViewer.h"
 
 struct WorkspaceTab
 {
@@ -83,6 +84,11 @@ public:
 		
 	}
 
+	FileViewer* GetCurrentFileViewer()
+	{
+		return m_ActiveTab->currentFileView;
+	}
+
 private:
 
 	void SetupGUI()
@@ -99,7 +105,12 @@ private:
 		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
 		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 
-
+		m_WorkspaceName = m_Panel->NewChild<gui::Text>();
+		m_WorkspaceName->SetString(m_Workspace->GetRoot().name);
+		m_WorkspaceName->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 14));
+		m_WorkspaceName->SetPosition({ 24.0f, 64.0f });
+		m_WorkspaceName->SetAnchor(gui::Anchor::TopLeft);
+			 
 		m_TextArea->SetAnchor(gui::Anchor::BottomRight);
 		m_TextArea->SetLockPosition(true);
 
@@ -187,6 +198,21 @@ private:
 
 							m_NothingOpenText->SetVisible(false);
 						}
+
+						if (file->type == FileType::Markdown)
+						{
+							MarkdownViewer* viewer = new MarkdownViewer;
+							viewer->SetFontManager(m_FontManager);
+							viewer->SetParentPanel(m_TextArea);
+							viewer->SetCodeFontManager(m_CodeFontManager);
+							viewer->SetFile(file);
+
+							m_Viewers.push_back(viewer);
+
+							m_ActiveTab->currentFileView = viewer;
+
+							m_NothingOpenText->SetVisible(false);
+						}
 					}
 
 
@@ -209,6 +235,7 @@ private:
 	gui::Panel* m_Panel;
 
 	gui::List* m_FileList;
+	gui::Text* m_WorkspaceName;
 	Font* m_Font;
 
 	File* m_ActiveFile;

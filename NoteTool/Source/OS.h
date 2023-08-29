@@ -126,3 +126,8 @@ inline bool CreateNewFile(const std::string in_path, const std::string ext)
 
 	return true;
 }
+
+inline void OpenURL(const std::string& url)
+{
+	SDL_OpenURL(url.c_str());
+}

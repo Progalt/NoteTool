@@ -12,7 +12,10 @@ namespace gui
 		None,
 		Bold,
 		Italic,
-		Emphasis
+		Emphasis,
+		Header1,
+		Header2,
+		Header3
 	};
 
 	struct TextFormat
@@ -30,8 +33,10 @@ namespace gui
 
 		std::vector<TextFormat> GetFormatting() const { return m_Output; };
 
-		std::string GetStringWithoutFormatting() const { return m_FormattedString; }
+		std::string GetStringWithFormatting() const { return m_FormattedString; }
 	private:
+
+		void ReformatString();
 
 		std::vector<TextFormat> m_Output;
 

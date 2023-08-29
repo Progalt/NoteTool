@@ -67,8 +67,8 @@ float borderSize = 1.0f;
 void CreatePanelsForWorkspace()
 {
 	filelistArea->SetBounds({ dockSize , 0.0f, 250.0f, windowPanel->GetBounds().h, });
-	filelistArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	filelistArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	filelistArea->SetColour(theme.panelBackground);
+	filelistArea->SetHighlightColour(theme.panelHighlight);
 	filelistArea->SetTransparency(1.0f);
 	filelistArea->SetAnchor(gui::Anchor::CentreLeft);
 	//filelistArea->SetVisible(false);
@@ -77,21 +77,13 @@ void CreatePanelsForWorkspace()
 	float editableWidth = windowPanel->GetBounds().w - 250.0f;
 
 
-	textArea->SetBounds({ 250.0f + borderSize + dockSize, 30.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
+	textArea->SetBounds({ 250.0f + borderSize + dockSize, 0.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
 	textArea->SetColour(theme.backgroundColour);
 	//textArea->SetVisible(false);
 
-	tabsArea->SetBounds({ 250.0f + borderSize + dockSize, 0.0f, editableWidth, 30.0f });
-	tabsArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	//tabsArea->SetVisible(false);
-	tabsArea->SetAnchor(gui::Anchor::TopRight);
-	tabsArea->SetLockPosition(true);
-	tabsArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
-	tabsArea->SetFlags(gui::PanelFlags::DrawBorder);
-
 	dockArea->SetBounds({ 0.0f, 0.0f, dockSize,  windowPanel->GetBounds().h });
-	dockArea->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
-	dockArea->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	dockArea->SetColour(theme.panelBackground);
+	dockArea->SetHighlightColour(theme.panelHighlight);
 	//dockArea->SetVisible(false);
 	dockArea->SetAnchor(gui::Anchor::BottomLeft);
 	dockArea->SetFlags(gui::PanelFlags::DrawBorder);
@@ -301,7 +293,6 @@ int main(int argc, char* argv)
 
 	filelistArea = workspaceUIPanel->NewChild<gui::Panel>();
 	textArea = workspaceUIPanel->NewChild<gui::Panel>();
-	tabsArea = workspaceUIPanel->NewChild<gui::Panel>();
 	dockArea = workspaceUIPanel->NewChild<gui::Panel>();
 
 	CreatePanelsForWorkspace();
@@ -311,12 +302,12 @@ int main(int argc, char* argv)
 	gui::Panel* modal = windowPanel->NewChild<gui::Panel>();
 	modal->SetDummyPanel(false);
 	modal->SetBounds({ (float)window_width / 2.0f - modalSize.x / 2.0f, (float)window_height / 2.0f - modalSize.y / 2.0f, modalSize.x, modalSize.y});
-	modal->SetColour({ 0.02f, 0.02f, 0.02f, 1.0f });
+	modal->SetColour({  theme.panelBackground });
 	modal->SetRounding(theme.buttonRounding);
 	modal->SetTransparency(1.0f);
 	modal->SetAnchor(gui::Anchor::Centre);
 	modal->SetTransparency(1.0f);
-	modal->SetHighlightColour({ 0.04f, 0.04f, 0.04f, 1.0f });
+	modal->SetHighlightColour({ theme.panelHighlight });
 	modal->SetFlags(gui::PanelFlags::DrawBorder);
 
 	gui::Text* versionText = modal->NewChild<gui::Text>();
@@ -324,7 +315,7 @@ int main(int argc, char* argv)
 	versionText->SetFont(fontRegular);
 	float bounds = gui::GetTextLength(versionText->GetString(), fontRegular);
 	versionText->SetPosition({ modal->GetBounds().w / 2.0f - bounds / 2.0f, 160.0f });
-	versionText->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+	versionText->SetColour(theme.textSub);
 
 
 	float createButtonY = 210.0f;
@@ -345,13 +336,13 @@ int main(int argc, char* argv)
 	createText->SetString("Create new workspace");
 	createText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
 	createText->SetPosition({ 60.0f, createButtonY });
-	createText->SetColour({ 0.65f, 0.65f, 0.65f, 1.0f });
+	createText->SetColour(theme.textMain);
 
 	gui::Text* createTextDesc = modal->NewChild<gui::Text>();
 	createTextDesc->SetString("Create a new folder and open as workspace");
 	createTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	createTextDesc->SetPosition({ 60.0f, createButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
-	createTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+	createTextDesc->SetColour(theme.textSub);
 
 	gui::Button* openButton = modal->NewChild<gui::Button>();
 	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
@@ -393,13 +384,13 @@ int main(int argc, char* argv)
 	openText->SetString("Open folder as workspace");
 	openText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
 	openText->SetPosition({ 60.0f, openButtonY });
-	openText->SetColour({ 0.65f, 0.65f, 0.65f, 1.0f });
+	openText->SetColour(theme.textMain);
 
 	gui::Text* openTextDesc = modal->NewChild<gui::Text>();
 	openTextDesc->SetString("Open an existing folder as a workspace");
 	openTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	openTextDesc->SetPosition({ 60.0f, openButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
-	openTextDesc->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+	openTextDesc->SetColour(theme.textSub);
 
 	//modal->SetVisible(false);
 
@@ -551,6 +542,8 @@ int main(int argc, char* argv)
 						}*/
 
 						textedit::Remove();
+
+						((MarkdownViewer*)workspaceUI.GetCurrentFileViewer())->Refresh();
 					}
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
@@ -595,8 +588,13 @@ int main(int argc, char* argv)
 					}
 					else if (evnt.key.keysym.sym == SDLK_RIGHT)
 					{
-						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
-							gui::EventHandler::cursorOffset++;
+						uint32_t offset = 1;
+
+						if (gui::EventHandler::selecting)
+							offset = std::abs(gui::EventHandler::selectionStart - gui::EventHandler::cursorOffset);
+
+						if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
+							gui::EventHandler::cursorOffset += offset;
 
 						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 
@@ -635,6 +633,46 @@ int main(int argc, char* argv)
 					textedit::Insert(clipboard);
 				}
 
+				if (evnt.key.keysym.sym == SDLK_v && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					std::string clipboard(SDL_GetClipboardText());
+
+					textedit::Insert(clipboard);
+				}
+
+				if (evnt.key.keysym.sym == SDLK_b && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					MarkdownViewer* viewer = (MarkdownViewer*)workspaceUI.GetCurrentFileViewer();
+
+					uint32_t selmin = std::min(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
+					uint32_t selmax = std::max(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
+					
+					if (selmin != selmax)
+					{
+
+						viewer->ToggleFormatting(gui::TextFormatOption::Bold, selmin - 1, selmax);
+
+						viewer->Refresh();
+					}
+				}
+
+				if (evnt.key.keysym.sym == SDLK_i && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					MarkdownViewer* viewer = (MarkdownViewer*)workspaceUI.GetCurrentFileViewer();
+
+					uint32_t selmin = std::min(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
+					uint32_t selmax = std::max(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
+
+					if (selmin != selmax)
+					{
+
+						viewer->ToggleFormatting(gui::TextFormatOption::Italic, selmin - 1, selmax);
+
+						viewer->Refresh();
+					}
+				}
+
+				
 				
 
 				break;
