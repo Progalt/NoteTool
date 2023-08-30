@@ -51,7 +51,7 @@
     <ClCompile Include="Source\UI\Formatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\FileViewers\MarkdownViewer.cpp">
+    <ClCompile Include="Source\Painter\Painter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,7 +173,10 @@
     <ClInclude Include="Source\UI\Formatter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\FileViewers\MarkdownViewer.h">
+    <ClInclude Include="Source\Painter\Painter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Painter\Brush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

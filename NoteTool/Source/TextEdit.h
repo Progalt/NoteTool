@@ -7,6 +7,9 @@ namespace textedit
 {
 	inline void Remove()
 	{ 
+		if (!gui::EventHandler::textInput)
+			return;
+
 		if (gui::EventHandler::selecting)
 		{
 			uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
@@ -25,6 +28,9 @@ namespace textedit
 
 	inline void Insert(const std::string& text)
 	{
+		if (!gui::EventHandler::textInput)
+			return;
+
 		uint32_t oldSize = gui::EventHandler::textInput->size();
 		gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, text);
 		uint32_t newSize = gui::EventHandler::textInput->size();
@@ -34,6 +40,9 @@ namespace textedit
 
 	inline std::string GetSelection()
 	{
+		if (!gui::EventHandler::textInput)
+			return "";
+
 		uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
 		uint32_t maxSelect = std::max(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
 

@@ -850,6 +850,9 @@ namespace gui
 
 		mouseLine = (int)(my / (float)font->GetLineSpacing());
 
+		if (point.x < 0.0f && point.y < 0.0f)
+			return 0;
+
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
 

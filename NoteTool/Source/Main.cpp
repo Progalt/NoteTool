@@ -542,8 +542,6 @@ int main(int argc, char* argv)
 						}*/
 
 						textedit::Remove();
-
-						((MarkdownViewer*)workspaceUI.GetCurrentFileViewer())->Refresh();
 					}
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
@@ -551,6 +549,7 @@ int main(int argc, char* argv)
 						textedit::Insert("\n");
 
 						gui::EventHandler::selecting = false;
+
 					}
 
 					if (evnt.key.keysym.sym == SDLK_TAB)
@@ -640,37 +639,7 @@ int main(int argc, char* argv)
 					textedit::Insert(clipboard);
 				}
 
-				if (evnt.key.keysym.sym == SDLK_b && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					MarkdownViewer* viewer = (MarkdownViewer*)workspaceUI.GetCurrentFileViewer();
 
-					uint32_t selmin = std::min(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
-					uint32_t selmax = std::max(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
-					
-					if (selmin != selmax)
-					{
-
-						viewer->ToggleFormatting(gui::TextFormatOption::Bold, selmin - 1, selmax);
-
-						viewer->Refresh();
-					}
-				}
-
-				if (evnt.key.keysym.sym == SDLK_i && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					MarkdownViewer* viewer = (MarkdownViewer*)workspaceUI.GetCurrentFileViewer();
-
-					uint32_t selmin = std::min(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
-					uint32_t selmax = std::max(gui::EventHandler::selectionStart, gui::EventHandler::cursorOffset);
-
-					if (selmin != selmax)
-					{
-
-						viewer->ToggleFormatting(gui::TextFormatOption::Italic, selmin - 1, selmax);
-
-						viewer->Refresh();
-					}
-				}
 
 				
 				

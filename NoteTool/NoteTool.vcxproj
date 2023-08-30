@@ -128,11 +128,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\FileViewers\MarkdownViewer.cpp" />
     <ClCompile Include="Source\FileViewers\PlainTextViewer.cpp" />
     <ClCompile Include="Source\Font.cpp" />
     <ClCompile Include="Source\Image.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Painter\Painter.cpp" />
     <ClCompile Include="Source\Renderer\GLImpl\GPUTextureGL.cpp" />
     <ClCompile Include="Source\Renderer\GLImpl\RendererGL.cpp" />
     <ClCompile Include="Source\Renderer\GLImpl\Shader.cpp" />
@@ -150,7 +150,6 @@
     <ClInclude Include="Source\History.h" />
     <ClInclude Include="Source\Icons.h" />
     <ClInclude Include="Source\Image.h" />
-    <ClInclude Include="Source\FileViewers\MarkdownViewer.h" />
     <ClInclude Include="Source\Maths\Matrix.h" />
     <ClInclude Include="Source\Maths\Rect.h" />
     <ClInclude Include="Source\Maths\Vector2.h" />
@@ -158,6 +157,8 @@
     <ClInclude Include="Source\Maths\Vector4.h" />
     <ClInclude Include="Source\ModalPopup.h" />
     <ClInclude Include="Source\OS.h" />
+    <ClInclude Include="Source\Painter\Brush.h" />
+    <ClInclude Include="Source\Painter\Painter.h" />
     <ClInclude Include="Source\Renderer\GLImpl\GPUTextureGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\RendererGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\Shader.h" />

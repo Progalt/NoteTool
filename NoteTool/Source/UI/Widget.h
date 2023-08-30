@@ -108,6 +108,16 @@ namespace gui
 
 		virtual void OnEvent() { }
 
+		void RemoveChildren(uint32_t first = 0)
+		{
+			for (uint32_t i = first; i < m_Children.size(); i++)
+			{
+				delete m_Children[i];
+			}
+
+			m_Children.erase(m_Children.begin() + first, m_Children.end());
+		}
+
 		void HandleEvents()
 		{
 			// TODO: Add more anchor points
