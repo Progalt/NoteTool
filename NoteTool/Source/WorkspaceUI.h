@@ -57,6 +57,17 @@ public:
 		RefreshGUI();
 	}
 
+	void RefreshGUI()
+	{
+		m_FileList->Clear();
+
+		Directory& root = m_Workspace->GetRoot();
+
+		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
+
+		AddDirectoryToList(root, nullptr);
+	}
+
 	std::string GetSelectedPath()
 	{
 		gui::ListEntry* sel = m_FileList->GetSelected();
@@ -121,16 +132,7 @@ private:
 		
 	}
 
-	void RefreshGUI()
-	{
-		m_FileList->Clear();
-
-		Directory& root = m_Workspace->GetRoot();
-
-		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
-
-		AddDirectoryToList(root, nullptr);
-	}
+	
 
 	void AddDirectoryToList(Directory& dir, gui::ListEntry* entry)
 	{
@@ -141,9 +143,9 @@ private:
 		{
 			Directory& directory = dir.GetDirectory(i);
 
-			gui::ListEntry dirEntry = gui::ListEntry(directory.name, NULL, &directory, true);
+			gui::ListEntry* dirEntry = m_FileList->NewListEntry(directory.name, NULL, &directory, true);
 			
-			AddDirectoryToList(dir.GetDirectory(i), &dirEntry);
+			AddDirectoryToList(dir.GetDirectory(i), dirEntry);
 
 			if (entry)
 				entry->AddChild(dirEntry);
@@ -155,7 +157,7 @@ private:
 		{
 			File& file = dir.GetFile(i);
 
-			gui::ListEntry fileEntry = gui::ListEntry(file.isCodeFile ? file.name : file.NameWithoutExtension(), [&](void* userData)
+			gui::ListEntry* fileEntry = m_FileList->NewListEntry(file.isCodeFile ? file.name : file.NameWithoutExtension(), [&](void* userData)
 				{
 					File* file = (File*)userData;
 
@@ -190,6 +192,7 @@ private:
 							viewer->SetParentPanel(m_TextArea);
 							viewer->SetCodeFontManager(m_CodeFontManager);
 							viewer->SetFile(file);
+							viewer->parent = this;
 
 							m_Viewers.push_back(viewer);
 

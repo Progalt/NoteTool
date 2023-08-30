@@ -3,6 +3,7 @@
 #include "Utility.h"
 #include "EventHandler.h"
 #include "Formatter.h"
+#include <functional>
 
 namespace gui
 {
@@ -12,7 +13,7 @@ namespace gui
 
 		void GenerateVertexList(DrawList& drawList) override
 		{
-			if (!m_Visible)
+			if (!m_Visible || m_GlobalBounds.w <= 0.0f || m_GlobalBounds.h <= 0.0f)
 				return;
 
 			float cursorMod = 4.0f;
@@ -21,7 +22,7 @@ namespace gui
 				EventHandler::selectionStart = EventHandler::cursorOffset;
 
 			// Draw selection box
-			if (EventHandler::selectionStart != EventHandler::cursorOffset)
+			if (EventHandler::selectionStart != EventHandler::cursorOffset && m_Editing)
 			{
 				uint32_t firstLine = gui::GetLineOfChar(EventHandler::selectionStart, text.formattedString, m_Font, m_GlobalBounds.w);
 				uint32_t lastLine = gui::GetLineOfChar(EventHandler::cursorOffset, text.formattedString, m_Font, m_GlobalBounds.w);
@@ -180,6 +181,7 @@ namespace gui
 
 					EventHandler::selecting = false;
 				}
+				
 
 				// double click so select word
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 2)
@@ -199,15 +201,20 @@ namespace gui
 			}
 			else
 			{
-				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks >= 1)
+				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
 				{
-					EventHandler::textInput = nullptr;
+					// We have lost focus
 					m_Editing = false;
+
+					if (m_OnLoseFocus)
+						m_OnLoseFocus();
 				}
 			}
+			
 
-			if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].down && dragging)
+			if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].down && dragging && m_Editing)
 			{
+
 				Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
 				mpoint = mpoint - m_GlobalBounds.position;
 
@@ -241,6 +248,9 @@ namespace gui
 			m_CachedString = string;
 			m_CachedBounds = m_Bounds;
 			m_CachedFormat = m_Formats;
+
+			if (m_OnEdit)
+				m_OnEdit();
 		}
 
 		void SetFontManager(FontManager* font)
@@ -263,9 +273,20 @@ namespace gui
 			TriggerRerender();
 		}
 
+		void SetOnEditCallback(std::function<void()> func)
+		{
+			m_OnEdit = func;
+		}
+
+		void SetOnOnLoseCallback(std::function<void()> func)
+		{
+			m_OnLoseFocus = func;
+		}
+
 	private:
 
-		
+		std::function<void()> m_OnEdit;
+		std::function<void()> m_OnLoseFocus;
 
 		std::string m_CachedString;
 		FloatRect m_CachedBounds;

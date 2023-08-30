@@ -104,9 +104,6 @@
     <ClInclude Include="Source\UI\Widget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Icons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\UI\Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>

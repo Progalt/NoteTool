@@ -148,7 +148,6 @@
     <ClInclude Include="Source\FileViewers\PlainTextViewer.h" />
     <ClInclude Include="Source\Font.h" />
     <ClInclude Include="Source\History.h" />
-    <ClInclude Include="Source\Icons.h" />
     <ClInclude Include="Source\Image.h" />
     <ClInclude Include="Source\Maths\Matrix.h" />
     <ClInclude Include="Source\Maths\Rect.h" />

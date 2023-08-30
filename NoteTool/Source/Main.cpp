@@ -8,7 +8,6 @@
 #include "OS.h"
 
 #include "Platform.h"
-#include "Icons.h"
 
 
 int window_width = 1280;
@@ -176,22 +175,7 @@ void InitDock()
 	settings->SetAnchor(gui::Anchor::BottomLeft);
 }
 
-enum Icons
-{
-	ICON_FILESYSTEM_ARROW,
 
-	ICON_COUNT
-};
-
-GPUTexture icons[ICON_COUNT];
-
-void InitIcons()
-{
-	Image img;
-	img.LoadFromMemory(filesystemarrow, filesystemarrowcnt);
-
-	icons[ICON_FILESYSTEM_ARROW].CreateFromImage(img);
-}
 
 void Render()
 {
@@ -257,7 +241,6 @@ int main(int argc, char* argv)
 
 	renderer.Initialise(win);
 
-	InitIcons();
 
 	// Init base content
 
@@ -419,7 +402,8 @@ int main(int argc, char* argv)
 	gui::EventHandler::initial_window_height = window_height;
 
 
-
+	gui::EventHandler::mouseButton[gui::MOUSE_LEFT].down = false;
+	gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].down = false;
 	
 
 	SDL_Event evnt;
@@ -433,10 +417,14 @@ int main(int argc, char* argv)
 		gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks = 0;
 		gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].clicks = 0;
 
+
 		gui::EventHandler::deltaTime = (float)deltaTime;
 
 		gui::EventHandler::resizeEvent = false;
 		gui::EventHandler::verticalScroll = 0;
+
+		gui::EventHandler::mouseButton[gui::MOUSE_LEFT].down = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
+		gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].down = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
 		SDL_StartTextInput();
 
@@ -485,7 +473,6 @@ int main(int argc, char* argv)
 
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-			case SDL_MOUSEBUTTONUP:
 			{
 				gui::MouseButton button;
 				switch (evnt.button.button)
@@ -502,9 +489,29 @@ int main(int argc, char* argv)
 				}
 
 				gui::EventHandler::mouseButton[button].clicks = (evnt.type == SDL_MOUSEBUTTONDOWN) ? evnt.button.clicks : 0;
-				gui::EventHandler::mouseButton[button].down = (evnt.button.state == SDL_PRESSED) ? true : false;
+				//gui::EventHandler::mouseButton[button].down = true;
 			}
+
 			break; 
+			case SDL_MOUSEBUTTONUP:
+			{
+				gui::MouseButton button;
+				switch (evnt.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+					button = gui::MOUSE_LEFT;
+					break;
+				case SDL_BUTTON_RIGHT:
+					button = gui::MOUSE_RIGHT;
+					break;
+				default:
+					button = gui::MOUSE_LEFT;
+					break;
+				}
+
+				//gui::EventHandler::mouseButton[button].down = false;
+			}
+				break;
 			case SDL_MOUSEWHEEL:
 				gui::EventHandler::verticalScroll = evnt.wheel.y;
 				break;

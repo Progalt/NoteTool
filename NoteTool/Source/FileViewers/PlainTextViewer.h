@@ -4,6 +4,7 @@
 #include "../UI/TextBox.h"
 #include "../UI/Text.h"
 
+class WorkspaceUI;
 
 class PlainTextViewer : public FileViewer
 {
@@ -14,6 +15,7 @@ public:
 		m_Title->SetVisible(false);
 		m_TextBox->SetVisible(false);
 		m_FileExt->SetVisible(false);
+		m_SavedCircle->SetVisible(false);
 	}
 
 	void Show() override
@@ -21,9 +23,14 @@ public:
 		m_Title->SetVisible(true);
 		m_TextBox->SetVisible(true);
 		m_FileExt->SetVisible(true);
+
+		if (!m_Saved)
+			m_SavedCircle->SetVisible(true);
 	}
 
 	void Save() override;
+
+	WorkspaceUI* parent;
 
 private:
 
@@ -39,9 +46,13 @@ private:
 
 	gui::TextBox* m_TextBox;
 
-	gui::Text* m_Title;
+	gui::TextBox* m_Title;
 	gui::Text* m_FileExt;
 
 	gui::Text* m_LineNumbers;
+
+	bool m_Saved = true;
+
+	gui::Panel* m_SavedCircle;
 
 };

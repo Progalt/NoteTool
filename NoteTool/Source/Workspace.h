@@ -30,6 +30,11 @@ struct File
 		return false;
 	}
 
+	std::string PathWithoutName()
+	{
+		return path.remove_filename().generic_string();
+	}
+
 	std::string NameWithoutExtension()
 	{
 		if (!NameHasFileExtension())

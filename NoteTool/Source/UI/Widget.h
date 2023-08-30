@@ -28,6 +28,10 @@ namespace gui
 			m_CurrentScissor = scissor;
 		}
 
+		IntRect GetCurrentScissor()
+		{
+			return m_CurrentScissor;
+		}
 
 		void Add(std::vector<Vertex> newVertices, std::vector<uint32_t> newIndices, GPUTexture* tex = nullptr)
 		{
