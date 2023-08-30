@@ -168,6 +168,7 @@
     <ClInclude Include="Source\Theme.h" />
     <ClInclude Include="Source\ThreadManager.h" />
     <ClInclude Include="Source\UI\Button.h" />
+    <ClInclude Include="Source\UI\ContextMenu.h" />
     <ClInclude Include="Source\UI\Dividor.h" />
     <ClInclude Include="Source\UI\DropDown.h" />
     <ClInclude Include="Source\UI\EventHandler.h" />

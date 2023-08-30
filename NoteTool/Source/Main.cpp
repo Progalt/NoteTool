@@ -25,6 +25,7 @@ bool open = true;
 #include "UI/FontManager.h"
 #include "UI/DropDown.h"
 #include "ModalPopup.h"
+#include "UI/ContextMenu.h"
 
 #include "Workspace.h"
 #include "WorkspaceUI.h"
@@ -219,7 +220,7 @@ int main(int argc, char* argv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
 	win = SDL_CreateWindow("Notes - Workspace/", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
@@ -284,8 +285,8 @@ int main(int argc, char* argv)
 
 	gui::Panel* modal = windowPanel->NewChild<gui::Panel>();
 	modal->SetDummyPanel(false);
-	modal->SetBounds({ (float)window_width / 2.0f - modalSize.x / 2.0f, (float)window_height / 2.0f - modalSize.y / 2.0f, modalSize.x, modalSize.y});
-	modal->SetColour({  theme.panelBackground });
+	modal->SetBounds({ (float)window_width / 2.0f - modalSize.x / 2.0f, (float)window_height / 2.0f - modalSize.y / 2.0f, modalSize.x, modalSize.y });
+	modal->SetColour({ theme.panelBackground });
 	modal->SetRounding(theme.buttonRounding);
 	modal->SetTransparency(1.0f);
 	modal->SetAnchor(gui::Anchor::Centre);
@@ -329,8 +330,8 @@ int main(int argc, char* argv)
 
 	gui::Button* openButton = modal->NewChild<gui::Button>();
 	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
-	openButton->SetOnClick([&](void*) 
-		{ 
+	openButton->SetOnClick([&](void*)
+		{
 			const char* folder = tinyfd_selectFolderDialog("Open Workspace", GetDocumentsPath().c_str());
 
 			if (folder != NULL)
@@ -339,9 +340,9 @@ int main(int argc, char* argv)
 				if (currentWorkspace.IsValid())
 					modal->SetVisible(false);
 
-				CreatePanelsForWorkspace(); 
+				CreatePanelsForWorkspace();
 				InitDock();
-				
+
 
 				workspaceUI.Init(filelistArea, &currentWorkspace, fontRegular);
 				/*filelistArea->SetVisible(true);
@@ -388,7 +389,21 @@ int main(int argc, char* argv)
 	dropDown->SetList({ "Plain Text", "Code" });*/
 
 
-	
+	gui::ContextMenu* ctxMenu = windowPanel->NewChild<gui::ContextMenu>();
+	ctxMenu->AddOption("New", [&]() { printf("Copy"); });
+	ctxMenu->AddDividor();
+	ctxMenu->AddOption("Rename", [&]() {  printf("Paste"); });
+	ctxMenu->AddOption("Favourite", [&]() {  printf("Paste"); });
+	ctxMenu->AddOption("Duplicate", [&]() {  printf("Paste"); });
+	ctxMenu->AddDividor();
+	ctxMenu->AddOption("Delete", [&]() {  printf("Paste"); });
+
+	ctxMenu->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
+	ctxMenu->SetColour(theme.panelBackground);
+	ctxMenu->SetBorderColour(theme.panelHighlight);
+	ctxMenu->SetPosition({ 100.0f, 100.0f });
+	ctxMenu->SetRounding(theme.buttonRounding);
+	ctxMenu->Open();
 
 	modalPopup.Initialise(windowPanel, &fontManager, (float)window_width / 2.0f);
 
