@@ -6,6 +6,11 @@
 #include <cassert>
 #include "../WorkspaceUI.h"
 
+MarkdownViewer::~MarkdownViewer()
+{
+
+}
+
 void MarkdownViewer::LoadFileContents()
 {
 	std::ifstream file(m_File->path);
@@ -30,25 +35,21 @@ void MarkdownViewer::InitialiseGUIElements()
 
 	m_TextBox = m_Panel->NewChild<gui::TextBox>();
 
-	if (m_File->isCodeFile)
-	{
-		m_TextBox->SetFontManager(m_CodeFontManager);
-		m_TextBox->SetFontSize(14);
-		m_ShowLineNumbers = true;
-	}
-	else
-	{
-		m_TextBox->SetFontManager(m_FontManager);
-		m_TextBox->SetFontSize(16);
-	}
+
+	m_TextBox->SetFontManager(m_FontManager);
+	m_TextBox->SetCodeFontManager(m_CodeFontManager);
+	m_TextBox->SetFontSize(16);
+
 
 
 	m_TextBox->SetBounds({ padding, yPos + 45.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
 	m_TextBox->string = m_FileContents;
 	m_TextBox->SetAnchor(gui::Anchor::BottomRight);
 	m_TextBox->SetLockPosition(true);
+	m_TextBox->SetShouldFormat(true);
 
 	m_TextBox->SetOnEditCallback([&]() { m_Saved = false; m_SavedCircle->SetVisible(true); });
+
 
 }
 

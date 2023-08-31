@@ -23,7 +23,7 @@ void FileViewer::SetupTitleAndExt()
 			m_FileExt->SetPosition({ xPos + 35.0f, yPos + dif });
 		});
 
-	m_Title->SetOnOnLoseCallback([&]()
+	m_Title->SetOnLoseCallback([&]()
 		{
 
 			std::string oldPath = m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension;
@@ -36,7 +36,8 @@ void FileViewer::SetupTitleAndExt()
 				m_File->name = m_Title->string;
 				m_File->path = m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension;
 
-				parent->RefreshGUI();
+				if (parent)
+					parent->RefreshGUI();
 			}
 
 

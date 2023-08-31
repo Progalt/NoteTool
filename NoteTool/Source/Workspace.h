@@ -60,7 +60,7 @@ struct File
 
 		if (extension == ".md")
 		{
-			type = FileType::PlainText;
+			type = FileType::Markdown;
 		}
 
 		if (extension == ".cpp" || extension == ".hpp" ||

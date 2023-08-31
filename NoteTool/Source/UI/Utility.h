@@ -959,13 +959,13 @@ namespace gui
 			return fontManager->Get(FontWeight::BoldItalic, textSize);
 			break;
 		case TextFormatOption::Header1:
-			return fontManager->Get(FontWeight::Bold, textSize + 24);
+			return fontManager->Get(FontWeight::Bold, textSize + 20);
 			break;
 		case TextFormatOption::Header2:
-			return fontManager->Get(FontWeight::Bold, textSize + 16);
+			return fontManager->Get(FontWeight::Bold, textSize + 12);
 			break;
 		case TextFormatOption::Header3:
-			return fontManager->Get(FontWeight::Bold, textSize + 8);
+			return fontManager->Get(FontWeight::Bold, textSize + 6);
 			break;
 		default:
 			return fontManager->Get(defaultWeight, textSize);
@@ -975,6 +975,7 @@ namespace gui
 
 	inline Vector2f GetTextBoxSizeFormatted(const std::string& text,
 		FontManager* fontManager,
+		FontManager* codeFontManager,
 		uint32_t textSize,
 		FontWeight defaultWeight,
 		Vector2i position,
@@ -994,14 +995,31 @@ namespace gui
 		{
 			// lets see if this index is formatted
 			TextFormatOption formatOption = TextFormatOption::None;
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
 
 			for (auto& formats : formatting)
 			{
 				if (i > formats.start && i < formats.end)
+				{
 					formatOption = formats.option;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
 			}
 
+
+
 			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+
+			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
+			{
+				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
+			}
+
+			if (i == currentFormatStart || i == currentFormatEnd)
+				x += font->GetPixelSize();
+
 
 			uint32_t codepoint = text[i];
 
@@ -1031,7 +1049,7 @@ namespace gui
 				int wordOffset = x;
 				for (uint32_t w = i; w < text.size(); w++)
 				{
-					if (text[w] == ' ')
+					if (text[w] == ' ' || text[w] == '\n')
 						break;
 
 					uint32_t cp = text[w];
@@ -1075,6 +1093,7 @@ namespace gui
 
 	inline void RenderTextSoftwareFormatted(Image& img, const std::string& text,
 		FontManager* fontManager,
+		FontManager* codeFontManager,
 		uint32_t textSize,
 		FontWeight defaultWeight,
 		Vector2i position,
@@ -1095,19 +1114,39 @@ namespace gui
 			// lets see if this index is formatted
 			TextFormatOption formatOption = TextFormatOption::None;
 
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
+
 			for (auto& formats : formatting)
 			{
 				if (i > formats.start && i < formats.end)
+				{
 					formatOption = formats.option;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
 			}
 
+
+
 			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+
+			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
+			{
+				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
+			}
+
+			if (i == currentFormatStart || i == currentFormatEnd )
+				x += font->GetPixelSize();
+
+			// Strike through doesn't affect the font at all
+			bool renderStrikeThrough = formatOption == TextFormatOption::StrikeThrough ? true : false;
 
 			uint32_t codepoint = text[i];
 
 			if (codepoint == '\n')
 			{
-				x = 0;
+				x = 0.0f;
 				lineCount++;
 				lineOffset += font->GetLineSpacing();
 				continue;
@@ -1128,20 +1167,23 @@ namespace gui
 			if (textWrap != 0.0f)
 			{
 				// We want to wrap per word so lets get the word lengths
+				int wordLength = 0;
 				int wordOffset = x;
+				bool forceNewLine = false;
 				for (uint32_t w = i; w < text.size(); w++)
 				{
-					if (text[w] == ' ')
+					if (text[w] == ' ' || text[w] == '\n')
 						break;
 
 					uint32_t cp = text[w];
 
 					GlyphData d = font->GetCodePointData(cp);
 					wordOffset += d.advance;
+					wordLength += d.advance;
 				}
 
 				// if the word length is greater than the wrap limit go onto a new line 
-				if (wordOffset > textWrap)
+				if (wordOffset > textWrap || forceNewLine)
 				{
 					x = 0;
 					lineCount++;
@@ -1149,19 +1191,35 @@ namespace gui
 				}
 			}
 
+
+			float yposNoBearing = lineOffset + baseLine;
+
 			float xpos = x + data.bearingX;
-			float ypos = -(float)data.bearingY + lineOffset + baseLine;
+			float ypos = -(float)data.bearingY + yposNoBearing;
 
 
 			if (maxX < xpos + (float)data.advance)
 				maxX = xpos + (float)data.advance;
 
 
-
 			x += (float)data.advance;
 
 
+
 			font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos);
+
+			if (renderStrikeThrough)
+			{
+				uint32_t max = data.w + data.advance;
+				if (i == currentFormatEnd - 1)
+					max = data.w;
+
+				for (uint32_t p = 0; p < max; p++)
+				{
+					img.SetPixel((int)xpos + p, (int)yposNoBearing - font->GetAscent() / 2 + 3, { 1.0f, 1.0f, 1.0f, 1.0f });
+				}
+			}
+
 
 
 		}
@@ -1169,6 +1227,7 @@ namespace gui
 	}
 
 	inline Vector2f GetPositionOfCharFormatted(uint32_t idx, const std::string& text, FontManager* fontManager,
+		FontManager* codeFontManager,
 		uint32_t textSize,
 		FontWeight defaultWeight, float textWrap, std::vector<TextFormat> formatting)
 	{
@@ -1198,14 +1257,30 @@ namespace gui
 
 			TextFormatOption formatOption = TextFormatOption::None;
 
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
+
 			for (auto& formats : formatting)
 			{
 				if (i > formats.start && i < formats.end)
+				{
 					formatOption = formats.option;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
 			}
+
+
 
 			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
 
+			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
+			{
+				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
+			}
+
+			if (i == currentFormatStart || i == currentFormatEnd)
+				x += font->GetPixelSize();
 
 			uint32_t codepoint = text[i];
 
@@ -1235,7 +1310,7 @@ namespace gui
 				int wordOffset = x;
 				for (uint32_t w = i; w < text.size(); w++)
 				{
-					if (text[w] == ' ')
+					if (text[w] == ' ' || text[w] == '\n')
 						break;
 
 					uint32_t cp = text[w];
@@ -1279,5 +1354,143 @@ namespace gui
 
 		return { xpos, ypos };
 
+	}
+
+	inline uint32_t GetNearestCharFromPointFormatted(Vector2f point, uint32_t idx, const std::string& text, FontManager* fontManager,
+		FontManager* codeFontManager,
+		uint32_t textSize,
+		FontWeight defaultWeight, float textWrap, std::vector<TextFormat> formatting)
+	{
+
+		float x = 0.0f;
+		float y = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		//if (m_String == m_PreviousString)
+		//	return;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		uint32_t nearest = UINT32_MAX;
+		float dist = 1000000.0f;
+
+		float my = point.y;
+
+
+
+		if (point.x < 0.0f && point.y < 0.0f)
+			return 0;
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+
+			TextFormatOption formatOption = TextFormatOption::None;
+
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
+
+			for (auto& formats : formatting)
+			{
+				if (i > formats.start && i < formats.end)
+				{
+					formatOption = formats.option;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
+			}
+
+
+
+			Font* font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+
+			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
+			{
+				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
+			}
+
+			if (i == currentFormatStart || i == currentFormatEnd)
+				x += font->GetPixelSize();
+
+			uint32_t codepoint = text[i];
+
+
+			bool controlChar = false;
+
+			// Handle control characters
+			// These aren't actually rendered but do effect how the text should be rendered
+			if (codepoint == '\n')
+			{
+				x = 0;
+				lineCount++;
+				controlChar = true;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				controlChar = true;
+			}
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordOffset = x;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ' || text[w] == '\n')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+
+
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap)
+				{
+					x = 0;
+					lineCount++;
+				}
+			}
+
+
+
+
+			if (!controlChar)
+				x += (float)data.advance;
+			y = (float)lineCount * (float)font->GetLineSpacing();
+
+
+			// test the distance the point
+			Vector2f charPoint(x, y);
+			float newDist = point.Distance(charPoint);
+
+			// if the new distance is closer than the current closest set this as the current closest
+			if (newDist < dist)
+			{
+				dist = newDist;
+				nearest = i;
+
+			}
+
+
+
+
+		}
+
+		if (nearest == UINT32_MAX)
+			nearest = text.size();
+
+		return nearest;
 	}
 }

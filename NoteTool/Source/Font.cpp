@@ -136,9 +136,13 @@ void Font::LoadAlphabet(Alphabet alphabet)
 
 GlyphData Font::GetCodePointData(const uint32_t codepoint)
 {
+
 	Alphabet codepointAlphabet = GetAlphabetForCodepoint(codepoint);
 
 	uint32_t arrayOffset = codepoint - alphabetCodepoints[(int)codepointAlphabet].first;
+
+	if (arrayOffset > m_Alphabets[codepointAlphabet].glyphs.size())
+		return GlyphData();
 
 	GlyphData data;
 	data.advance = m_Alphabets[codepointAlphabet].glyphs[arrayOffset].advance;

@@ -4,6 +4,7 @@
 #include "UI/List.h"
 #include "UI/TextBox.h"
 #include "FileViewers/PlainTextViewer.h"
+#include "FileViewers/MarkdownViewer.h"
 
 struct WorkspaceTab
 {
@@ -187,6 +188,22 @@ private:
 						if (file->type == FileType::PlainText)
 						{
 							PlainTextViewer* viewer = new PlainTextViewer;
+							viewer->SetFontManager(m_FontManager);
+							viewer->SetParentPanel(m_TextArea);
+							viewer->SetCodeFontManager(m_CodeFontManager);
+							viewer->SetFile(file);
+							viewer->parent = this;
+
+							m_Viewers.push_back(viewer);
+
+							m_ActiveTab->currentFileView = viewer;
+
+							m_NothingOpenText->SetVisible(false);
+						}
+
+						if (file->type == FileType::Markdown)
+						{
+							MarkdownViewer* viewer = new MarkdownViewer;
 							viewer->SetFontManager(m_FontManager);
 							viewer->SetParentPanel(m_TextArea);
 							viewer->SetCodeFontManager(m_CodeFontManager);

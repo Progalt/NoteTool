@@ -122,6 +122,27 @@ namespace gui
 			m_Children.erase(m_Children.begin() + first, m_Children.end());
 		}
 
+		template<typename _Ty>
+		void RemoveChild(_Ty* widget)
+		{
+			bool found = false;
+			uint32_t i = 0;
+			for (i < m_Children.size(); i++;)
+			{
+				if (static_cast<_Ty*>(m_Children[i]) == widget)
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (found)
+			{
+				delete m_Children[i];
+				m_Children.erase(m_Children.begin() + i);
+			}
+		}
+
 		void HandleEvents()
 		{
 			// TODO: Add more anchor points

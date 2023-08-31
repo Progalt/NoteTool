@@ -15,7 +15,11 @@ namespace gui
 		Emphasis,
 		Header1,
 		Header2,
-		Header3
+		Header3,
+		StrikeThrough,
+		InlineCode,
+		CodeBlock,
+		HorizontalRule,
 	};
 
 	struct TextFormat
@@ -31,9 +35,9 @@ namespace gui
 	public:
 		Formatter(const std::string& str);
 
-		std::vector<TextFormat> GetFormatting() const { return m_Output; };
+		std::vector<TextFormat> GetFormattingForBaseString() const { return m_Output; };
 
-		std::string GetStringWithFormatting() const { return m_FormattedString; }
+		std::string GetStringWithoutFormatters() const { return m_FormattedString; }
 	private:
 
 		void ReformatString();

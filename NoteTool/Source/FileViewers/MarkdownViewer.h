@@ -3,11 +3,16 @@
 #include "FileViewer.h"
 #include "../UI/TextBox.h"
 #include "../UI/Text.h"
-#include "../WorkspaceUI.h"
+
+
+
+class WorkspaceUI;
 
 class MarkdownViewer : public FileViewer
 {
 public:
+	~MarkdownViewer();
+
 	void Hide() override
 	{
 		m_Title->SetVisible(false);
@@ -28,13 +33,13 @@ public:
 
 	void Save() override;
 
-	WorkspaceUI* parent;
 
 private:
 
 	void LoadFileContents() override;
 
 	void InitialiseGUIElements() override;
+
 
 	// Plain text is easy to load :D 
 	std::string m_FileContents = "";
@@ -43,5 +48,4 @@ private:
 	bool m_ShowLineNumbers = false;
 
 	gui::TextBox* m_TextBox;
-
 };

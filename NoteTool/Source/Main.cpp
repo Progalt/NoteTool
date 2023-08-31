@@ -252,7 +252,7 @@ int main(int argc, char* argv)
 	Font* fontBold = fontManager.Get(gui::FontWeight::Bold, 12);
 
 
-	codeFontManager.SetInitialFont("Hack");
+	codeFontManager.SetInitialFont("SourceCodePro");
 
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
 	whiteTexture.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
