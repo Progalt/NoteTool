@@ -7,7 +7,6 @@ namespace gui
 	{
 		// Bit hacky to add newlines to fix some problems when headers are at the current end of the file
 		m_String = str + "\n";
-		m_FormattedString = str + '\n';
 		m_Ptr = 0;
 
 		Parse();
@@ -35,7 +34,7 @@ namespace gui
 
 					if (end != UINT32_MAX)
 					{
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Emphasis);
+						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Emphasis, 3, 3);
 
 						while (m_Ptr != end + 3)
 							m_Ptr++;
@@ -43,7 +42,7 @@ namespace gui
 
 					
 				}
-				else if (Peek() == '*')
+				else if (Peek() == '*' && PeekBack() != '*')
 				{
 					// We are at the start of a bold
 
@@ -56,7 +55,7 @@ namespace gui
 						if (Peek(end - m_Ptr + 2) != '*')
 						{
 
-							AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Bold);
+							AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Bold, 2, 2);
 
 							while (m_Ptr != end + 2)
 								m_Ptr++;
@@ -76,7 +75,7 @@ namespace gui
 				
 					if (end != UINT32_MAX)
 					{
-						AddFormat(m_Ptr, end, gui::TextFormatOption::Italic);
+						AddFormat(m_Ptr, end, gui::TextFormatOption::Italic, 1, 1);
 
 						while (m_Ptr != end + 1)
 							m_Ptr++;
@@ -100,7 +99,7 @@ namespace gui
 
 					if (end != UINT32_MAX)
 					{
-						AddFormat(m_Ptr, end, gui::TextFormatOption::Header1);
+						AddFormat(m_Ptr, end, gui::TextFormatOption::Header1, 1, 0);
 
 						while (m_Ptr != end + 1)
 							m_Ptr++;
@@ -115,7 +114,7 @@ namespace gui
 
 					if (end != UINT32_MAX)
 					{
-						AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Header2);
+						AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Header2, 2, 0);
 
 						while (m_Ptr != end + 1)
 							m_Ptr++;
@@ -130,7 +129,7 @@ namespace gui
 
 					if (end != UINT32_MAX)
 					{
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Header3);
+						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Header3, 3, 0);
 
 						while (m_Ptr != end + 1)
 							m_Ptr++;
@@ -155,7 +154,7 @@ namespace gui
 						if (Peek(end - m_Ptr + 2) != '*')
 						{
 
-							AddFormat(m_Ptr + 1, end, gui::TextFormatOption::StrikeThrough);
+							AddFormat(m_Ptr + 1, end, gui::TextFormatOption::StrikeThrough, 2, 2);
 
 							while (m_Ptr != end + 2)
 								m_Ptr++;
@@ -172,16 +171,18 @@ namespace gui
 				if (PeekBack() == escape)
 					break;
 
-				if (Peek() != '`' && PeekBack() != '`')
+				if (Peek() != '`')
 				{
 					uint32_t end = FindNext("`", 1);
 
+					if (FindNext("\n", 1) < end)
+						end = UINT32_MAX;
 
 
 					if (end != UINT32_MAX)
 					{
 
-						AddFormat(m_Ptr, end, gui::TextFormatOption::InlineCode);
+						AddFormat(m_Ptr, end, gui::TextFormatOption::InlineCode, 1, 1);
 
 
 
@@ -200,7 +201,7 @@ namespace gui
 					if (end != UINT32_MAX)
 					{
 
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::CodeBlock);
+						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::CodeBlock, 3, 3);
 
 						while (m_Ptr != end + 1)
 							m_Ptr++;
@@ -221,7 +222,7 @@ namespace gui
 					if (end != UINT32_MAX)
 					{
 
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::HorizontalRule);
+						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::HorizontalRule, 3, 0);
 
 						while (m_Ptr != end + 1)
 							m_Ptr++;
@@ -237,15 +238,11 @@ namespace gui
 		}
 
 
-		ReformatString();
+
 	}
 
-	void Formatter::ReformatString()
-	{
-		
+
 	
-
-	}
 
 	uint32_t Formatter::FindNext(const std::string& str, uint32_t offset)
 	{

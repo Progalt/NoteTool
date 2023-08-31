@@ -1097,7 +1097,8 @@ namespace gui
 		uint32_t textSize,
 		FontWeight defaultWeight,
 		Vector2i position,
-		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting)
+		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting,
+		uint32_t formatHideExcludeStart = 0, uint32_t formatHideExcludeEnd = 0)
 	{
 		float x = 0.0f;
 
@@ -1116,14 +1117,58 @@ namespace gui
 
 			uint32_t currentFormatEnd = UINT32_MAX;
 			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
 
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start && i < formats.end)
+				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
 				{
-					formatOption = formats.option;
+					if (i > formats.start && i < formats.end)
+					{
+						formatOption = formats.option;
+					}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
+				}
+			}
+
+			bool renderChar = true;
+			bool formatChar = false;
+
+			if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
+			{
+				uint32_t min = currentFormatStart - currentStartFormatterSize;
+				uint32_t max = currentFormatEnd + currentEndFormatterSize;
+
+				bool minIntersects = (min >= formatHideExcludeStart && min <= formatHideExcludeEnd);
+				bool maxIntersects = (max >= formatHideExcludeStart && max <= formatHideExcludeEnd);
+
+
+				if (!minIntersects && !maxIntersects || formatHideExcludeStart == formatHideExcludeEnd)
+				{
+
+					if (i >= currentFormatStart - currentStartFormatterSize && i <= currentFormatStart)
+					{
+						renderChar = false;
+					}
+					else if (i >= currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						renderChar = false;
+					}
+				}
+				else
+				{
+					if (i >= currentFormatStart - currentStartFormatterSize && i <= currentFormatStart)
+					{
+						formatChar = true;
+					}
+					else if (i >= currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						formatChar = true;
+					}
 				}
 			}
 
@@ -1136,8 +1181,8 @@ namespace gui
 				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
 			}
 
-			if (i == currentFormatStart || i == currentFormatEnd )
-				x += font->GetPixelSize();
+			//if (i == currentFormatStart || i == currentFormatEnd )
+			//	x += font->GetPixelSize();
 
 			// Strike through doesn't affect the font at all
 			bool renderStrikeThrough = formatOption == TextFormatOption::StrikeThrough ? true : false;
@@ -1201,26 +1246,32 @@ namespace gui
 			if (maxX < xpos + (float)data.advance)
 				maxX = xpos + (float)data.advance;
 
+			Colour col = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-			x += (float)data.advance;
+			if (formatChar)
+				col = { 0.25f, 0.25f, 0.25f, 1.0f };
 
-
-
-			font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos);
-
-			if (renderStrikeThrough)
+			if (renderChar)
 			{
-				uint32_t max = data.w + data.advance;
-				if (i == currentFormatEnd - 1)
-					max = data.w;
+				x += (float)data.advance;
 
-				for (uint32_t p = 0; p < max; p++)
+
+
+				font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos, col);
+
+				if (renderStrikeThrough)
 				{
-					img.SetPixel((int)xpos + p, (int)yposNoBearing - font->GetAscent() / 2 + 3, { 1.0f, 1.0f, 1.0f, 1.0f });
+					uint32_t max = data.w + data.advance;
+					if (i == currentFormatEnd - 1)
+						max = data.w;
+
+					for (uint32_t p = 0; p < max; p++)
+					{
+						img.SetPixel((int)xpos + p, (int)yposNoBearing - font->GetAscent() / 2 + 3, col);
+					}
 				}
+
 			}
-
-
 
 		}
 

@@ -37,7 +37,7 @@ public:
 
 	Image RasterizeGlyph(const uint32_t codepoint);
 
-	void RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint32_t y);
+	void RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint32_t y, Colour col = Colour(1.0f,1.0f, 1.0f, 1.0f));
 
 	GlyphData GetCodePointData(const uint32_t codepoint);
 

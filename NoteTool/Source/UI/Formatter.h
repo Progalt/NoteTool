@@ -25,6 +25,8 @@ namespace gui
 	struct TextFormat
 	{
 		uint32_t start, end;
+		uint32_t formatterStartSize;
+		uint32_t formatterEndSize;
 
 		TextFormatOption option;
 	};
@@ -37,17 +39,15 @@ namespace gui
 
 		std::vector<TextFormat> GetFormattingForBaseString() const { return m_Output; };
 
-		std::string GetStringWithoutFormatters() const { return m_FormattedString; }
+
+
 	private:
 
-		void ReformatString();
 
 		std::vector<TextFormat> m_Output;
 
 		uint32_t m_Ptr;
 		std::string m_String;
-
-		std::string m_FormattedString = "";
 
 		void Parse();
 
@@ -69,7 +69,10 @@ namespace gui
 
 		uint32_t FindNext(const std::string& str, uint32_t offset = 0);
 
-		void AddFormat(uint32_t start, uint32_t end, TextFormatOption opt) { m_Output.push_back({ start, end, opt }); }
+		void AddFormat(uint32_t start, uint32_t end, TextFormatOption opt, uint32_t formatterStartSize = 0, uint32_t formatterEndSize = 0) 
+		{ 
+			m_Output.push_back({ start, end, formatterStartSize, formatterEndSize, opt }); 
+		}
 		
 	};
 }

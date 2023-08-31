@@ -12,6 +12,26 @@ enum class FontWeight
 	Regular, Bold
 };
 
+struct LanguageHighlighting
+{
+	std::vector<std::string> types;
+	std::vector<std::string> keywords;
+};
+
+static const std::string KnownLanguages[] = {
+	"cpp", 
+	"java",
+	"csharp",
+	"python",
+	"javascript",
+	"html",
+	"css",
+	"rust",
+	"dart"
+};
+
+constexpr uint32_t KnownLanguageCount = 8;
+
 class Theme
 {
 public:
@@ -50,6 +70,14 @@ public:
 		textSub = ColourFromJSON(j["text-sub"]);
 	}
 
+	void AttemptToLoadLanguageHighlighting()
+	{
+		for (uint32_t i = 0; i < KnownLanguageCount; i++)
+		{
+
+		}
+	}
+
 	struct Info
 	{
 		std::string name;
@@ -73,6 +101,8 @@ public:
 	Colour textSub;
 
 	float buttonRounding;
+
+	std::unordered_map<std::string, LanguageHighlighting> languageHighlighting;
 
 
 private:

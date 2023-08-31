@@ -20,16 +20,24 @@ namespace gui
 
 			
 
-			if (m_FullRerender && !string.empty() && m_FontManager)
+			if (m_FullRerender)
 			{
+				
 				if (m_Format)
 				{
 					gui::Formatter formatter(string);
+
 					m_Formats = formatter.GetFormattingForBaseString();
+					text.formattedString = string;
 				}
 
+				uint32_t min = 0;
+				uint32_t max = string.size();
 
-				text.RasterizeTextFormatted(string, m_FontManager, m_CodeFontManager, m_FontSize, m_Bounds.w, m_Formats, m_DefaultWeight);
+				if (!m_Editing)
+					max = 0;
+
+				text.RasterizeTextFormatted(m_Format ? text.formattedString : string, m_FontManager, m_CodeFontManager, m_FontSize, m_Bounds.w, m_Formats, m_DefaultWeight, min, max);
 				 
 					//text.RasterizeText(string, m_FontManager->Get(gui::FontWeight::Light, m_FontSize), m_Bounds.w);
 
@@ -68,7 +76,7 @@ namespace gui
 					drawList.Add(bg.vertices, bg.indices);
 				}
 
-				if (format.option == TextFormatOption::HorizontalRule)
+				if (format.option == TextFormatOption::HorizontalRule && !m_Editing)
 				{
 					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					start.y += (float)m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent() / 2.0f;
@@ -115,6 +123,8 @@ namespace gui
 
 				if (m_CursorTime >= 1.0f)
 					m_CursorTime = 0.0f;
+
+				//m_Bounds.h = gui::GetTextBoxSizeFormatted(string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, {}, m_Bounds.w, {}, {}, 0.0f, m_Formats).y;
 			}
 
 			GenerateChildVertexLists(drawList);
@@ -123,7 +133,7 @@ namespace gui
 
 		void OnEvent() override
 		{
-			
+
 			static bool dragging = false;
 			m_Hovered = false;
 			if (m_GlobalBounds.Contains((float)EventHandler::x, (float)EventHandler::y))
@@ -138,6 +148,7 @@ namespace gui
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
 				{
 					m_Editing = true;
+					m_FullRerender = true;
 					Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
 					mpoint = mpoint - m_GlobalBounds.position;
 					EventHandler::cursorOffset = gui::GetNearestCharFromPointFormatted(mpoint, 0, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats) + 1;
@@ -171,6 +182,7 @@ namespace gui
 				{
 					// We have lost focus
 					m_Editing = false;
+					m_FullRerender = true;
 
 					if (m_OnLoseFocus)
 						m_OnLoseFocus();
@@ -237,6 +249,11 @@ namespace gui
 			m_Format = format;
 		}
 
+		float GetTextBoxHeight()
+		{
+			return gui::GetTextBoxSizeFormatted(string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, {}, m_Bounds.w, {}, {}, 0.0f, m_Formats).y;
+		}
+
 	private:
 
 		std::function<void()> m_OnEdit;
@@ -293,7 +310,8 @@ namespace gui
 				
 			}
 
-			void RasterizeTextFormatted(const std::string& str, FontManager* fontManager, FontManager* codeManager, uint32_t fontSize, float textWrap, std::vector<TextFormat> formatting, FontWeight defaultWeight)
+			void RasterizeTextFormatted(const std::string& str, FontManager* fontManager, FontManager* codeManager, uint32_t fontSize, float textWrap, 
+				std::vector<TextFormat> formatting, FontWeight defaultWeight, uint32_t minTextFormat, uint32_t maxTextFormat)
 			{
 				Font* font = fontManager->Get(gui::FontWeight::Bold, fontSize);
 
@@ -315,8 +333,9 @@ namespace gui
 				printf("Rerasterising Textbox...\n");
 
 
+
 				gui::RenderTextSoftwareFormatted(image, str, fontManager, codeManager, fontSize,
-					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting);
+					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting, minTextFormat, maxTextFormat);
 
 
 				texture.CreateFromImage(image);

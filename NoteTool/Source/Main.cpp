@@ -224,6 +224,11 @@ int main(int argc, char* argv)
 
 	win = SDL_CreateWindow("Notes - Workspace/", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
+	if (!win)
+	{
+		printf("Failed to make window \n");
+	}
+
 	SDL_SetWindowResizable(win, SDL_TRUE);
 
 	// only enable dark mode for the hwnd if the theme wants it to be
@@ -237,6 +242,11 @@ int main(int argc, char* argv)
 	SDL_GLContext ctx;
 
 	ctx = SDL_GL_CreateContext(win);
+
+	if (!ctx)
+	{
+		printf("Failed to make opengl context\n");
+	}
 
 	// Initialise the rendering
 

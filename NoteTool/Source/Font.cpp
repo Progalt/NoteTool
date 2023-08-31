@@ -50,7 +50,7 @@ void Font::SetFont(const std::string& path, uint32_t pixelSize, bool aa)
 	m_PixelSize = pixelSize;
 }
 
-void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint32_t y)
+void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint32_t y, Colour col)
 {
 
 	uint32_t index = FT_Get_Char_Index(m_Face, codepoint);
@@ -76,7 +76,7 @@ void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint
 			unsigned char p = m_Face->glyph->bitmap.buffer[i * m_Face->glyph->bitmap.width + j];
 
 
-			img->SetPixel(x + j, y + i, Colour(255, 255, 255, p));
+			img->SetPixel(x + j, y + i, Colour(col.AsByte(0), col.AsByte(1), col.AsByte(2), p));
 
 		}
 

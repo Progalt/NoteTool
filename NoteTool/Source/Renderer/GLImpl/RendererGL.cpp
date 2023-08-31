@@ -4,6 +4,7 @@
 #include <cassert>
 #include "../../Platform.h"
 
+
 #define glCheck(func) func; if (GL_NO_ERROR != glGetError()) printf("GL Error: %d, %s\n", __LINE__, __FILE__);
 
 void GLAPIENTRY
@@ -22,16 +23,21 @@ MessageCallback(GLenum source,
 
 void RendererGL::Initialise(SDL_Window* win)
 {
-	assert(gladLoadGL());
+	if (!gladLoadGL())
+	{
+		printf("Failed to initialise GLAD\n");
+	}
 
-	glEnable(GL_DEBUG_OUTPUT);
+
 	glEnable(GL_SCISSOR_TEST);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+#ifdef _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
+#endif
 
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
