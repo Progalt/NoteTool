@@ -1,11 +1,12 @@
 
-#include "PlainTextViewer.h"
+#include "MarkdownViewer.h"
+
 #include <fstream>
 #include <sstream>
 #include <cassert>
 #include "../WorkspaceUI.h"
 
-void PlainTextViewer::LoadFileContents()
+void MarkdownViewer::LoadFileContents()
 {
 	std::ifstream file(m_File->path);
 
@@ -18,7 +19,7 @@ void PlainTextViewer::LoadFileContents()
 
 }
 
-void PlainTextViewer::InitialiseGUIElements()
+void MarkdownViewer::InitialiseGUIElements()
 {
 
 	SetupTitleAndExt();
@@ -26,8 +27,8 @@ void PlainTextViewer::InitialiseGUIElements()
 	float padding = 30.0f;
 	float yPos = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetPixelSize();
 
-	m_TextBox = m_Panel->NewChild<gui::TextBox>();
 
+	m_TextBox = m_Panel->NewChild<gui::TextBox>();
 
 	if (m_File->isCodeFile)
 	{
@@ -40,7 +41,7 @@ void PlainTextViewer::InitialiseGUIElements()
 		m_TextBox->SetFontManager(m_FontManager);
 		m_TextBox->SetFontSize(16);
 	}
-	
+
 
 	m_TextBox->SetBounds({ padding, yPos + 45.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
 	m_TextBox->string = m_FileContents;
@@ -51,7 +52,7 @@ void PlainTextViewer::InitialiseGUIElements()
 
 }
 
-void PlainTextViewer::Save()
+void MarkdownViewer::Save()
 {
 	m_FileContents = m_TextBox->string;
 

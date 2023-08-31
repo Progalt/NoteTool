@@ -3,6 +3,10 @@
 #include "../Workspace.h"
 #include "../UI/Panel.h"
 #include "../UI/FontManager.h"
+#include "../UI/TextBox.h"
+#include "../UI/Text.h"
+
+class WorkspaceUI;
 
 class FileViewer
 {
@@ -26,11 +30,16 @@ public:
 
 	virtual void Refresh() { }
 
+	WorkspaceUI* parent;
+
+
 protected:
 
 	virtual void LoadFileContents() = 0;
 
 	virtual void InitialiseGUIElements() = 0;
+
+	void SetupTitleAndExt();
 
 	File* m_File;
 
@@ -40,5 +49,11 @@ protected:
 
 	gui::FontManager* m_FontManager;
 	gui::FontManager* m_CodeFontManager;
+
+	gui::TextBox* m_Title;
+	gui::Text* m_FileExt;
+	gui::Panel* m_SavedCircle;
+
+	bool m_Saved = true;
 
 };

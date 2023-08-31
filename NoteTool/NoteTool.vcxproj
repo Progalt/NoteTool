@@ -128,6 +128,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\FileViewers\FileViewer.cpp" />
+    <ClCompile Include="Source\FileViewers\MarkdownViewer.cpp" />
     <ClCompile Include="Source\FileViewers\PlainTextViewer.cpp" />
     <ClCompile Include="Source\Font.cpp" />
     <ClCompile Include="Source\Image.cpp" />
@@ -149,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Colour.h" />
     <ClInclude Include="Source\FileViewers\FileViewer.h" />
+    <ClInclude Include="Source\FileViewers\MarkdownViewer.h" />
     <ClInclude Include="Source\FileViewers\PlainTextViewer.h" />
     <ClInclude Include="Source\Font.h" />
     <ClInclude Include="Source\History.h" />

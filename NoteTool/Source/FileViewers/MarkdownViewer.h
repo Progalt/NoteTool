@@ -3,13 +3,11 @@
 #include "FileViewer.h"
 #include "../UI/TextBox.h"
 #include "../UI/Text.h"
+#include "../WorkspaceUI.h"
 
-class WorkspaceUI;
-
-class PlainTextViewer : public FileViewer
+class MarkdownViewer : public FileViewer
 {
 public:
-
 	void Hide() override
 	{
 		m_Title->SetVisible(false);
@@ -30,6 +28,8 @@ public:
 
 	void Save() override;
 
+	WorkspaceUI* parent;
+
 private:
 
 	void LoadFileContents() override;
@@ -43,7 +43,5 @@ private:
 	bool m_ShowLineNumbers = false;
 
 	gui::TextBox* m_TextBox;
-
-
 
 };

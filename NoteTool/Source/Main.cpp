@@ -598,6 +598,13 @@ int main(int argc, char* argv)
 
 				}
 
+				if (evnt.key.keysym.sym == SDLK_s && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					printf("Saving...\n");
+					workspaceUI.TriggerSave();
+					//modalPopup.DisplayModal(ModalType::Success, "Successfully saved", (float)window_width / 2.0f);
+				}
+
 
 
 				//// Clipboard options
@@ -616,12 +623,6 @@ int main(int argc, char* argv)
 					textedit::Insert(clipboard);
 				}
 
-				if (evnt.key.keysym.sym == SDLK_v && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					std::string clipboard(SDL_GetClipboardText());
-
-					textedit::Insert(clipboard);
-				}
 
 
 
