@@ -32,15 +32,19 @@ public:
 
 	// --- DRAWING FUNCTIONS ---
 
+	void Fill(const Colour& col);
+
 	void DrawLine(const Vector2f& p1, const Vector2f& p2);
+
+	void DrawRect(const FloatRect& rect);
 
 private:
 
 	Image* m_Target;
 
 
-	Brush* m_CurrentBrush;	// The internal filling of the shape
-	Pen* m_CurrentPen;		// Pen determines how the outline should be drawn if any
+	Brush* m_CurrentBrush = nullptr;	// The internal filling of the shape
+	Pen* m_CurrentPen = nullptr;		// Pen determines how the outline should be drawn if any
 
 	IntRect m_ClippingRect = IntRect();
 

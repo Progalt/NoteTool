@@ -37,9 +37,6 @@ namespace gui
 
 		static std::string* textInput;
 		static int cursorOffset;
-		static int selectionStart;
-
-		static bool selecting;
 
 		struct MouseButton
 		{

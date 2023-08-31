@@ -59,7 +59,7 @@ namespace gui
 		float y = m_OptionPadding + m_Bounds.y;
 		for (auto& option : m_Options)
 		{
-			float x = m_HorizontalPadding + m_Bounds.x;
+			float x = m_HorizontalPadding * 2.0f + m_Bounds.x;
 
 			// Rasterize the text if needed
 			if (!option.createdGPUResources)
@@ -77,7 +77,7 @@ namespace gui
 			Vector2f textMin = { x, y };
 			Vector2f textMax = { x + width, y + m_Font->GetMaxHeight() + 4.0f };
 
-			option.bounds.position = textMin;
+			option.bounds.position = textMin - Vector2f{ m_HorizontalPadding * 2.0f, 0.0f };
 			option.bounds.size = textMax - textMin;
 
 			Shape textQuad = gui::GenerateQuad(textMin - Vector2f{ 0.0f, 1.0f }, textMax - Vector2f{ 0.0f, 1.0f }, { 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });

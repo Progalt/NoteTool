@@ -541,7 +541,6 @@ int main(int argc, char* argv)
 
 					textedit::Insert(evnt.text.text);
 
-					gui::EventHandler::selecting = false;
 				}
 				break;
 			case SDL_KEYDOWN:
@@ -570,82 +569,45 @@ int main(int argc, char* argv)
 					{
 						textedit::Insert("\n");
 
-						gui::EventHandler::selecting = false;
-
 					}
 
 					if (evnt.key.keysym.sym == SDLK_TAB)
 					{
 						textedit::Insert("\t");
 
-						gui::EventHandler::selecting = false;
 					}
 
 
-					if (evnt.key.keysym.sym == SDLK_LEFT && evnt.key.keysym.mod & KMOD_LSHIFT)
+					if (evnt.key.keysym.sym == SDLK_LEFT)
 					{
 						if (gui::EventHandler::cursorOffset > 0)
 							gui::EventHandler::cursorOffset--;
 
-						gui::EventHandler::selecting = true;
-					}
-					else if (evnt.key.keysym.sym == SDLK_LEFT)
-					{
-						if (gui::EventHandler::cursorOffset > 0)
-							gui::EventHandler::cursorOffset--;
-
-						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
-
-						gui::EventHandler::selecting = false;
 					}
 
 
-					if (evnt.key.keysym.sym == SDLK_RIGHT && evnt.key.keysym.mod & KMOD_LSHIFT)
-					{
-						if (gui::EventHandler::cursorOffset < gui::EventHandler::textInput->size())
-							gui::EventHandler::cursorOffset++;
-
-						gui::EventHandler::selecting = true;
-					}
-					else if (evnt.key.keysym.sym == SDLK_RIGHT)
+					if (evnt.key.keysym.sym == SDLK_RIGHT)
 					{
 						uint32_t offset = 1;
 
-						if (gui::EventHandler::selecting)
-							offset = std::abs(gui::EventHandler::selectionStart - gui::EventHandler::cursorOffset);
-
+					
 						if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
 							gui::EventHandler::cursorOffset += offset;
 
-						gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
-
-						gui::EventHandler::selecting = false;
 					}
 
 				}
 
-				if (evnt.key.keysym.sym == SDLK_s && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					printf("Saving...\n");
-					workspaceUI.TriggerSave();
-					modalPopup.DisplayModal(ModalType::Success, "Successfully saved", (float)window_width / 2.0f);
-				}
 
-				if (evnt.key.keysym.sym == SDLK_a && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					gui::EventHandler::selectionStart = 0;
-					gui::EventHandler::cursorOffset = gui::EventHandler::textInput->size();
-					gui::EventHandler::selecting = true;
-				}
 
-				// Clipboard options
-				if (evnt.key.keysym.sym == SDLK_c && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					std::string selectedText = textedit::GetSelection();
-					SDL_SetClipboardText(selectedText.c_str());
+				//// Clipboard options
+				//if (evnt.key.keysym.sym == SDLK_c && evnt.key.keysym.mod & KMOD_CTRL)
+				//{
+				//	std::string selectedText = textedit::GetSelection();
+				//	SDL_SetClipboardText(selectedText.c_str());
 
-					printf("Added to clipboard: %s\n", selectedText.c_str());
-				}
+				//	printf("Added to clipboard: %s\n", selectedText.c_str());
+				//}
 
 				if (evnt.key.keysym.sym == SDLK_v && evnt.key.keysym.mod & KMOD_CTRL)
 				{

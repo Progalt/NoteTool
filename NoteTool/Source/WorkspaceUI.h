@@ -173,7 +173,6 @@ private:
 							m_ActiveTab->currentFileView = viewer;
 							m_ActiveTab->currentFileView->Show();
 							gui::EventHandler::cursorOffset = 0;
-							gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;
 
 							found = true;
 

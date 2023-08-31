@@ -18,80 +18,6 @@ namespace gui
 
 			float cursorMod = 4.0f;
 
-			if (EventHandler::selectionStart > string.size())
-				EventHandler::selectionStart = EventHandler::cursorOffset;
-
-			// Draw selection box
-			if (EventHandler::selectionStart != EventHandler::cursorOffset && m_Editing)
-			{
-				uint32_t firstLine = gui::GetLineOfChar(EventHandler::selectionStart, text.formattedString, m_Font, m_GlobalBounds.w);
-				uint32_t lastLine = gui::GetLineOfChar(EventHandler::cursorOffset, text.formattedString, m_Font, m_GlobalBounds.w);
-
-				uint32_t first, last;
-				first = std::min(firstLine, lastLine);
-				last = std::max(firstLine, lastLine);
-
-				uint32_t startSelection = std::min(EventHandler::selectionStart, EventHandler::cursorOffset);
-				uint32_t endSelection = std::max(EventHandler::selectionStart, EventHandler::cursorOffset);
-
-				if (first == last)
-				{
-					Vector2f startPos = gui::GetPositionOfCharFormatted(startSelection, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-					Vector2f endPos = gui::GetPositionOfCharFormatted(endSelection, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-
-					endPos.y += (float)m_Font->GetPixelSize();
-
-					Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
-
-					drawList.Add(selection.vertices, selection.indices);
-				}
-				else
-				{
-					for (uint32_t i = first; i <= last; i++)
-					{
-						uint32_t firstOfLine = gui::GetLastIdxOfLine(i - 1, text.formattedString, m_Font, m_GlobalBounds.w) + 2;
-						uint32_t lastOfLine = gui::GetLastIdxOfLine(i, text.formattedString, m_Font, m_GlobalBounds.w) + 1;
-
-						if (i == first)
-						{
-							Vector2f startPos = gui::GetPositionOfCharFormatted(startSelection, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-							Vector2f endPos = gui::GetPositionOfCharFormatted(lastOfLine, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-
-							endPos.y += (float)m_Font->GetPixelSize();
-
-							Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
-
-							drawList.Add(selection.vertices, selection.indices);
-						}
-						else if (i == last)
-						{
-							Vector2f startPos = gui::GetPositionOfCharFormatted(firstOfLine, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-							Vector2f endPos = gui::GetPositionOfCharFormatted(endSelection, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-
-							endPos.y += (float)m_Font->GetPixelSize();
-
-							Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
-
-							drawList.Add(selection.vertices, selection.indices);
-
-						}
-						else
-						{
-							Vector2f startPos = gui::GetPositionOfCharFormatted(firstOfLine, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-							Vector2f endPos = gui::GetPositionOfCharFormatted(lastOfLine, text.formattedString, m_FontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-
-							endPos.y += (float)m_Font->GetPixelSize();
-
-							Shape selection = gui::GenerateQuad(m_GlobalBounds.position + startPos, m_GlobalBounds.position + endPos + Vector2f{ 0.0f, cursorMod }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.1f, 0.1f, 0.1f, 1.0f });
-
-							drawList.Add(selection.vertices, selection.indices);
-						}
-
-					}
-				}
-			}
-
-
 
 			/*if (!string.empty() && m_Font)
 			{
@@ -177,9 +103,6 @@ namespace gui
 					if (EventHandler::cursorOffset > EventHandler::textInput->size())
 						EventHandler::cursorOffset = EventHandler::textInput->size();
 
-					EventHandler::selectionStart = EventHandler::cursorOffset;
-
-					EventHandler::selecting = false;
 				}
 				
 
@@ -212,28 +135,6 @@ namespace gui
 			}
 			
 
-			if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].down && dragging && m_Editing)
-			{
-
-				Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
-				mpoint = mpoint - m_GlobalBounds.position;
-
-				// if the mouse is above the bounds of the text box lock the position to just within the 
-				// textbox on the y axis
-				if (mpoint.y < 0.0f)
-					mpoint.y = 4.0f;
-
-				if (mpoint.y > m_GlobalBounds.h)
-					mpoint.y = m_GlobalBounds.h - 5.0f;
-
-				
-				EventHandler::selectionStart = gui::GetNearestCharFromPoint(mpoint, string, m_Font, m_GlobalBounds.w);
-
-				EventHandler::selecting = true;
-
-				if (EventHandler::selectionStart > EventHandler::textInput->size())
-					EventHandler::selectionStart = EventHandler::textInput->size();
-			}
 
 			if (string != m_CachedString || m_Bounds != m_CachedBounds)//|| m_Formats != m_CachedFormat)
 				TriggerRerender();

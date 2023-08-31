@@ -21,9 +21,7 @@ namespace gui
 	int EventHandler::verticalScroll = 0;
 
 	int EventHandler::cursorOffset = 0;
-	int EventHandler::selectionStart = 0;
 	std::string* EventHandler::textInput = nullptr;
-	bool EventHandler::selecting = false;
 
 	EventHandler::MouseButton EventHandler::mouseButton[MOUSE_BUTTON_COUNT];
 }
