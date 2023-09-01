@@ -325,7 +325,7 @@ namespace gui
 
 				textBounds.size += { gui::TextPadding, gui::TextPadding };
 
-				image.New((int)textBounds.w, textBounds.h, 4);
+				image.New((int)textBounds.w, (int)textBounds.h, 4);
 				image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f });
 
 				

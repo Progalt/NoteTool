@@ -101,7 +101,7 @@ namespace gui
 					{
 						AddFormat(m_Ptr, end, gui::TextFormatOption::Header1, 1, 0);
 
-						while (m_Ptr != end + 1)
+						while (m_Ptr != end )
 							m_Ptr++;
 					}
 				}
@@ -116,7 +116,7 @@ namespace gui
 					{
 						AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Header2, 2, 0);
 
-						while (m_Ptr != end + 1)
+						while (m_Ptr != end )
 							m_Ptr++;
 					}
 				}
@@ -131,7 +131,7 @@ namespace gui
 					{
 						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Header3, 3, 0);
 
-						while (m_Ptr != end + 1)
+						while (m_Ptr != end )
 							m_Ptr++;
 					}
 				}

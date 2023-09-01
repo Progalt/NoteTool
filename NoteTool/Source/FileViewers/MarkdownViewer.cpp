@@ -48,15 +48,17 @@ void MarkdownViewer::InitialiseGUIElements()
 	m_TextBox->SetLockPosition(true);
 	m_TextBox->SetShouldFormat(true);
 
-	float scrollPadding = 64.0f;
+	float scrollPadding = 128.0f;
 
 	m_TextBox->SetOnEditCallback([&]() { 
 		m_Saved = false; 
 		m_SavedCircle->SetVisible(true); 
 		printf("Panel  height: %f\n", m_Panel->GetBounds().h);
 		printf("Text box height: %f\n", m_TextBox->GetTextBoxHeight());
-		if (m_TextBox->GetTextBoxHeight() > m_Panel->GetBounds().h)
+		if (m_TextBox->GetTextBoxHeight() > m_Panel->GetBounds().h - m_TextBox->GetBounds().y)
 		{
+
+
 			m_Panel->SetScrollable(true);
 			m_Panel->SetScrollableArea(Vector2f(0.0f, m_TextBox->GetTextBoxHeight()));
 		}

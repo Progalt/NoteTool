@@ -97,7 +97,7 @@ void Image::New(uint32_t w, uint32_t h, uint32_t channels)
 
 void Image::SetPixel(uint32_t x, uint32_t y, Colour c)
 {
-	if (x > m_Width || y > m_Width)
+	if (x > m_Width || y > m_Height)
 		return;
 
 
