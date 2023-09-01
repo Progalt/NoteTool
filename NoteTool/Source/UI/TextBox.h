@@ -136,7 +136,9 @@ namespace gui
 
 			static bool dragging = false;
 			m_Hovered = false;
-			if (m_GlobalBounds.Contains((float)EventHandler::x, (float)EventHandler::y))
+			FloatRect bounds = m_GlobalBounds;
+			bounds.h = text.textBounds.h;
+			if (bounds.Contains((float)EventHandler::x, (float)EventHandler::y))
 			{
 				m_Hovered = true;
 			}
@@ -314,6 +316,7 @@ namespace gui
 				std::vector<TextFormat> formatting, FontWeight defaultWeight, uint32_t minTextFormat, uint32_t maxTextFormat)
 			{
 				Font* font = fontManager->Get(gui::FontWeight::Bold, fontSize);
+
 
 				textBounds.w =   textWrap + gui::TextPadding;
 				float height = gui::TextPadding + ((gui::GetLineCount(str, font, textWrap) + 1) * font->GetLineSpacing());
