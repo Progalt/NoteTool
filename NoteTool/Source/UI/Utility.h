@@ -941,7 +941,7 @@ namespace gui
 		return nearest;
 	}
 
-	inline Font* GetFontForFormat(TextFormatOption format, FontManager* fontManager, FontWeight defaultWeight, uint32_t textSize)
+	inline Font* GetFontForFormat(TextFormatOption format, FontManager* fontManager, FontManager* codeFontManager, FontWeight defaultWeight, uint32_t textSize)
 	{
 
 		switch (format)
@@ -959,13 +959,17 @@ namespace gui
 			return fontManager->Get(FontWeight::BoldItalic, textSize);
 			break;
 		case TextFormatOption::Header1:
-			return fontManager->Get(FontWeight::Bold, textSize + 20);
+			return fontManager->Get(FontWeight::Bold, textSize + 14);
 			break;
 		case TextFormatOption::Header2:
-			return fontManager->Get(FontWeight::Bold, textSize + 12);
+			return fontManager->Get(FontWeight::Bold, textSize + 8);
 			break;
 		case TextFormatOption::Header3:
-			return fontManager->Get(FontWeight::Bold, textSize + 6);
+			return fontManager->Get(FontWeight::Bold, textSize + 4);
+			break;
+		case TextFormatOption::InlineCode:
+		case TextFormatOption::CodeBlock:
+			return  codeFontManager->Get(gui::FontWeight::Regular, textSize - 2);
 			break;
 		default:
 			return fontManager->Get(defaultWeight, textSize);
@@ -1010,12 +1014,8 @@ namespace gui
 
 
 
-			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+			font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
 
-			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
-			{
-				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
-			}
 
 			if (i == currentFormatStart || i == currentFormatEnd)
 				x += font->GetPixelSize();
@@ -1174,12 +1174,8 @@ namespace gui
 
 
 
-			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
 
-			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
-			{
-				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
-			}
 
 			//if (i == currentFormatStart || i == currentFormatEnd )
 			//	x += font->GetPixelSize();
@@ -1323,12 +1319,9 @@ namespace gui
 
 
 
-			font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
 
-			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
-			{
-				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
-			}
+
 
 			if (i == currentFormatStart || i == currentFormatEnd)
 				x += font->GetPixelSize();
@@ -1453,12 +1446,8 @@ namespace gui
 
 
 
-			Font* font = GetFontForFormat(formatOption, fontManager, defaultWeight, textSize);
+			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
 
-			if (formatOption == TextFormatOption::InlineCode || formatOption == TextFormatOption::CodeBlock)
-			{
-				font = codeFontManager->Get(gui::FontWeight::Regular, textSize - 4);
-			}
 
 			if (i == currentFormatStart || i == currentFormatEnd)
 				x += font->GetPixelSize();

@@ -86,7 +86,7 @@ namespace gui
 
 				if (EventHandler::verticalScroll > 0)
 				{
-					target -= m_ScrollAmount;
+					target -= m_ScrollAmount * 2.0f;
 					//m_VisibleOffset.y = Lerp(m_VisibleOffset.y, target, EventHandler::deltaTime);
 
 					if (target < 0.0f)
@@ -94,7 +94,7 @@ namespace gui
 				}
 				else if (EventHandler::verticalScroll < 0)
 				{
-					target += m_ScrollAmount;
+					target += m_ScrollAmount * 2.0f;
 					//m_VisibleOffset.y = Lerp(m_VisibleOffset.y, target, EventHandler::deltaTime);
 					//m_VisibleOffset.y += m_ScrollAmount;
 

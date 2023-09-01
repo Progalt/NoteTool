@@ -26,6 +26,10 @@ public:
 
 		if (!m_Saved)
 			m_SavedCircle->SetVisible(true);
+
+		m_Panel->SetScrollable(true);
+		m_Panel->SetScrollableArea(Vector2f(0.0f, m_TextBox->GetTextBoxHeight()));
+	
 	}
 
 	void Save() override;

@@ -38,7 +38,7 @@ void MarkdownViewer::InitialiseGUIElements()
 
 	m_TextBox->SetFontManager(m_FontManager);
 	m_TextBox->SetCodeFontManager(m_CodeFontManager);
-	m_TextBox->SetFontSize(16);
+	m_TextBox->SetFontSize(14);
 
 
 
@@ -55,17 +55,11 @@ void MarkdownViewer::InitialiseGUIElements()
 		m_SavedCircle->SetVisible(true); 
 		printf("Panel  height: %f\n", m_Panel->GetBounds().h);
 		printf("Text box height: %f\n", m_TextBox->GetTextBoxHeight());
-		if (m_TextBox->GetTextBoxHeight() > m_Panel->GetBounds().h - m_TextBox->GetBounds().y)
-		{
-
-
+	
 			m_Panel->SetScrollable(true);
 			m_Panel->SetScrollableArea(Vector2f(0.0f, m_TextBox->GetTextBoxHeight()));
-		}
-		else
-		{
-			m_Panel->SetScrollableArea(Vector2f(0.0f, 0.0f));
-		}
+		
+		
 		 });
 
 

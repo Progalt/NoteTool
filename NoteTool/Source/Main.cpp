@@ -212,6 +212,8 @@ int main(int argc, char* argv)
 
 	theme.LoadFromThemeJSON("Themes/dark.json");
 
+	// Initialise the base window and context
+	// TODO: Probably could move this to a class or something 
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -355,10 +357,6 @@ int main(int argc, char* argv)
 
 
 				workspaceUI.Init(filelistArea, &currentWorkspace, fontRegular);
-				/*filelistArea->SetVisible(true);
-				textArea->SetVisible(true);
-				tabsArea->SetVisible(true);
-				dockArea->SetVisible(true);*/
 
 				workspaceUIPanel->SetVisible(true);
 

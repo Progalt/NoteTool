@@ -53,9 +53,10 @@ namespace gui
 					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 
+					start.x -= 4.0f;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
 
-					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f}, 4.0f);
+					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f}, 2.0f);
 
 					drawList.Add(bg.vertices, bg.indices);
 				}
@@ -70,9 +71,9 @@ namespace gui
 					end.x += m_GlobalBounds.w;
 
 					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.03f, 0.03f, 0.03f, 1.0f }, 4.0f);
-					Shape bgBorder = gui::GenerateRoundedQuad(start - Vector2f{1.0f, 1.0f}, end + Vector2f{ 1.0f, 1.0f }, { 0.06f, 0.06f, 0.06f, 1.0f }, 4.0f);
+					//Shape bgBorder = gui::GenerateRoundedQuad(start - Vector2f{1.0f, 1.0f}, end + Vector2f{ 1.0f, 1.0f }, { 0.06f, 0.06f, 0.06f, 1.0f }, 4.0f);
 
-					drawList.Add(bgBorder.vertices, bgBorder.indices);
+					//drawList.Add(bgBorder.vertices, bgBorder.indices);
 					drawList.Add(bg.vertices, bg.indices);
 				}
 
