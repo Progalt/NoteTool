@@ -68,7 +68,7 @@ namespace gui
 
 					start.x -= 5.0f;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
-					end.x += m_GlobalBounds.w;
+					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 
 					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.03f, 0.03f, 0.03f, 1.0f }, 4.0f);
 					//Shape bgBorder = gui::GenerateRoundedQuad(start - Vector2f{1.0f, 1.0f}, end + Vector2f{ 1.0f, 1.0f }, { 0.06f, 0.06f, 0.06f, 1.0f }, 4.0f);
@@ -84,7 +84,7 @@ namespace gui
 
 					Vector2f end = start;
 					end.y += 1.0f;
-					end.x += m_GlobalBounds.w;
+					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 
 					Shape bg = gui::GenerateQuad(start, end, {}, {}, { 0.04f, 0.04f, 0.04f, 1.0f });
 

@@ -106,6 +106,12 @@ namespace gui
 				// 25 feels responsive enough but smooth enough
 				m_VisibleOffset.y = Lerp(m_VisibleOffset.y, target, EventHandler::deltaTime * 25.0f);
 			}
+
+			if (m_ContextMenu && EventHandler::mouseButton[MOUSE_RIGHT].clicks >= 1)
+			{
+				m_ContextMenu->SetPosition({ (float)EventHandler::x + 5.0f, (float)EventHandler::y + 5.0f });
+				m_ContextMenu->Open();
+			}
 		}
 	}
 }

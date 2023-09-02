@@ -148,6 +148,8 @@ namespace gui
 				{
 					if (option.callback)
 						option.callback();
+
+					SetVisible(false);
 				}
 			}
 

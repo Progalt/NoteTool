@@ -59,14 +59,14 @@ gui::Panel* workspaceUIPanel;
 gui::Panel* filelistArea;
 gui::Panel* textArea;
 gui::Panel* tabsArea;
-gui::Panel* dockArea;
 
-float dockSize = 40.0f;
 float borderSize = 1.0f;
+
+const std::string m_BaseWorkspacePath = GetDocumentsPath() + "Workspaces/";
 
 void CreatePanelsForWorkspace()
 {
-	filelistArea->SetBounds({ dockSize , 0.0f, 250.0f, windowPanel->GetBounds().h, });
+	filelistArea->SetBounds({ 0.0f , 0.0f, 250.0f, windowPanel->GetBounds().h, });
 	filelistArea->SetColour(theme.panelBackground);
 	filelistArea->SetHighlightColour(theme.panelHighlight);
 	filelistArea->SetTransparency(1.0f);
@@ -77,17 +77,10 @@ void CreatePanelsForWorkspace()
 	float editableWidth = windowPanel->GetBounds().w - 250.0f;
 
 
-	textArea->SetBounds({ 250.0f + borderSize + dockSize, 0.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
+	textArea->SetBounds({ 250.0f + borderSize, 0.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
 	textArea->SetColour(theme.backgroundColour);
 	//textArea->SetVisible(false);
 
-	dockArea->SetBounds({ 0.0f, 0.0f, dockSize,  windowPanel->GetBounds().h });
-	dockArea->SetColour(theme.panelBackground);
-	dockArea->SetHighlightColour(theme.panelHighlight);
-	//dockArea->SetVisible(false);
-	dockArea->SetAnchor(gui::Anchor::BottomLeft);
-	dockArea->SetFlags(gui::PanelFlags::DrawBorder);
-	dockArea->SetLockPosition(true);
 
 	workspaceUI.SetTextArea(textArea);
 	workspaceUI.SetFontManager(&fontManager);
@@ -98,83 +91,7 @@ void CreatePanelsForWorkspace()
 }
 
 
-void InitDock()
-{
-	float dockButtonSize = dockSize - 6.0f;
 
-	gui::Button* createNewDirectory = dockArea->NewChild<gui::Button>();
-
-	createNewDirectory->SetAnchor(gui::Anchor::TopLeft);
-	createNewDirectory->SetBounds({ 3.0f, dockButtonSize, dockButtonSize, dockButtonSize });
-	createNewDirectory->SetOnClick([&](void*) 
-		{ 
-			// Create a new folder in the selected directory
-
-			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
-
-			if (!workspaceUI.GetSelectedPath().empty())
-				basePath = workspaceUI.GetSelectedPath();
-
-			std::string path = basePath + "/New Folder";
-
-			assert(CreateNewFolder(path));
-
-			workspaceUI.Refresh();
-
-		});
-	createNewDirectory->SetColour(theme.accentColour);
-	createNewDirectory->SetHighlightColour(theme.accentHighlight);
-	createNewDirectory->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	createNewDirectory->SetRounding(theme.buttonRounding);
-	createNewDirectory->SetShadowColour(theme.accentColour);
-	createNewDirectory->SetLockPosition(true);
-	createNewDirectory->SetLockSize(true);
-	createNewDirectory->SetAnchor(gui::Anchor::TopLeft);
-
-	gui::Button* createNewFile = dockArea->NewChild<gui::Button>();
-
-	
-	createNewFile->SetBounds({ 3.0f, dockButtonSize * 2.0f + 3.0f, dockButtonSize, dockButtonSize });
-	createNewFile->SetOnClick([&](void*)
-		{
-			// Create a new file in the selected directory
-
-			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
-
-			if (!workspaceUI.GetSelectedPath().empty())
-				basePath = workspaceUI.GetSelectedPath();
-
-			std::string path = basePath + "/NewFile";
-
-			assert(CreateNewFile(path, ".txt"));
-
-			workspaceUI.Refresh();
-		});
-	createNewFile->SetColour(theme.accentColour);
-	createNewFile->SetHighlightColour(theme.accentHighlight);
-	createNewFile->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	createNewFile->SetRounding(theme.buttonRounding);
-	createNewFile->SetShadowColour(theme.accentColour);
-	createNewFile->SetLockPosition(true);
-	createNewFile->SetLockSize(true);
-	createNewFile->SetAnchor(gui::Anchor::TopLeft);
-
-	gui::Button* settings = dockArea->NewChild<gui::Button>();
-
-	
-	settings->SetBounds({ 3.0f, dockArea->GetBounds().h - dockButtonSize - 10.0f, dockButtonSize, dockButtonSize});
-	settings->SetOnClick([&](void*)
-		{
-
-		});
-	settings->SetColour(theme.accentColour);
-	settings->SetHighlightColour(theme.accentHighlight);
-	settings->SetHoveredColour(theme.accentColour + theme.hoverModifier);
-	settings->SetRounding(theme.buttonRounding);
-	settings->SetShadowColour(theme.accentColour);
-	settings->SetLockSize(true);
-	settings->SetAnchor(gui::Anchor::BottomLeft);
-}
 
 
 
@@ -289,7 +206,6 @@ int main(int argc, char* argv)
 
 	filelistArea = workspaceUIPanel->NewChild<gui::Panel>();
 	textArea = workspaceUIPanel->NewChild<gui::Panel>();
-	dockArea = workspaceUIPanel->NewChild<gui::Panel>();
 
 	CreatePanelsForWorkspace();
 
@@ -353,7 +269,6 @@ int main(int argc, char* argv)
 					modal->SetVisible(false);
 
 				CreatePanelsForWorkspace();
-				InitDock();
 
 
 				workspaceUI.Init(filelistArea, &currentWorkspace, fontRegular);
@@ -386,7 +301,7 @@ int main(int argc, char* argv)
 
 	//modal->SetVisible(false);
 
-	/*gui::DropDown* dropDown = modal->NewChild<gui::DropDown>();
+	/*gui::DropDown* dropDown = modal->NewChild<gui::DropDown>(); 
 	dropDown->SetBounds({ 60.0f, 350.0f, 350.0f + 100.0f - 60.0f, 30.0f});
 	dropDown->SetColour(theme.accentColour);
 	dropDown->SetHighlightColour(theme.accentHighlight);
@@ -397,22 +312,43 @@ int main(int argc, char* argv)
 	dropDown->SetList({ "Plain Text", "Code" });*/
 
 
-	gui::ContextMenu* ctxMenu = windowPanel->NewChild<gui::ContextMenu>();
-	ctxMenu->AddOption("New", [&]() { printf("Copy"); });
-	ctxMenu->AddDividor();
-	ctxMenu->AddOption("Rename", [&]() {  printf("Paste"); });
-	ctxMenu->AddOption("Favourite", [&]() {  printf("Paste"); });
-	ctxMenu->AddOption("Duplicate", [&]() {  printf("Paste"); });
-	ctxMenu->AddDividor();
-	ctxMenu->AddOption("Delete", [&]() {  printf("Paste"); });
+	gui::ContextMenu* ctxMenu = filelistArea->GetContextMenu();
+	ctxMenu->AddOption("New Note", [&]() { printf("New Note"); 
+		
+			// Create a new file in the selected directory
+
+			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
+
+			//if (!workspaceUI.GetSelectedPath().empty())
+			//	basePath = workspaceUI.GetSelectedPath();
+
+			std::string path = basePath + "/NewFile";
+
+			assert(CreateNewFile(path, ".md"));
+
+			workspaceUI.Refresh();
+
+		
+		});
+	ctxMenu->AddOption("New Collection", [&]() { // Create a new folder in the selected directory
+
+		std::string basePath = currentWorkspace.GetRoot().path.generic_string();
+
+		if (!workspaceUI.GetSelectedPath().empty())
+			basePath = workspaceUI.GetSelectedPath();
+
+		std::string path = basePath + "/New Folder";
+
+		assert(CreateNewFolder(path));
+
+		workspaceUI.Refresh(); });
 
 	ctxMenu->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	ctxMenu->SetColour(theme.panelBackground);
 	ctxMenu->SetBorderColour(theme.panelHighlight);
 	ctxMenu->SetPosition({ 100.0f, 100.0f });
 	ctxMenu->SetRounding(theme.buttonRounding);
-	ctxMenu->Open();
-
+	
 	modalPopup.Initialise(windowPanel, &fontManager, (float)window_width / 2.0f);
 
 
@@ -445,9 +381,6 @@ int main(int argc, char* argv)
 
 		gui::EventHandler::resizeEvent = false;
 		gui::EventHandler::verticalScroll = 0;
-
-		gui::EventHandler::mouseButton[gui::MOUSE_LEFT].down = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT);
-		gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].down = SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
 		SDL_StartTextInput();
 
@@ -512,7 +445,7 @@ int main(int argc, char* argv)
 				}
 
 				gui::EventHandler::mouseButton[button].clicks = (evnt.type == SDL_MOUSEBUTTONDOWN) ? evnt.button.clicks : 0;
-				//gui::EventHandler::mouseButton[button].down = true;
+				gui::EventHandler::mouseButton[button].down = true;
 			}
 
 			break; 
@@ -532,7 +465,7 @@ int main(int argc, char* argv)
 					break;
 				}
 
-				//gui::EventHandler::mouseButton[button].down = false;
+				gui::EventHandler::mouseButton[button].down = false;
 			}
 				break;
 			case SDL_MOUSEWHEEL:

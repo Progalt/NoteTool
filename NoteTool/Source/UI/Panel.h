@@ -3,6 +3,7 @@
 #include "Widget.h"
 #include "EventHandler.h"
 #include "Utility.h"
+#include "ContextMenu.h"
 
 namespace gui
 {
@@ -46,6 +47,17 @@ namespace gui
 
 		void SetFlags(PanelFlags flag) { m_Flags = flag; }
 
+		ContextMenu* GetContextMenu()
+		{
+			if (!m_ContextMenu)
+			{
+				m_ContextMenu = NewChild<ContextMenu>();
+				m_ContextMenu->SetVisible(false);
+			}
+
+			return m_ContextMenu;
+		}
+
 	private:
 
 		PanelFlags m_Flags;
@@ -66,6 +78,8 @@ namespace gui
 		float m_ScrollAmount = 20.0f;
 
 		Vector2f m_MaxScrollableArea = Vector2f(10000.0f, 100000.0f);
+
+		ContextMenu* m_ContextMenu;
 
 	};
 }
