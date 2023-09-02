@@ -1029,7 +1029,7 @@ namespace gui
 			}
 
 
-			float yposNoBearing = lineOffset + baseLine;
+			float yposNoBearing = lineOffset + font->GetAscent();
 
 			float xpos = x + data.bearingX;
 			float ypos = -(float)data.bearingY + yposNoBearing;
@@ -1176,19 +1176,8 @@ namespace gui
 
 			xpos = x + data.bearingX;
 
-			ypos = lineOffset;
-
-
-
-
-			if (maxX < xpos + (float)data.advance)
-				maxX = xpos + (float)data.advance;
-
-			if (maxY < ypos)
-				maxY = ypos;
-
-
-
+			float yposNoBearing = lineOffset + font->GetAscent();
+			ypos =  yposNoBearing;
 
 		}
 

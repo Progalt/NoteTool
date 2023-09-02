@@ -16,7 +16,7 @@ namespace gui
 			if (!m_Visible || m_GlobalBounds.w <= 0.0f || m_GlobalBounds.h <= 0.0f)
 				return;
 
-			float cursorMod = 4.0f;
+			float cursorMod = 2.0f;
 
 			if (m_Format)
 			{
@@ -72,6 +72,8 @@ namespace gui
 				{
 					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
+					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 
 					start.x -= 4.0f;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
@@ -85,6 +87,9 @@ namespace gui
 				{
 					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end + 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+
+					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
+					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 
 					start.x -= 5.0f;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
@@ -100,7 +105,7 @@ namespace gui
 				if (format.option == TextFormatOption::HorizontalRule && !m_Editing)
 				{
 					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-					start.y += (float)m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent() / 2.0f;
+					start.y -= (float)m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent() / 2.0f;
 
 					Vector2f end = start;
 					end.y += 1.0f;
@@ -133,8 +138,12 @@ namespace gui
 
 					//cursorPos.x += 1.0f;
 
-					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos,
-						{ m_GlobalBounds.position.x + cursorPos.x + 1.0f, m_GlobalBounds.position.y + cursorPos.y + (float)m_Font->GetPixelSize() + cursorMod },
+					TextFormatOption formatOption = GetFormattingAtPoint(gui::EventHandler::cursorOffset);
+
+					Font* font = GetFontForFormat(formatOption, m_FontManager, m_CodeFontManager, m_DefaultWeight, m_FontSize);
+
+					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos + Vector2f{ 0.0f, cursorMod },
+						{ m_GlobalBounds.position.x + cursorPos.x + 2.0f, m_GlobalBounds.position.y + cursorPos.y - (float)font->GetAscent() },
 						{ 0.0f, 0.0f }, { 0.0f, 0.0f }, m_Colour);
 
 					drawList.Add(cursor.vertices, cursor.indices);
@@ -309,6 +318,29 @@ namespace gui
 
 
 		std::vector< TextFormat> m_Formats;
+
+		TextFormatOption GetFormattingAtPoint(uint32_t pos)
+		{
+			if (m_Formats.size() == 0)
+				return TextFormatOption::None;
+
+			TextFormatOption formatOption = TextFormatOption::None;
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
+
+			for (auto& formats : m_Formats)
+			{
+				if (pos > formats.start && pos <= formats.end)
+				{
+					formatOption = formats.option;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
+			}
+
+			return formatOption;
+
+		}
 
 		struct TextEntry
 		{
