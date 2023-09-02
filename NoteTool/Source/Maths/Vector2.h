@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include "GenericMaths.h"
 
 template<typename _Ty>
 struct Vector2

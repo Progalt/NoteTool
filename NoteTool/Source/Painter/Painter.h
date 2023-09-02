@@ -28,8 +28,6 @@ public:
 	// Any pixels outside of this rectangle will be clipped and not drawn
 	void SetClippingRect(IntRect clippingRect) { m_ClippingRect = clippingRect; }
 
-	void SetPointMode(PointMode mode) { m_PointMode = mode; }
-
 	// --- DRAWING FUNCTIONS ---
 
 	void Fill(const Colour& col);
@@ -47,6 +45,4 @@ private:
 	Pen* m_CurrentPen = nullptr;		// Pen determines how the outline should be drawn if any
 
 	IntRect m_ClippingRect = IntRect();
-
-	PointMode m_PointMode;
 };

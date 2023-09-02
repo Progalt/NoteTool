@@ -62,7 +62,7 @@ gui::Panel* tabsArea;
 
 float borderSize = 1.0f;
 
-const std::string m_BaseWorkspacePath = GetDocumentsPath() + "Workspaces/";
+const std::filesystem::path m_BaseWorkspacePath = GetDocumentsPath() /  "Workspaces";
 
 void CreatePanelsForWorkspace()
 {
@@ -260,7 +260,8 @@ int main(int argc, char* argv)
 	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
 	openButton->SetOnClick([&](void*)
 		{
-			const char* folder = tinyfd_selectFolderDialog("Open Workspace", GetDocumentsPath().c_str());
+			std::string documentsPath = GetDocumentsPath().string();
+			const char* folder = tinyfd_selectFolderDialog("Open Workspace", documentsPath.c_str());
 
 			if (folder != NULL)
 			{

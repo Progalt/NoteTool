@@ -9,20 +9,11 @@ void Painter::Fill(const Colour& col)
 
 void Painter::DrawLine(const Vector2f& p1, const Vector2f& p2)
 {
-	Colour col = m_CurrentPen->GetColour();
-
-	switch (m_CurrentPen->GetLineMode())
-	{
-	case LineMode::None:
-
-		break;
-	case LineMode::Antialiasing:
-
-		break;
-	}
+	
 }
 
 void Painter::DrawRect(const FloatRect& rect)
 {
-
+	bool renderPen = (m_CurrentPen != nullptr);
+	bool fill = (m_CurrentBrush != nullptr && m_CurrentBrush->GetMode() == BrushMode::Solid);
 }

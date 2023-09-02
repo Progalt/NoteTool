@@ -157,6 +157,7 @@
     <ClInclude Include="Source\Font.h" />
     <ClInclude Include="Source\History.h" />
     <ClInclude Include="Source\Image.h" />
+    <ClInclude Include="Source\Maths\GenericMaths.h" />
     <ClInclude Include="Source\Maths\Matrix.h" />
     <ClInclude Include="Source\Maths\Rect.h" />
     <ClInclude Include="Source\Maths\Vector2.h" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Source\UI\EventHandler.h" />
     <ClInclude Include="Source\UI\FontManager.h" />
     <ClInclude Include="Source\UI\Formatter.h" />
+    <ClInclude Include="Source\UI\GeometryUtil.h" />
     <ClInclude Include="Source\UI\List.h" />
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Text.h" />

@@ -51,8 +51,9 @@ inline void ToggleDarkModeForHwnd(SDL_Window* window)
 }
 
 // Get the documents folder path for the current system
-inline std::string GetDocumentsPath()
+inline std::filesystem::path GetDocumentsPath()
 {
+#if 0
 #ifdef _WIN32
 
 	CHAR my_documents[MAX_PATH];
@@ -61,7 +62,28 @@ inline std::string GetDocumentsPath()
 
 	return std::string(my_documents);
 #endif
+#else
+	std::filesystem::path path;
 
+#ifdef _WIN32
+
+
+	PWSTR pathTemp;
+
+	if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &pathTemp)))
+	{
+		CoTaskMemFree(pathTemp);
+		printf("Failed to find documents path for system\n");
+		return std::filesystem::path();
+	}
+	path = pathTemp;
+
+	CoTaskMemFree(pathTemp);
+
+#endif
+
+	return path;
+#endif
 }
 
 
@@ -131,3 +153,79 @@ inline void OpenURL(const std::string& url)
 {
 	SDL_OpenURL(url.c_str());
 }
+
+inline std::filesystem::path GetAppDataPath()
+{
+	std::filesystem::path path;
+
+#ifdef _WIN32
+
+	
+	PWSTR pathTemp;
+
+	if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathTemp)))
+	{
+		CoTaskMemFree(pathTemp);
+		printf("Failed to find appdata path for system\n");
+		return std::filesystem::path();
+	}
+	path = pathTemp;
+
+	CoTaskMemFree(pathTemp);
+
+#endif
+
+	return path;
+}
+
+#if 0 
+#ifdef _WIN32
+static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+
+	if (uMsg == BFFM_INITIALIZED)
+	{
+		std::string tmp = (const char*)lpData;
+		printf("path: %s\n", tmp); 
+		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
+	}
+
+	return 0;
+}
+#endif
+
+inline std::filesystem::path BrowseForFolder(const std::string& title, const std::filesystem::path& savedPath)
+{
+#ifdef _WIN32
+	TCHAR path[MAX_PATH];
+
+	const char* path_param = savedPath.generic_string().c_str();
+
+	BROWSEINFOA bi = { 0 };
+	bi.lpszTitle = title.c_str();
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+	bi.lpfn = BrowseCallbackProc;
+	bi.lParam = (LPARAM)path_param;
+
+	LPITEMIDLIST pidl = SHBrowseForFolderA(&bi);
+
+	if (pidl != 0)
+	{
+		//get the name of the folder and put it in path
+		SHGetPathFromIDList(pidl, path);
+
+		//free memory used
+		IMalloc* imalloc = 0;
+		if (SUCCEEDED(SHGetMalloc(&imalloc)))
+		{
+			imalloc->Free(pidl);
+			imalloc->Release();
+		}
+
+		return path;
+	}
+
+#endif 
+	return "";
+}
+#endif
