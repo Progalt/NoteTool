@@ -325,16 +325,24 @@ namespace gui
 				return TextFormatOption::None;
 
 			TextFormatOption formatOption = TextFormatOption::None;
+
 			uint32_t currentFormatEnd = UINT32_MAX;
 			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
 
 			for (auto& formats : m_Formats)
 			{
-				if (pos > formats.start && pos <= formats.end)
+				if (pos > formats.start - formats.formatterStartSize && pos < formats.end + formats.formatterEndSize)
 				{
+					//if (i > formats.start && i < formats.end)
+					//{
 					formatOption = formats.option;
+					//}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
 				}
 			}
 

@@ -795,16 +795,24 @@ namespace gui
 		{
 			// lets see if this index is formatted
 			TextFormatOption formatOption = TextFormatOption::None;
+
 			uint32_t currentFormatEnd = UINT32_MAX;
 			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
 
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start && i < formats.end)
+				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
 				{
+					//if (i > formats.start && i < formats.end)
+					//{
 					formatOption = formats.option;
+					//}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
 				}
 			}
 
@@ -864,7 +872,7 @@ namespace gui
 			}
 
 			float xpos = x + data.bearingX;
-			float ypos = -(float)data.bearingY + lineOffset + baseLine;
+			float ypos = -(float)data.bearingY + lineOffset + font->GetAscent();
 
 			//xpos += (float)position.x;
 			//ypos += (float)position.y;
@@ -920,10 +928,10 @@ namespace gui
 			{
 				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
 				{
-					if (i > formats.start && i < formats.end)
-					{
+					//if (i > formats.start && i < formats.end)
+					//{
 						formatOption = formats.option;
-					}
+					//}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
 					currentStartFormatterSize = formats.formatterStartSize;
@@ -1102,14 +1110,23 @@ namespace gui
 
 			uint32_t currentFormatEnd = UINT32_MAX;
 			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
+
+			// TODO: This is a bit glitchy atm so fix it
 
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start && i < formats.end)
+				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
 				{
+					if (i > formats.start && i < formats.end)
+					{
 					formatOption = formats.option;
+					}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
 				}
 			}
 
@@ -1213,19 +1230,25 @@ namespace gui
 
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
-
 			TextFormatOption formatOption = TextFormatOption::None;
 
 			uint32_t currentFormatEnd = UINT32_MAX;
 			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
 
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start && i < formats.end)
+				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
 				{
+					//if (i > formats.start && i < formats.end)
+					//{
 					formatOption = formats.option;
+					//}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
 				}
 			}
 
