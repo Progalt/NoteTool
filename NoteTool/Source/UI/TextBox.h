@@ -18,7 +18,19 @@ namespace gui
 
 			float cursorMod = 4.0f;
 
-			
+			if (m_Format)
+			{
+				text.formattedString = string;
+			}
+
+			Colour col = { 1.0f, 1.0f, 1.0f, 1.0f };
+			std::string str = m_Format ? text.formattedString : string;
+			bool dim = false;
+			if (str.empty() && !m_BlankText.empty())
+			{
+				str = m_BlankText;
+				dim = true;
+			}
 
 			if (m_FullRerender)
 			{
@@ -37,7 +49,15 @@ namespace gui
 				if (!m_Editing)
 					max = 0;
 
-				text.RasterizeTextFormatted(m_Format ? text.formattedString : string, m_FontManager, m_CodeFontManager, m_FontSize, m_Bounds.w, m_Formats, m_DefaultWeight, min, max);
+				
+
+				Colour col = { 1.0f, 1.0f, 1.0f, 1.0f };
+				if (dim)
+				{
+					col = { 0.25f, 0.25f, 0.25f, 1.0f };
+				}
+
+				text.RasterizeTextFormatted(str, m_FontManager, m_CodeFontManager, m_FontSize, m_Bounds.w, m_Formats, m_DefaultWeight, min, max, col);
 				 
 					//text.RasterizeText(string, m_FontManager->Get(gui::FontWeight::Light, m_FontSize), m_Bounds.w);
 
@@ -92,7 +112,7 @@ namespace gui
 				}
 			}
 
-			if (!string.empty() && m_Font)
+			if (!str.empty() && m_Font)
 			{
 				Colour col = m_Colour;
 				col.a *= GetTransparency();
@@ -257,6 +277,11 @@ namespace gui
 			return gui::GetTextBoxSizeFormatted(string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, {}, m_Bounds.w, {}, {}, 0.0f, m_Formats).y;
 		}
 
+		void ShowBlankText(const std::string& str)
+		{
+			m_BlankText = str;
+		}
+
 	private:
 
 		std::function<void()> m_OnEdit;
@@ -279,6 +304,9 @@ namespace gui
 		float m_CursorBlinkTime = 0.5f;
 
 		bool m_FullRerender = true;
+
+		std::string m_BlankText = "";
+
 
 		std::vector< TextFormat> m_Formats;
 
@@ -314,7 +342,7 @@ namespace gui
 			}
 
 			void RasterizeTextFormatted(const std::string& str, FontManager* fontManager, FontManager* codeManager, uint32_t fontSize, float textWrap, 
-				std::vector<TextFormat> formatting, FontWeight defaultWeight, uint32_t minTextFormat, uint32_t maxTextFormat)
+				std::vector<TextFormat> formatting, FontWeight defaultWeight, uint32_t minTextFormat, uint32_t maxTextFormat, Colour col)
 			{
 				Font* font = fontManager->Get(gui::FontWeight::Bold, fontSize);
 
@@ -339,7 +367,7 @@ namespace gui
 
 
 				gui::RenderTextSoftwareFormatted(image, str, fontManager, codeManager, fontSize,
-					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting, minTextFormat, maxTextFormat);
+					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting, minTextFormat, maxTextFormat, col);
 
 
 				texture.CreateFromImage(image);

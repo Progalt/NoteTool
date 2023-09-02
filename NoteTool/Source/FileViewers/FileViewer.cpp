@@ -20,24 +20,28 @@ void FileViewer::SetupTitleAndExt()
 		{
 			float dif = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetMaxHeight();
 			float xPos = gui::GetTextLength(m_Title->string, m_FontManager->Get(gui::FontWeight::Bold, 28));
-			m_FileExt->SetPosition({ xPos + 35.0f, yPos + dif });
+			m_FileExt->SetPosition({ xPos + 35.0f, dif });
 		});
 
 	m_Title->SetOnLoseCallback([&]()
 		{
 
-			std::string oldPath = m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension;
-			std::string newPath = m_File->PathWithoutName() + m_Title->string + m_File->extension;
-
-			if (oldPath != newPath)
+			if (!m_Title->string.empty())
 			{
-				std::filesystem::rename(oldPath, newPath);
 
-				m_File->name = m_Title->string;
-				m_File->path = m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension;
+				std::string oldPath = m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension;
+				std::string newPath = m_File->PathWithoutName() + m_Title->string + m_File->extension;
 
-				if (parent)
-					parent->RefreshGUI();
+				if (oldPath != newPath)
+				{
+					std::filesystem::rename(oldPath, newPath);
+
+					m_File->name = m_Title->string;
+					m_File->path = m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension;
+
+					if (parent)
+						parent->RefreshGUI();
+				}
 			}
 
 

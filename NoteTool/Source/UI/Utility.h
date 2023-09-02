@@ -1098,7 +1098,7 @@ namespace gui
 		FontWeight defaultWeight,
 		Vector2i position,
 		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting,
-		uint32_t formatHideExcludeStart = 0, uint32_t formatHideExcludeEnd = 0)
+		uint32_t formatHideExcludeStart = 0, uint32_t formatHideExcludeEnd = 0, Colour baseCol = { 1.0f, 1.0f, 1.0f, 1.0f})
 	{
 		float x = 0.0f;
 
@@ -1242,7 +1242,7 @@ namespace gui
 			if (maxX < xpos + (float)data.advance)
 				maxX = xpos + (float)data.advance;
 
-			Colour col = { 1.0f, 1.0f, 1.0f, 1.0f };
+			Colour col = baseCol;
 
 			if (formatChar)
 				col = { 0.25f, 0.25f, 0.25f, 1.0f };

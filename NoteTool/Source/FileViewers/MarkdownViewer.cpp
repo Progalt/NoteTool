@@ -30,7 +30,7 @@ void MarkdownViewer::InitialiseGUIElements()
 	SetupTitleAndExt();
 
 	float padding = 30.0f;
-	float yPos = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetPixelSize();
+	float yPos = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetAscent();
 
 
 	m_TextBox = m_Panel->NewChild<gui::TextBox>();
@@ -42,7 +42,7 @@ void MarkdownViewer::InitialiseGUIElements()
 
 
 
-	m_TextBox->SetBounds({ padding, yPos + 45.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
+	m_TextBox->SetBounds({ padding, yPos + 55.0f, m_Panel->GetBounds().w - padding * 3.0f, m_Panel->GetBounds().h });
 	m_TextBox->string = m_FileContents;
 	m_TextBox->SetAnchor(gui::Anchor::BottomRight);
 	m_TextBox->SetLockPosition(true);
@@ -62,6 +62,7 @@ void MarkdownViewer::InitialiseGUIElements()
 		
 		 });
 
+	m_TextBox->ShowBlankText("Ideas are brewing for sure!");
 
 }
 
