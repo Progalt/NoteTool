@@ -20,6 +20,7 @@ namespace gui
 		InlineCode,
 		CodeBlock,
 		HorizontalRule,
+		Highlight
 	};
 
 	struct TextFormat
@@ -59,6 +60,14 @@ namespace gui
 			return '\0';
 		}
 
+		std::string PeekStr(uint32_t offset = 1, uint32_t count = 1)
+		{
+			if (m_Ptr + offset + count < m_String.size())
+				return m_String.substr(m_Ptr + offset, count);
+
+			return "";
+		}
+
 		char PeekBack()
 		{
 			if (m_Ptr > 0)
@@ -67,12 +76,35 @@ namespace gui
 			return 0;
 		}
 
+		bool IsAtEnd()
+		{
+			return (m_Ptr + 1 >= m_String.size());
+		}
+
 		uint32_t FindNext(const std::string& str, uint32_t offset = 0);
 
 		void AddFormat(uint32_t start, uint32_t end, TextFormatOption opt, uint32_t formatterStartSize = 0, uint32_t formatterEndSize = 0) 
 		{ 
 			m_Output.push_back({ start, end, formatterStartSize, formatterEndSize, opt }); 
 		}
+
+		char Advance(uint32_t offset = 1)
+		{
+			m_Ptr += offset;
+			return m_String[m_Ptr];
+		}
 		
+		bool Match(char expected)
+		{
+			if (IsAtEnd())
+				return false;
+
+			if (m_String[m_Ptr] != expected)
+				return false;
+			
+			m_Ptr++;
+			return true;
+
+		}
 	};
 }

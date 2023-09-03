@@ -70,8 +70,15 @@ namespace gui
 			{
 				if (format.option == TextFormatOption::InlineCode)
 				{
-					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					uint32_t offset = 1;
+
+					if (m_Editing)
+						offset = 0;
+
+					float padding = 4.0f;
+
+					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end - offset + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 
@@ -112,6 +119,30 @@ namespace gui
 					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 
 					Shape bg = gui::GenerateQuad(start, end, {}, {}, { 0.04f, 0.04f, 0.04f, 1.0f });
+
+					drawList.Add(bg.vertices, bg.indices);
+				}
+
+				if (format.option == TextFormatOption::Highlight)
+				{
+
+					uint32_t offset = 2;
+
+					if (m_Editing)
+						offset = 0;
+
+					float padding = 4.0f;
+
+					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end - offset + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
+					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
+
+					start.x -= padding;
+					end.x += padding;
+					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight() + padding / 2.0f;
+
+					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.6f, 0.04f, 0.04f, 1.0f }, 2.0f);
 
 					drawList.Add(bg.vertices, bg.indices);
 				}

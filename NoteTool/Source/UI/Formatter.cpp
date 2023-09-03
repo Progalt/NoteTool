@@ -6,7 +6,7 @@ namespace gui
 	Formatter::Formatter(const std::string& str)
 	{
 		// Bit hacky to add newlines to fix some problems when headers are at the current end of the file
-		m_String = str + "\n";
+		m_String =  str + "\n";
 		m_Ptr = 0;
 
 		Parse();
@@ -28,57 +28,50 @@ namespace gui
 				if (PeekBack() == escape)
 					break;
 
-				if (Peek() == '*' && Peek(2) == '*')
+				if (Match('*'))
 				{
-					uint32_t end = FindNext("***", 2);
 
-					if (end != UINT32_MAX)
+					if (Match('*'))
 					{
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Emphasis, 3, 3);
-
-						while (m_Ptr != end + 3)
-							m_Ptr++;
-					}
-
-					
-				}
-				else if (Peek() == '*' && PeekBack() != '*')
-				{
-					// We are at the start of a bold
-
-					uint32_t end = FindNext("**", 1);
-
-
-
-					if (end != UINT32_MAX)
-					{
-						if (Peek(end - m_Ptr + 2) != '*')
+						if (Match('*'))
 						{
+							uint32_t start = m_Ptr;
 
-							AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Bold, 2, 2);
+							while (PeekStr(1, 3) != "***" && !IsAtEnd()) { Advance(); }
 
-							while (m_Ptr != end + 2)
-								m_Ptr++;
+
+							uint32_t end = m_Ptr;
+
+							AddFormat(start, end, gui::TextFormatOption::Emphasis, 3, 3);
+							Advance(3);
 						}
+						else
+						{
+							// Bold
 
+							uint32_t start = m_Ptr;
+
+							while (PeekStr(1, 2) != "**" && !IsAtEnd()) { Advance(); }
+							
+
+							uint32_t end = m_Ptr;
+
+							AddFormat(start, end, gui::TextFormatOption::Bold, 2, 2);
+							Advance(2);							
+						}
 					}
-
-
-				
-				}
-				else if (PeekBack() != '*' && Peek() != '*')
-				{
-					// This could be italics
-
-					uint32_t end = FindNext("*", 1);
-					
-				
-					if (end != UINT32_MAX)
+					else
 					{
-						AddFormat(m_Ptr, end, gui::TextFormatOption::Italic, 1, 1);
+						uint32_t start = m_Ptr;
 
-						while (m_Ptr != end + 1)
-							m_Ptr++;
+						while (Peek() != '*' && !IsAtEnd()) { Advance(); }
+
+						uint32_t end = m_Ptr;
+
+						AddFormat(start, end, gui::TextFormatOption::Italic, 1, 1);
+						Advance();
+						
+
 					}
 				}
 				
@@ -90,50 +83,39 @@ namespace gui
 				if (PeekBack() == escape)
 					break;
 
-				if (Peek() == ' ' && PeekBack() != '#')
+				if (Match('#'))
 				{
-					// Header 1
+					TextFormatOption option = gui::TextFormatOption::None;
+					uint32_t formatterStartSize = 0;
 
-					uint32_t end = FindNext("\n", 1);
-
-
-					if (end != UINT32_MAX)
+					
+					if (Match('#'))
 					{
-						AddFormat(m_Ptr, end, gui::TextFormatOption::Header1, 1, 0);
-
-						while (m_Ptr != end )
-							m_Ptr++;
+						if (Match('#'))
+						{
+							option = gui::TextFormatOption::Header3;
+							formatterStartSize = 4;
+						}
+						else if (Match(' '))
+						{
+							option = gui::TextFormatOption::Header2;
+							formatterStartSize = 3;
+						}
 					}
-				}
-				else if (Peek() == '#' && Peek(2) ==' ' && PeekBack() != '#')
-				{
-					// Header 2
-
-					uint32_t end = FindNext("\n", 1);
-
-
-					if (end != UINT32_MAX)
+					else if (Match(' '))
 					{
-						AddFormat(m_Ptr + 1, end, gui::TextFormatOption::Header2, 2, 0);
-
-						while (m_Ptr != end )
-							m_Ptr++;
+						option = gui::TextFormatOption::Header1;
+						formatterStartSize = 2;
 					}
-				}
-				else if (Peek() == '#' && Peek(2) == '#' && Peek(3) == ' ' && PeekBack() != '#')
-				{
-					// Header 3
 
-					uint32_t end = FindNext("\n", 1);
+					uint32_t start = m_Ptr;
 
+					while (Peek() != '\n' && !IsAtEnd()) { Advance(); }
+					Advance();
 
-					if (end != UINT32_MAX)
-					{
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::Header3, 3, 0);
+					uint32_t end = m_Ptr;
 
-						while (m_Ptr != end )
-							m_Ptr++;
-					}
+					AddFormat(start, end, option, formatterStartSize, 0);
 				}
 				break;
 			case '~':
@@ -141,25 +123,19 @@ namespace gui
 				if (PeekBack() == escape)
 					break;
 
-				if (Peek() == '~')
+				if (Match('~'))
 				{
-					// We are at the start of a bold
-
-					uint32_t end = FindNext("~~", 1);
-
-
-
-					if (end != UINT32_MAX)
+					if (Match('~'))
 					{
-						if (Peek(end - m_Ptr + 2) != '*')
-						{
+						uint32_t start = m_Ptr;
 
-							AddFormat(m_Ptr + 1, end, gui::TextFormatOption::StrikeThrough, 2, 2);
+						while (PeekStr(1, 2) != "~~" && !IsAtEnd()) { Advance(); }
 
-							while (m_Ptr != end + 2)
-								m_Ptr++;
-						}
 
+						uint32_t end = m_Ptr;
+
+						AddFormat(start, end, gui::TextFormatOption::StrikeThrough, 2, 2);
+						Advance(2);
 					}
 
 
@@ -171,42 +147,32 @@ namespace gui
 				if (PeekBack() == escape)
 					break;
 
-				if (Peek() != '`')
+				if (Match('`'))
 				{
-					uint32_t end = FindNext("`", 1);
-
-					if (FindNext("\n", 1) < end)
-						end = UINT32_MAX;
-
-
-					if (end != UINT32_MAX)
+					if (Match('`') && Match('`'))
 					{
+						uint32_t start = m_Ptr;
 
-						AddFormat(m_Ptr, end, gui::TextFormatOption::InlineCode, 1, 1);
-
-
-
-						while (m_Ptr != end + 1)
-							m_Ptr++;
+						while (PeekStr(1, 3) != "```" && !IsAtEnd()) { Advance(); }
 
 
+						uint32_t end = m_Ptr;
+
+						AddFormat(start, end, gui::TextFormatOption::CodeBlock, 3, 3);
+						Advance(3);
 					}
-				}
-				else if (Peek() == '`' && Peek(2) == '`' && PeekBack() != '`')
-				{
-					uint32_t end = FindNext("```", 2);
-
-
-
-					if (end != UINT32_MAX)
+					else
 					{
+						// Inline code
 
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::CodeBlock, 3, 3);
+						uint32_t start = m_Ptr;
 
-						while (m_Ptr != end + 1)
-							m_Ptr++;
+						while (Peek() != '`' && !IsAtEnd()) { Advance(); }
 
+						uint32_t end = m_Ptr;
 
+						AddFormat(start, end, gui::TextFormatOption::InlineCode, 1, 1);
+						Advance();
 					}
 				}
 				break;
@@ -215,21 +181,50 @@ namespace gui
 				if (PeekBack() == escape)
 					break;
 
-				if (Peek() == '-' && Peek(2) == '-' && PeekBack() != '-')
+				if (Match('-'))
 				{
-					uint32_t end = FindNext("\n", 1);
+					bool m2 = Match('-');
+					bool m3 = Match('-');
 
-					if (end != UINT32_MAX)
+					if (m2 && m3)
 					{
+						uint32_t start = m_Ptr;
 
-						AddFormat(m_Ptr + 2, end, gui::TextFormatOption::HorizontalRule, 3, 0);
+						while (Peek() != '\n' && !IsAtEnd()) { Advance(); }
 
-						while (m_Ptr != end + 1)
-							m_Ptr++;
+						uint32_t end = m_Ptr;
 
+						AddFormat(start, end, gui::TextFormatOption::HorizontalRule, 3, 0);
+						Advance();
 
 					}
 				}
+
+				break;
+			case '=':
+
+				if (PeekBack() == escape)
+					break;
+
+				if (Match('='))
+				{
+					if (Match('='))
+					{
+						uint32_t start = m_Ptr;
+
+						while (PeekStr(1, 2) != "==" && !IsAtEnd()) { Advance(); }
+
+
+						uint32_t end = m_Ptr;
+
+						AddFormat(start, end, gui::TextFormatOption::Highlight, 2, 2);
+						Advance(2);
+					}
+
+
+
+				}
+
 				break;
 			}
 

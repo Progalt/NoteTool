@@ -801,13 +801,14 @@ namespace gui
 			uint32_t currentStartFormatterSize = 0;
 			uint32_t currentEndFormatterSize = 0;
 
+
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
+				if (i >= formats.start - formats.formatterStartSize && i <= formats.end + formats.formatterEndSize)
 				{
-					//if (i > formats.start && i < formats.end)
+					//if (i >= formats.start && i <= formats.end)
 					//{
-					formatOption = formats.option;
+						formatOption = formats.option;
 					//}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
@@ -926,23 +927,26 @@ namespace gui
 
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
+				if (i >= formats.start - formats.formatterStartSize && i <= formats.end + formats.formatterEndSize)
 				{
-					//if (i > formats.start && i < formats.end)
-					//{
+					if (i >= formats.start && i <= formats.end)
+					{
 						formatOption = formats.option;
-					//}
-					currentFormatEnd = formats.end;
-					currentFormatStart = formats.start;
+					}
 					currentStartFormatterSize = formats.formatterStartSize;
 					currentEndFormatterSize = formats.formatterEndSize;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
 				}
+
+
+			
 			}
 
 			bool renderChar = true;
 			bool formatChar = false;
 
-			if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
+			/*if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
 			{
 				uint32_t min = currentFormatStart - currentStartFormatterSize;
 				uint32_t max = currentFormatEnd + currentEndFormatterSize;
@@ -974,12 +978,40 @@ namespace gui
 						formatChar = true;
 					}
 				}
+			}*/
+
+			if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
+			{
+				if (formatHideExcludeStart == formatHideExcludeEnd)
+				{
+
+					if (i >= currentFormatStart - currentStartFormatterSize && i < currentFormatStart)
+					{
+						renderChar = false;
+					}
+					else if (i > currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						renderChar = false;
+					}
+
+					
+				}
+				else
+				{
+					if (i >= currentFormatStart - currentStartFormatterSize && i < currentFormatStart)
+					{
+						formatChar = true;
+					}
+					else if (i > currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						formatChar = true;
+					}
+				}
 			}
 
 
 
 			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
-
 
 			//if (i == currentFormatStart || i == currentFormatEnd )
 			//	x += font->GetPixelSize();
@@ -1068,6 +1100,9 @@ namespace gui
 					for (uint32_t p = 0; p < max; p++)
 					{
 						img.SetPixel((int)xpos + p, (int)yposNoBearing - font->GetAscent() / 2 + 3, col);
+
+						// underline 
+						// img.SetPixel((int)xpos + p, (int)yposNoBearing, col);
 					}
 				}
 
@@ -1108,20 +1143,19 @@ namespace gui
 
 			TextFormatOption formatOption = TextFormatOption::None;
 
+
 			uint32_t currentFormatEnd = UINT32_MAX;
 			uint32_t currentFormatStart = UINT32_MAX;
 			uint32_t currentStartFormatterSize = 0;
 			uint32_t currentEndFormatterSize = 0;
 
-			// TODO: This is a bit glitchy atm so fix it
-
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
+				if (i >= formats.start - formats.formatterStartSize && i <= formats.end + formats.formatterEndSize)
 				{
-					if (i > formats.start && i < formats.end)
+					if (i >= formats.start && i <= formats.end)
 					{
-					formatOption = formats.option;
+						formatOption = formats.option;
 					}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
@@ -1135,9 +1169,6 @@ namespace gui
 			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
 
 
-
-			if (i == currentFormatStart || i == currentFormatEnd)
-				x += font->GetPixelSize();
 
 			uint32_t codepoint = text[i];
 
@@ -1222,6 +1253,7 @@ namespace gui
 		float dist = 1000000.0f;
 
 		float my = point.y;
+		float lineOffset = 0.0f;
 
 
 
@@ -1239,17 +1271,17 @@ namespace gui
 
 			for (auto& formats : formatting)
 			{
-				if (i > formats.start - formats.formatterStartSize && i < formats.end + formats.formatterEndSize)
-				{
-					//if (i > formats.start && i < formats.end)
-					//{
-					formatOption = formats.option;
-					//}
+				//if (i >= formats.start - formats.formatterStartSize && i <= formats.end + formats.formatterEndSize)
+				//{
+					if (i >= formats.start && i <= formats.end)
+					{
+						formatOption = formats.option;
+					}
 					currentFormatEnd = formats.end;
 					currentFormatStart = formats.start;
 					currentStartFormatterSize = formats.formatterStartSize;
 					currentEndFormatterSize = formats.formatterEndSize;
-				}
+				//}
 			}
 
 
@@ -1271,6 +1303,7 @@ namespace gui
 			{
 				x = 0;
 				lineCount++;
+				lineOffset += font->GetLineSpacing();
 				controlChar = true;
 			}
 
@@ -1308,15 +1341,17 @@ namespace gui
 				{
 					x = 0;
 					lineCount++;
+					lineOffset += font->GetLineSpacing();
 				}
 			}
 
 
 
 
+			float yposNoBearing = lineOffset + font->GetAscent();
 			if (!controlChar)
 				x += (float)data.advance;
-			y = (float)lineCount * (float)font->GetLineSpacing();
+			y = lineOffset;
 
 
 			// test the distance the point
