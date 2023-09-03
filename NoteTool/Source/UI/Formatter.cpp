@@ -16,6 +16,7 @@ namespace gui
 	{
 
 		char escape = '\\';
+		m_CurrentLine = 0;
 
 		while (m_Ptr < m_String.size())
 		{
@@ -225,6 +226,16 @@ namespace gui
 
 				}
 
+				break;
+			case '>':
+				if (Match('>'))
+				{
+					uint32_t start = m_Ptr;
+					AddFormat(start, start, gui::TextFormatOption::Quote, 1, 0);
+				}
+				break;
+			case '\n':
+				m_CurrentLine++;
 				break;
 			}
 

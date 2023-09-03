@@ -896,7 +896,7 @@ namespace gui
 
 	}
 
-	inline void RenderTextSoftwareFormatted(Image& img, const std::string& text,
+	inline std::vector<Vector2f> RenderTextSoftwareFormatted(Image& img, const std::string& text,
 		FontManager* fontManager,
 		FontManager* codeFontManager,
 		uint32_t textSize,
@@ -914,6 +914,8 @@ namespace gui
 		Font* font = fontManager->Get(defaultWeight, textSize);
 
 		float lineOffset = 0.0f;
+
+		std::vector<Vector2f> positions(text.size());
 
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
@@ -945,40 +947,6 @@ namespace gui
 
 			bool renderChar = true;
 			bool formatChar = false;
-
-			/*if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
-			{
-				uint32_t min = currentFormatStart - currentStartFormatterSize;
-				uint32_t max = currentFormatEnd + currentEndFormatterSize;
-
-				bool minIntersects = (min >= formatHideExcludeStart && min <= formatHideExcludeEnd);
-				bool maxIntersects = (max >= formatHideExcludeStart && max <= formatHideExcludeEnd);
-
-
-				if (!minIntersects && !maxIntersects || formatHideExcludeStart == formatHideExcludeEnd)
-				{
-
-					if (i >= currentFormatStart - currentStartFormatterSize && i <= currentFormatStart)
-					{
-						renderChar = false;
-					}
-					else if (i >= currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
-					{
-						renderChar = false;
-					}
-				}
-				else
-				{
-					if (i >= currentFormatStart - currentStartFormatterSize && i <= currentFormatStart)
-					{
-						formatChar = true;
-					}
-					else if (i >= currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
-					{
-						formatChar = true;
-					}
-				}
-			}*/
 
 			if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
 			{
@@ -1013,8 +981,6 @@ namespace gui
 
 			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
 
-			//if (i == currentFormatStart || i == currentFormatEnd )
-			//	x += font->GetPixelSize();
 
 			// Strike through doesn't affect the font at all
 			bool renderStrikeThrough = formatOption == TextFormatOption::StrikeThrough ? true : false;
@@ -1026,13 +992,13 @@ namespace gui
 				x = 0.0f;
 				lineCount++;
 				lineOffset += font->GetLineSpacing();
-				continue;
+				renderChar = false;
 			}
 
 			if (codepoint == '\t')
 			{
 				x += font->GetCodePointData(' ').advance * 4;
-				continue;
+				renderChar = false;
 			}
 
 
@@ -1075,6 +1041,7 @@ namespace gui
 			float ypos = -(float)data.bearingY + yposNoBearing;
 
 
+
 			if (maxX < xpos + (float)data.advance)
 				maxX = xpos + (float)data.advance;
 
@@ -1086,8 +1053,6 @@ namespace gui
 			if (renderChar)
 			{
 				x += (float)data.advance;
-
-
 
 				font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos, col);
 
@@ -1106,9 +1071,14 @@ namespace gui
 					}
 				}
 
+				xpos = x + data.bearingX;
 			}
 
+			positions[i] = { xpos, yposNoBearing };
+
 		}
+
+		return positions;
 
 	}
 

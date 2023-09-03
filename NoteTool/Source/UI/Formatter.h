@@ -20,7 +20,8 @@ namespace gui
 		InlineCode,
 		CodeBlock,
 		HorizontalRule,
-		Highlight
+		Highlight,
+		Quote
 	};
 
 	struct TextFormat
@@ -30,6 +31,8 @@ namespace gui
 		uint32_t formatterEndSize;
 
 		TextFormatOption option;
+
+		uint32_t lineNum;
 	};
 
 
@@ -50,6 +53,8 @@ namespace gui
 		uint32_t m_Ptr;
 		std::string m_String;
 
+		uint32_t m_CurrentLine = 0;
+
 		void Parse();
 
 		char Peek(uint32_t offset = 1)
@@ -69,7 +74,7 @@ namespace gui
 		}
 
 		char PeekBack()
-		{
+		{\
 			if (m_Ptr > 0)
 				return m_String[m_Ptr - 1];
 
@@ -85,13 +90,18 @@ namespace gui
 
 		void AddFormat(uint32_t start, uint32_t end, TextFormatOption opt, uint32_t formatterStartSize = 0, uint32_t formatterEndSize = 0) 
 		{ 
-			m_Output.push_back({ start, end, formatterStartSize, formatterEndSize, opt }); 
+			m_Output.push_back({ start, end, formatterStartSize, formatterEndSize, opt, m_CurrentLine }); 
 		}
 
 		char Advance(uint32_t offset = 1)
 		{
-			m_Ptr += offset;
-			return m_String[m_Ptr];
+			if (m_Ptr + offset < m_String.size())
+			{
+
+				m_Ptr += offset;
+				return m_String[m_Ptr];
+			}
+			return NULL;
 		}
 		
 		bool Match(char expected)

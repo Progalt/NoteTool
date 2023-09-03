@@ -17,7 +17,7 @@ namespace gui
 		struct Call
 		{
 			GPUTexture* texture;
-			uint32_t firstIndex, indexCount;
+			uint32_t firstIndex, indexCount, firstVertex;
 			IntRect scissor;
 		};
 
@@ -42,6 +42,7 @@ namespace gui
 				m_CurrentCall = &drawcalls[drawcalls.size() - 1ui64];
 				m_CurrentCall->texture = tex;
 				m_CurrentCall->scissor = m_CurrentScissor;
+				m_CurrentCall->firstVertex = vertices.size();
 
 				m_CurrentCall->firstIndex = 0;
 			}
@@ -53,16 +54,20 @@ namespace gui
 				m_CurrentCall = &drawcalls[drawcalls.size() - 1ui64];
 				m_CurrentCall->texture = tex;
 				m_CurrentCall->scissor = m_CurrentScissor;
+				m_CurrentCall->firstVertex = vertices.size();
 
 				m_CurrentCall->firstIndex = indices.size();
 			}
 
 			size_t offset = vertices.size();
 
-			std::vector<uint32_t> offsetIndices;
 
-			for (auto& idx : newIndices)
-				offsetIndices.push_back(idx + offset);
+
+			std::vector<uint32_t> offsetIndices(newIndices.size());
+			std::copy(newIndices.begin(), newIndices.end(), offsetIndices.begin());
+
+			for (auto& idx : offsetIndices)
+				idx += offset;
 
 			vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 			indices.insert(indices.end(), offsetIndices.begin(), offsetIndices.end());

@@ -43,6 +43,8 @@ namespace gui
 					text.formattedString = string;
 				}
 
+				m_CachedShapes.clear();
+
 				uint32_t min = 0;
 				uint32_t max = string.size();
 
@@ -62,9 +64,23 @@ namespace gui
 					//text.RasterizeText(string, m_FontManager->Get(gui::FontWeight::Light, m_FontSize), m_Bounds.w);
 
 				m_FullRerender = false;
+
+				
 			}
 
+			// TODO: This is really badly optimised
 			// Render formatted text elements that have "extra bits"
+
+			auto formatSameOnNextLine = [&](TextFormatOption option, uint32_t currentLine)
+				{
+					for (auto& format : m_Formats)
+					{
+						if (format.option == option && format.lineNum == currentLine + 1)
+							return true;
+					}
+
+					return false;
+				};
 
 			for (auto& format : m_Formats)
 			{
@@ -77,23 +93,24 @@ namespace gui
 
 					float padding = 4.0f;
 
-					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end - offset + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f start = m_GlobalBounds.position + text.GetPosition(format.start - offset) ;// gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f end = m_GlobalBounds.position + text.GetPosition(format.end - offset + 1);// gui::GetPositionOfCharFormatted(format.end - offset + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 
 					start.x -= 4.0f;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
 
-					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f}, 2.0f);
+					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f }, 2.0f);
+				
 
 					drawList.Add(bg.vertices, bg.indices);
 				}
 
 				if (format.option == TextFormatOption::CodeBlock)
 				{
-					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end + 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f start = m_GlobalBounds.position + text.GetPosition(format.start - 2);// gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f end = m_GlobalBounds.position + text.GetPosition(format.end + 2);// gui::GetPositionOfCharFormatted(format.end + 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 
 					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
@@ -103,6 +120,7 @@ namespace gui
 					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 
 					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.03f, 0.03f, 0.03f, 1.0f }, 4.0f);
+					
 					//Shape bgBorder = gui::GenerateRoundedQuad(start - Vector2f{1.0f, 1.0f}, end + Vector2f{ 1.0f, 1.0f }, { 0.06f, 0.06f, 0.06f, 1.0f }, 4.0f);
 
 					//drawList.Add(bgBorder.vertices, bgBorder.indices);
@@ -111,7 +129,7 @@ namespace gui
 
 				if (format.option == TextFormatOption::HorizontalRule && !m_Editing)
 				{
-					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f start = m_GlobalBounds.position + text.GetPosition(format.start - 2) ;// gui::GetPositionOfCharFormatted(format.start - 2, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					start.y -= (float)m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent() / 2.0f;
 
 					Vector2f end = start;
@@ -133,8 +151,8 @@ namespace gui
 
 					float padding = 4.0f;
 
-					Vector2f start = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
-					Vector2f end = m_GlobalBounds.position + gui::GetPositionOfCharFormatted(format.end - offset + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f start = m_GlobalBounds.position + text.GetPosition(format.start - offset);// gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f end = m_GlobalBounds.position + text.GetPosition(format.end + 1);// gui::GetPositionOfCharFormatted(format.end - offset + 1, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 					end.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
 
@@ -143,10 +161,48 @@ namespace gui
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight() + padding / 2.0f;
 
 					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.6f, 0.04f, 0.04f, 1.0f }, 2.0f);
+					
 
 					drawList.Add(bg.vertices, bg.indices);
 				}
+
+				if (format.option == TextFormatOption::Quote)
+				{
+					float padding = 4.0f;
+
+					uint32_t offset = 1;
+
+					//if (!m_Editing)
+					//	offset = 0;
+
+					Vector2f start = m_GlobalBounds.position + text.GetPosition(format.start - offset);// gui::GetPositionOfCharFormatted(format.start - offset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+
+					start.y -= m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetAscent();
+
+					Vector2f end = start;
+					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
+					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight() + padding / 2.0f;
+
+					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f }, 4.0f);
+
+					drawList.Add(bg.vertices, bg.indices);
+
+					if (formatSameOnNextLine(TextFormatOption::Quote, format.lineNum))
+					{
+						Vector2f newStart = end;
+						newStart.x = start.x;
+						newStart.y -= 4.0f;
+						Vector2f newEnd = end;
+						newEnd.y += 4.0f;
+
+
+						Shape bg = gui::GenerateQuad(newStart, newEnd, {}, {}, { 0.04f, 0.04f, 0.04f, 1.0f });
+
+						drawList.Add(bg.vertices, bg.indices);
+					}
+				}
 			}
+			
 
 			if (!str.empty() && m_Font)
 			{
@@ -165,7 +221,7 @@ namespace gui
 			{
 				if (m_CursorTime < m_CursorBlinkTime)
 				{
-					Vector2f cursorPos = gui::GetPositionOfCharFormatted(gui::EventHandler::cursorOffset, string, m_FontManager,m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
+					Vector2f cursorPos = text.GetPosition(gui::EventHandler::cursorOffset); // gui::GetPositionOfCharFormatted(gui::EventHandler::cursorOffset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 
 					//cursorPos.x += 1.0f;
 
@@ -330,6 +386,7 @@ namespace gui
 		std::string m_CachedString;
 		FloatRect m_CachedBounds;
 		std::vector< TextFormat> m_CachedFormat;
+		std::vector<Shape> m_CachedShapes;
 
 		bool m_Format = false;
 
@@ -389,8 +446,17 @@ namespace gui
 			FloatRect textBounds;
 			std::vector<TextFormat> formatting;
 
+			std::vector<Vector2f> formattedPositions;
+
 			std::string formattedString;
 
+			Vector2f GetPosition(uint32_t idx)
+			{
+				if (idx - 1 <= formattedPositions.size())
+					return formattedPositions[idx - 1];
+
+				return formattedPositions[formattedPositions.size() - 1];
+			}
 
 			void RasterizeText(const std::string& str, Font* font, float textWrap)
 			{
@@ -437,7 +503,7 @@ namespace gui
 
 
 
-				gui::RenderTextSoftwareFormatted(image, str, fontManager, codeManager, fontSize,
+				formattedPositions = gui::RenderTextSoftwareFormatted(image, str, fontManager, codeManager, fontSize,
 					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting, minTextFormat, maxTextFormat, col);
 
 

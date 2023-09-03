@@ -109,13 +109,17 @@ void Render()
 
 	windowPanel->GenerateVertexList(drawList);
 
+	renderer.CopyToBuffers(drawList.vertices, drawList.indices);
 	for (auto& cmd : drawList.drawcalls)
 	{
 		if (cmd.scissor.IsNull())
 			renderer.SetScissor(0, 0, window_width, window_height);
 		else 
 			renderer.SetScissor(cmd.scissor.x, window_height - cmd.scissor.y - cmd.scissor.h, cmd.scissor.w, cmd.scissor.h);
-		renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount);
+		//renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount);
+
+		renderer.Draw(screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount, 0);
+
 	}
 
 

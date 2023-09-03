@@ -80,6 +80,41 @@ void RendererGL::SetScissor(int x, int y, int w, int h)
 
 }
 
+void RendererGL::CopyToBuffers(std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+{
+	if (vertices.size() > m_Buffer.currentVertexSize)
+	{
+		ResizeBuffers(m_Buffer.currentVertexSize + VertexSize, m_Buffer.currentIndexSize + IndexSize);
+	}
+
+	assert(vertices.size() < m_Buffer.currentVertexSize);
+	assert(indices.size() < m_Buffer.currentIndexSize);
+
+	glCheck(glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo));
+	glCheck(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data()));
+	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
+
+
+	glCheck(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data()));
+}
+
+void RendererGL::Draw(const Matrix4x4f& mat, GPUTexture* tex, uint32_t indexOffset, uint32_t indexCount, uint32_t vertexOffset)
+{
+	m_DefaultShader.Bind();
+	m_DefaultShader.SetShaderUniform("uMatrix", mat);
+
+	glCheck(glBindVertexArray(m_Buffer.vao));
+	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
+
+	if (tex)
+	{
+		glCheck((glBindTexture(GL_TEXTURE_2D, tex->GetGLId())));
+	}
+
+
+	glCheck(glDrawElementsBaseVertex(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (const void*)(indexOffset * sizeof(uint32_t)), vertexOffset));
+}
+
 void RendererGL::SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32_t> indices, const Matrix4x4f& mat, GPUTexture* tex, uint32_t indexOffset, uint32_t indexCount)
 {
 	m_DefaultShader.Bind();
@@ -104,9 +139,6 @@ void RendererGL::SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32
 	glCheck(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data()));
 	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
 
-	uint32_t count = indexCount;
-	if (count + indexOffset > indices.size())
-		count = indices.size() - indexOffset;
 
 	glCheck(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data()));
 

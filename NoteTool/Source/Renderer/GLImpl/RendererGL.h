@@ -23,6 +23,11 @@ public:
 
 	void SetScissor(int x, int y, int w, int h) override;
 
+
+	void CopyToBuffers(std::vector<Vertex> vertices, std::vector<uint32_t> indices) override;
+
+	void Draw(const Matrix4x4f& mat, GPUTexture* tex, uint32_t indexOffset, uint32_t indexCount, uint32_t vertexOffset) override;
+
 	void SubmitVertices(std::vector<Vertex> vertices, std::vector<uint32_t> indices, const Matrix4x4f& mat, GPUTexture* tex, uint32_t indexOffset, uint32_t indexCount) override;
 
 private:
