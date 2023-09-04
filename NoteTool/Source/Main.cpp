@@ -12,6 +12,8 @@
 
 int window_width = 1280;
 int window_height = 720;
+int modal_start_width = 800;
+int modal_start_height = 500;
 
 bool open = true;
 
@@ -67,18 +69,20 @@ const std::filesystem::path m_BaseWorkspacePath = GetDocumentsPath() /  "Workspa
 void CreatePanelsForWorkspace()
 {
 	filelistArea->SetBounds({ 0.0f , 0.0f, 250.0f, windowPanel->GetBounds().h, });
-	filelistArea->SetColour(theme.panelBackground);
-	filelistArea->SetHighlightColour(theme.panelHighlight);
+	filelistArea->SetColour(theme.backgroundColour);
+	//filelistArea->SetHighlightColour(theme.panelHighlight);
 	filelistArea->SetTransparency(1.0f);
 	filelistArea->SetAnchor(gui::Anchor::CentreLeft);
 	//filelistArea->SetVisible(false);
 	filelistArea->SetFlags(gui::PanelFlags::DrawBorder);
 
-	float editableWidth = windowPanel->GetBounds().w - 250.0f;
+	float editableWidth = windowPanel->GetBounds().w - filelistArea->GetBounds().w - 1.0f;
 
 
-	textArea->SetBounds({ 250.0f + borderSize, 0.0f, editableWidth, windowPanel->GetBounds().h - 30.0f });
-	textArea->SetColour(theme.backgroundColour);
+	float rounding = 16.0f;
+	textArea->SetBounds({ 250.0f + borderSize, 0.0f, editableWidth + rounding, windowPanel->GetBounds().h });
+	textArea->SetColour(theme.panelBackground);
+	textArea->SetRounding(rounding);
 	//textArea->SetVisible(false);
 
 
@@ -213,7 +217,7 @@ int main(int argc, char* argv)
 
 	CreatePanelsForWorkspace();
 
-	Vector2f modalSize = { 500.0f, 450.0f };
+	Vector2f modalSize = { 800.0f, 500.0f };
 
 	gui::Panel* modal = windowPanel->NewChild<gui::Panel>();
 	modal->SetDummyPanel(false);
@@ -226,18 +230,29 @@ int main(int argc, char* argv)
 	modal->SetHighlightColour({ theme.panelHighlight });
 	modal->SetFlags(gui::PanelFlags::DrawBorder);
 
-	gui::Text* versionText = modal->NewChild<gui::Text>();
+	gui::Panel* oldWorkspaces = modal->NewChild<gui::Panel>();
+	oldWorkspaces->SetBounds({ 0.0f, 0.0f, 300.0f, 500.0f });
+	oldWorkspaces->SetColour(theme.backgroundColour);
+	oldWorkspaces->SetHighlightColour(theme.panelHighlight);
+	oldWorkspaces->SetFlags(gui::PanelFlags::DrawBorder);
+	oldWorkspaces->SetRounding(theme.buttonRounding);
+
+	gui::Panel* userArea = modal->NewChild<gui::Panel>();
+	userArea->SetDummyPanel(true);
+	userArea->SetBounds({ 300.0f, 0.0f, 500.0f, 500.0f });
+
+	gui::Text* versionText = userArea->NewChild<gui::Text>();
 	versionText->SetString("Version 0.01d");
 	versionText->SetFont(fontRegular);
 	float bounds = gui::GetTextLength(versionText->GetString(), fontRegular);
-	versionText->SetPosition({ modal->GetBounds().w / 2.0f - bounds / 2.0f, 160.0f });
+	versionText->SetPosition({ userArea->GetBounds().w / 2.0f - bounds / 2.0f, 160.0f });
 	versionText->SetColour(theme.textSub);
 
 
 	float createButtonY = 210.0f;
 	float openButtonY = 280.0f;
 
-	gui::Button* createButton = modal->NewChild<gui::Button>();
+	gui::Button* createButton = userArea->NewChild<gui::Button>();
 	createButton->SetBounds({ 350.0f, createButtonY, 100.0f, 30.0f });
 	createButton->SetOnClick([&](void*) { printf("Click"); });
 	createButton->SetColour(theme.accentColour);
@@ -248,19 +263,19 @@ int main(int argc, char* argv)
 
 	createButton->SetText("Create", fontRegular);
 
-	gui::Text* createText = modal->NewChild<gui::Text>();
+	gui::Text* createText = userArea->NewChild<gui::Text>();
 	createText->SetString("Create new workspace");
 	createText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
 	createText->SetPosition({ 60.0f, createButtonY });
 	createText->SetColour(theme.textMain);
 
-	gui::Text* createTextDesc = modal->NewChild<gui::Text>();
+	gui::Text* createTextDesc = userArea->NewChild<gui::Text>();
 	createTextDesc->SetString("Create a new folder and open as workspace");
 	createTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	createTextDesc->SetPosition({ 60.0f, createButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
 	createTextDesc->SetColour(theme.textSub);
 
-	gui::Button* openButton = modal->NewChild<gui::Button>();
+	gui::Button* openButton = userArea->NewChild<gui::Button>();
 	openButton->SetBounds({ 350.0f, openButtonY, 100.0f, 30.0f });
 	openButton->SetOnClick([&](void*)
 		{
@@ -292,13 +307,13 @@ int main(int argc, char* argv)
 
 	openButton->SetText("Open", fontRegular);
 
-	gui::Text* openText = modal->NewChild<gui::Text>();
+	gui::Text* openText = userArea->NewChild<gui::Text>();
 	openText->SetString("Open folder as workspace");
 	openText->SetFont(fontManager.Get(gui::FontWeight::Regular, 14));
 	openText->SetPosition({ 60.0f, openButtonY });
 	openText->SetColour(theme.textMain);
 
-	gui::Text* openTextDesc = modal->NewChild<gui::Text>();
+	gui::Text* openTextDesc = userArea->NewChild<gui::Text>();
 	openTextDesc->SetString("Open an existing folder as a workspace");
 	openTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	openTextDesc->SetPosition({ 60.0f, openButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });

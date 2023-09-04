@@ -896,7 +896,7 @@ namespace gui
 
 	}
 
-	inline std::vector<Vector2f> RenderTextSoftwareFormatted(Image& img, const std::string& text,
+	inline std::vector<FloatRect> RenderTextSoftwareFormatted(Image& img, const std::string& text,
 		FontManager* fontManager,
 		FontManager* codeFontManager,
 		uint32_t textSize,
@@ -915,7 +915,7 @@ namespace gui
 
 		float lineOffset = 0.0f;
 
-		std::vector<Vector2f> positions(text.size());
+		std::vector<FloatRect> positions(text.size());
 
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
@@ -984,7 +984,7 @@ namespace gui
 
 			// Strike through doesn't affect the font at all
 			bool renderStrikeThrough = formatOption == TextFormatOption::StrikeThrough ? true : false;
-			bool rendeerUnderline = formatOption == TextFormatOption::Underline ? true : false;
+			bool renderUnderline = formatOption == TextFormatOption::Underline ? true : false;
 
 			uint32_t codepoint = text[i];
 
@@ -1003,6 +1003,7 @@ namespace gui
 				x += font->GetCodePointData(' ').advance * 4;
 				renderChar = false;
 			}
+
 
 
 			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
@@ -1059,11 +1060,11 @@ namespace gui
 
 				font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos, col);
 
-				if (renderStrikeThrough || rendeerUnderline)
+				if (renderStrikeThrough || renderUnderline)
 				{
 					uint32_t max = data.w + data.advance;
-					if (i == currentFormatEnd - 1)
-						max = data.w;
+					if (i == currentFormatEnd)
+						max = data.advance;
 
 					for (uint32_t p = 0; p < max; p++)
 					{
@@ -1077,7 +1078,8 @@ namespace gui
 				xpos = x + data.bearingX;
 			}
 
-			positions[i] = { xpos, yposNoBearing };
+			positions[i].position = { xpos, yposNoBearing };
+			positions[i].size = { (float)data.w, (float)data.h };
 
 		}
 

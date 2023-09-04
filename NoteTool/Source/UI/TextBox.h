@@ -168,7 +168,8 @@ namespace gui
 					end.x += padding;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight() + padding / 2.0f;
 
-					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.6f, 0.04f, 0.04f, 1.0f }, 2.0f);
+					Colour highlightColour = Colour(210, 19, 18);
+					Shape bg = gui::GenerateRoundedQuad(start, end, highlightColour, 2.0f);
 					
 
 					drawList.Add(bg.vertices, bg.indices);
@@ -210,7 +211,17 @@ namespace gui
 					}
 				}
 			}
-			
+
+		/*	for (auto& pos : text.formattedPositions)
+			{
+				Vector2f min = m_GlobalBounds.position + pos.position;
+				Vector2f max = min - pos.size;
+
+				Shape shape = gui::GenerateQuad( min, max, {}, {}, {1.0f, 0.0f, 0.0f, 0.25f});
+
+				drawList.Add(shape.vertices, shape.indices);
+			} 
+			*/
 
 			if (!str.empty() && m_Font)
 			{
@@ -454,16 +465,16 @@ namespace gui
 			FloatRect textBounds;
 			std::vector<TextFormat> formatting;
 
-			std::vector<Vector2f> formattedPositions;
+			std::vector <FloatRect > formattedPositions;
 
 			std::string formattedString;
 
 			Vector2f GetPosition(uint32_t idx)
 			{
 				if (idx - 1 < formattedPositions.size())
-					return formattedPositions[idx - 1];
+					return formattedPositions[idx - 1].position;
 
-				return formattedPositions[formattedPositions.size() - 1];
+				return formattedPositions[formattedPositions.size() - 1].position;
 			}
 
 			void RasterizeText(const std::string& str, Font* font, float textWrap)
