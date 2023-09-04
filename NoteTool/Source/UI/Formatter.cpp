@@ -138,6 +138,18 @@ namespace gui
 						AddFormat(start, end, gui::TextFormatOption::StrikeThrough, 2, 2);
 						Advance(2);
 					}
+					else
+					{
+						uint32_t start = m_Ptr;
+
+						while (PeekStr(1, 1) != "~" && !IsAtEnd()) { Advance(); }
+
+
+						uint32_t end = m_Ptr;
+
+						AddFormat(start, end, gui::TextFormatOption::Underline, 1, 1);
+						Advance(1);
+					}
 
 
 

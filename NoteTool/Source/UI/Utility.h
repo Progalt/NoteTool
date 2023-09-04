@@ -984,12 +984,15 @@ namespace gui
 
 			// Strike through doesn't affect the font at all
 			bool renderStrikeThrough = formatOption == TextFormatOption::StrikeThrough ? true : false;
+			bool rendeerUnderline = formatOption == TextFormatOption::Underline ? true : false;
 
 			uint32_t codepoint = text[i];
 
 			if (codepoint == '\n')
 			{
 				x = 0.0f;
+				if (formatOption == TextFormatOption::CodeBlock)
+					x = 12.0f;
 				lineCount++;
 				lineOffset += font->GetLineSpacing();
 				renderChar = false;
@@ -1056,7 +1059,7 @@ namespace gui
 
 				font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos, col);
 
-				if (renderStrikeThrough)
+				if (renderStrikeThrough || rendeerUnderline)
 				{
 					uint32_t max = data.w + data.advance;
 					if (i == currentFormatEnd - 1)
@@ -1064,10 +1067,10 @@ namespace gui
 
 					for (uint32_t p = 0; p < max; p++)
 					{
-						img.SetPixel((int)xpos + p, (int)yposNoBearing - font->GetAscent() / 2 + 3, col);
+						// Determine the y offset
+						int offset = (renderStrikeThrough) ? (font->GetAscent() / 2) - 3 : 0;
 
-						// underline 
-						// img.SetPixel((int)xpos + p, (int)yposNoBearing, col);
+						img.SetPixel((int)xpos + p, (int)yposNoBearing - offset, col);
 					}
 				}
 

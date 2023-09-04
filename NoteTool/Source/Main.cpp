@@ -208,8 +208,8 @@ int main(int argc, char* argv)
 	workspaceUIPanel->SetVisible(false);
 	//workspaceUIPanel->SetAnchor(gui::Anchor::TopLeft);
 
-	filelistArea = workspaceUIPanel->NewChild<gui::Panel>();
 	textArea = workspaceUIPanel->NewChild<gui::Panel>();
+	filelistArea = workspaceUIPanel->NewChild<gui::Panel>();
 
 	CreatePanelsForWorkspace();
 

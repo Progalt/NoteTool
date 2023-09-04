@@ -21,7 +21,16 @@ namespace gui
 		CodeBlock,
 		HorizontalRule,
 		Highlight,
-		Quote
+		Quote,
+		Underline
+	};
+
+	enum class Severity
+	{
+		Note, 
+		Warning, 
+		Danger, 
+		Important
 	};
 
 	struct TextFormat

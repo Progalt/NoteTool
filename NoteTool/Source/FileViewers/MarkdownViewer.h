@@ -32,6 +32,7 @@ public:
 
 		m_Panel->SetScrollable(true);
 		m_Panel->SetScrollableArea(Vector2f(0.0f, m_TextBox->GetTextBoxHeight()));
+		m_Panel->SetCurrentScrollDistance(0.0f);
 	}
 
 	void Save() override;

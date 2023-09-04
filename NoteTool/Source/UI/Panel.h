@@ -45,6 +45,11 @@ namespace gui
 		
 		void SetScrollableArea(Vector2f area) { m_MaxScrollableArea = area; }
 
+		void SetCurrentScrollDistance(float dist) {
+			m_VisibleOffset.y = dist; 
+			m_ScrollTargetY = dist;
+		}
+
 		void SetFlags(PanelFlags flag) { m_Flags = flag; }
 
 		ContextMenu* GetContextMenu()
@@ -76,6 +81,8 @@ namespace gui
 		bool m_Scrollable = false;
 
 		float m_ScrollAmount = 20.0f;
+
+		float m_ScrollTargetY = m_VisibleOffset.y;
 
 		Vector2f m_MaxScrollableArea = Vector2f(10000.0f, 100000.0f);
 

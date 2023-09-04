@@ -82,29 +82,28 @@ namespace gui
 		{
 			if (m_Scrollable)
 			{
-				static float target = m_VisibleOffset.y;
-
+			
 				if (EventHandler::verticalScroll > 0)
 				{
-					target -= m_ScrollAmount * 2.0f;
+					m_ScrollTargetY -= m_ScrollAmount * 2.0f;
 					//m_VisibleOffset.y = Lerp(m_VisibleOffset.y, target, EventHandler::deltaTime);
 
-					if (target < 0.0f)
-						target = 0.0f;
+					if (m_ScrollTargetY < 0.0f)
+						m_ScrollTargetY = 0.0f;
 				}
 				else if (EventHandler::verticalScroll < 0)
 				{
-					target += m_ScrollAmount * 2.0f;
+					m_ScrollTargetY += m_ScrollAmount * 2.0f;
 					//m_VisibleOffset.y = Lerp(m_VisibleOffset.y, target, EventHandler::deltaTime);
 					//m_VisibleOffset.y += m_ScrollAmount;
 
-					if (target > m_MaxScrollableArea.y)
-						target = m_MaxScrollableArea.y;
+					if (m_ScrollTargetY > m_MaxScrollableArea.y)
+						m_ScrollTargetY = m_MaxScrollableArea.y;
 
 				}
 
 				// 25 feels responsive enough but smooth enough
-				m_VisibleOffset.y = Lerp(m_VisibleOffset.y, target, EventHandler::deltaTime * 25.0f);
+				m_VisibleOffset.y = Lerp(m_VisibleOffset.y, m_ScrollTargetY, EventHandler::deltaTime * 25.0f);
 			}
 
 			if (m_ContextMenu && EventHandler::mouseButton[MOUSE_RIGHT].clicks >= 1)
