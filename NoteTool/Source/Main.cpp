@@ -35,7 +35,7 @@ bool open = true;
 #include "Vendor/tinyfiledialogs.h"
 
 #include "TextEdit.h"
-
+#include "UserPrefs.h"
 
 
 gui::Panel* windowPanel;
@@ -48,7 +48,8 @@ Matrix4x4f screen;
 Workspace currentWorkspace;
 WorkspaceUI workspaceUI;
 
-ModalPopup modalPopup;
+
+UserPrefs userPrefs;
 
 
 gui::FontManager fontManager;
@@ -61,10 +62,12 @@ gui::Panel* workspaceUIPanel;
 gui::Panel* filelistArea;
 gui::Panel* textArea;
 gui::Panel* tabsArea;
+gui::Panel* modal;
 
 float borderSize = 1.0f;
 
 const std::filesystem::path m_BaseWorkspacePath = GetDocumentsPath() /  "Workspaces";
+const std::filesystem::path m_UserPrefsPath = GetAppDataPath() / "NotesTool";
 
 void CreatePanelsForWorkspace()
 {
@@ -132,8 +135,33 @@ void Render()
 	SDL_GL_SwapWindow(win);
 }
 
+void OpenWorkspace(const std::string path)
+{
+	currentWorkspace.OpenWorkspace(path);
+	if (currentWorkspace.IsValid())
+		modal->SetVisible(false);
+
+	CreatePanelsForWorkspace();
+
+
+	workspaceUI.Init(filelistArea, &currentWorkspace, fontManager.Get(gui::FontWeight::Regular, 12));
+
+	workspaceUIPanel->SetVisible(true);
+
+	std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
+	SDL_SetWindowTitle(win, title.c_str());
+
+	userPrefs.AddRecentlyOpened(
+		{
+			currentWorkspace.GetRoot().name,
+			path
+		}
+	);
+}
+
 int main(int argc, char* argv)
 {
+	userPrefs.LoadFromJSON(m_UserPrefsPath / "userprefs.json");
 
 	theme.LoadFromThemeJSON("Themes/dark.json");
 
@@ -219,7 +247,7 @@ int main(int argc, char* argv)
 
 	Vector2f modalSize = { 800.0f, 500.0f };
 
-	gui::Panel* modal = windowPanel->NewChild<gui::Panel>();
+	modal = windowPanel->NewChild<gui::Panel>();
 	modal->SetDummyPanel(false);
 	modal->SetBounds({ (float)window_width / 2.0f - modalSize.x / 2.0f, (float)window_height / 2.0f - modalSize.y / 2.0f, modalSize.x, modalSize.y });
 	modal->SetColour({ theme.panelBackground });
@@ -236,6 +264,50 @@ int main(int argc, char* argv)
 	oldWorkspaces->SetHighlightColour(theme.panelHighlight);
 	oldWorkspaces->SetFlags(gui::PanelFlags::DrawBorder);
 	oldWorkspaces->SetRounding(theme.buttonRounding);
+
+	float workspaceOffset = 5.0f;
+	
+	uint32_t i = userPrefs.recentlyOpenWorkspaces.size();
+	for ( i > 0; i--;)
+	{
+		WorkspacePath& workspace = userPrefs.recentlyOpenWorkspaces[i];
+		gui::Button* button = oldWorkspaces->NewChild<gui::Button>();
+		button->SetBounds({ 5.0f, workspaceOffset, 290.0f, 70.0f });
+		button->SetColour({ theme.backgroundColour });
+		button->SetHoveredColour({ theme.panelBackground });
+		button->SetRounding(6.0f);
+		button->SetUserData(&workspace.path);
+		button->SetOnClick([&](void* userData) { OpenWorkspace(*(std::string*)userData); });
+
+		gui::Text* name = oldWorkspaces->NewChild<gui::Text>();
+		name->SetString(workspace.name);
+		name->SetColour(theme.textMain);
+		name->SetFont(fontRegular);
+		name->SetPosition({ 10.0f, workspaceOffset + 5.0f });
+
+		gui::Text* path = oldWorkspaces->NewChild<gui::Text>();
+
+		std::string pathStr = workspace.path;
+		
+		if (pathStr.size() > 35)
+		{
+			pathStr = pathStr.substr(0, 35);
+			pathStr += "...";
+		}
+
+		path->SetString(pathStr);
+		path->SetColour(theme.textSub);
+		path->SetFont(fontRegular);
+		path->SetPosition({ 10.0f, workspaceOffset + fontRegular->GetMaxHeight() + 9.0f });
+
+		gui::Text* timestamp = oldWorkspaces->NewChild<gui::Text>();
+		timestamp->SetString("Last Opened: " + workspace.time);
+		timestamp->SetColour(theme.textSub);
+		timestamp->SetFont(fontRegular);
+		timestamp->SetPosition({ 10.0f, workspaceOffset + fontRegular->GetMaxHeight() * 2.0f + 13.0f });
+
+		workspaceOffset += 70.0f;
+	}
 
 	gui::Panel* userArea = modal->NewChild<gui::Panel>();
 	userArea->SetDummyPanel(true);
@@ -284,19 +356,7 @@ int main(int argc, char* argv)
 
 			if (folder != NULL)
 			{
-				currentWorkspace.OpenWorkspace(folder);
-				if (currentWorkspace.IsValid())
-					modal->SetVisible(false);
-
-				CreatePanelsForWorkspace();
-
-
-				workspaceUI.Init(filelistArea, &currentWorkspace, fontRegular);
-
-				workspaceUIPanel->SetVisible(true);
-
-				std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
-				SDL_SetWindowTitle(win, title.c_str());
+				OpenWorkspace(folder);
 			}
 		});
 	openButton->SetColour(theme.accentColour);
@@ -369,8 +429,6 @@ int main(int argc, char* argv)
 	ctxMenu->SetPosition({ 100.0f, 100.0f });
 	ctxMenu->SetRounding(theme.buttonRounding);
 	
-	modalPopup.Initialise(windowPanel, &fontManager, (float)window_width / 2.0f);
-
 
 
 	Uint64 NOW = SDL_GetPerformanceCounter();
@@ -594,7 +652,6 @@ int main(int argc, char* argv)
 			} 
 		}
 		
-		modalPopup.ModalUpdate();
 
 		Render();
 	}
@@ -604,5 +661,10 @@ int main(int argc, char* argv)
 	renderer.Shutdown();
 	SDL_DestroyWindow(win);
 	SDL_Quit();
+
+	if (!std::filesystem::exists(m_UserPrefsPath))
+		std::filesystem::create_directory(m_UserPrefsPath);
+
+	userPrefs.SaveToJSON(m_UserPrefsPath / "userprefs.json");
 	return 0;
 }
