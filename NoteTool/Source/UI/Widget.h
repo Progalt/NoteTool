@@ -372,6 +372,7 @@ namespace gui
 					if (!m_LockPosition)
 					{
 						m_Bounds.position = anchor + m_MinOffsetFromAnchor;
+						
 					}
 
 					if (!m_LockSize)
@@ -385,6 +386,7 @@ namespace gui
 
 				break;
 			}
+
 		}
 
 		bool m_Hovered = false;

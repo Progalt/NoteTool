@@ -1,0 +1,25 @@
+{
+  "name": "basic dark",
+  "version": "1.0",
+  "author": "Henry Gronow",
+  "use-windows-dark-mode": true,
+  "enable-srgb": false,
+
+  "background": [ 24, 18, 43 ],
+  "panel-bg": [ 57, 48, 83 ],
+  "panel-highlight": [ 67, 58, 93 ],
+  "button-accent": [ 78, 70, 114 ],
+  "button-highlight": [ 68, 60, 104 ],
+  "button-shadow": [ 3, 3, 3 ],
+  "hover-modifier": [ 20, 20, 20 ],
+  "click-modifier": [ 50, 50, 50 ],
+
+  "button-rounding": 6.0,
+
+  "text-main": [ 222, 222, 222 ],
+  "text-sub": [ 160, 160, 160 ],
+
+  "block-colour": [ 99, 89, 133 ],
+  "file-ext": [ 20, 20, 20 ]
+
+}

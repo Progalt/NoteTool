@@ -215,4 +215,7 @@
     <None Include="Themes\cpp.json" />
     <None Include="Themes\light.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Themes\rich-dark.json" />
+  </ItemGroup>
 </Project>

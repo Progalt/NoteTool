@@ -201,6 +201,9 @@
     <None Include="Themes\dark.json" />
     <None Include="Themes\light.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Themes\rich-dark.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -5,6 +5,7 @@
 #include "UI/TextBox.h"
 #include "FileViewers/PlainTextViewer.h"
 #include "FileViewers/MarkdownViewer.h"
+#include "Theme.h"
 
 struct WorkspaceTab
 {
@@ -102,6 +103,8 @@ public:
 		return m_ActiveTab->currentFileView;
 	}
 
+	void SetTheme(Theme* theme) { m_Theme = theme; }
+
 private:
 
 	void SetupGUI()
@@ -190,6 +193,7 @@ private:
 						if (file->type == FileType::PlainText)
 						{
 							PlainTextViewer* viewer = new PlainTextViewer;
+							viewer->theme = m_Theme;
 							viewer->SetFontManager(m_FontManager);
 							viewer->SetParentPanel(m_TextArea);
 							viewer->SetCodeFontManager(m_CodeFontManager);
@@ -206,11 +210,13 @@ private:
 						if (file->type == FileType::Markdown)
 						{
 							MarkdownViewer* viewer = new MarkdownViewer;
+							viewer->theme = m_Theme;
 							viewer->SetFontManager(m_FontManager);
 							viewer->SetParentPanel(m_TextArea);
 							viewer->SetCodeFontManager(m_CodeFontManager);
 							viewer->SetFile(file);
 							viewer->parent = this;
+						
 
 							m_Viewers.push_back(viewer);
 
@@ -244,6 +250,8 @@ private:
 	Font* m_Font;
 
 	File* m_ActiveFile;
+
+	Theme* m_Theme;
 
 
 	gui::Panel* m_TextArea;

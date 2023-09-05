@@ -39,7 +39,7 @@ void RendererGL::Initialise(SDL_Window* win)
 	glDebugMessageCallback(MessageCallback, 0);
 //#endif
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 
 	glEnable(GL_MULTISAMPLE);
 

@@ -55,7 +55,7 @@ void FileViewer::SetupTitleAndExt()
 	m_FileExt = m_Panel->NewChild<gui::Text>();
 	m_FileExt->SetFont(m_FontManager->Get(gui::FontWeight::Italic, 22));
 	m_FileExt->SetString(m_File->extension);
-	m_FileExt->SetColour({ 0.08f, 0.08f ,0.08f , 1.0f });
+	m_FileExt->SetColour(theme->fileExt);
 
 	float dif = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetMaxHeight();// -m_FontManager->Get(gui::FontWeight::Italic, 22)->GetAscent();
 	float xPos = gui::GetTextLength(m_Title->string, m_FontManager->Get(gui::FontWeight::Bold, 28));

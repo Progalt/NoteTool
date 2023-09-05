@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 
 // Really simple colour class
 // Colours are internally stored as 0 - 1 floats 
@@ -20,6 +21,14 @@ public:
 	unsigned char AsByte(unsigned int idx)
 	{
 		return static_cast<unsigned char>(c[idx] * 255.0f);
+	}
+
+	// Convert the colour to an srgb colour space
+	void ToSRGB()
+	{
+		r = powf(r, 1.0f / 2.0f);
+		g = powf(g, 1.0f / 2.0f);
+		b = powf(b, 1.0f / 2.0f);
 	}
 
 	union

@@ -9,6 +9,11 @@ namespace gui
 	{
 	public:
 
+		Text()
+		{
+			SetLockSize(true);
+		}
+
 		void GenerateVertexList(DrawList& drawList) override;
 
 		void SetString(const std::string& str);

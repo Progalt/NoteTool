@@ -38,7 +38,7 @@ void MarkdownViewer::InitialiseGUIElements()
 
 	m_TextBox->SetFontManager(m_FontManager);
 	m_TextBox->SetCodeFontManager(m_CodeFontManager);
-	m_TextBox->SetFontSize(16);
+	m_TextBox->SetFontSize(16, gui::FontWeight::Light);
 
 
 
@@ -47,6 +47,7 @@ void MarkdownViewer::InitialiseGUIElements()
 	m_TextBox->SetAnchor(gui::Anchor::BottomRight);
 	m_TextBox->SetLockPosition(true);
 	m_TextBox->SetShouldFormat(true);
+	m_TextBox->SetBlockColour(theme->blockColour);
 
 	float scrollPadding = 128.0f;
 

@@ -165,6 +165,7 @@ int main(int argc, char* argv)
 	userPrefs.LoadFromJSON(m_UserPrefsPath / "userprefs.json");
 
 	theme.LoadFromThemeJSON("Themes/dark.json");
+	workspaceUI.SetTheme(&theme);
 
 	// Initialise the base window and context
 	// TODO: Probably could move this to a class or something 
@@ -176,10 +177,15 @@ int main(int argc, char* argv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
 	std::string title = "Notes " + versionString;
 	win = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+
+	int wx, wy;
+	SDL_GetWindowSize(win, &wx, &wy);
+	window_width = wx;
+	window_height = wy;
 
 	if (!win)
 	{
@@ -380,6 +386,13 @@ int main(int argc, char* argv)
 	openTextDesc->SetFont(fontManager.Get(gui::FontWeight::Regular, 12));
 	openTextDesc->SetPosition({ 60.0f, openButtonY + fontManager.Get(gui::FontWeight::Regular, 14)->GetLineSpacing() });
 	openTextDesc->SetColour(theme.textSub);
+
+	float settingsButtonSize = 24.0f;
+	gui::Button* settingsButton = userArea->NewChild<gui::Button>();
+	settingsButton->SetBounds({ userArea->GetBounds().w - settingsButtonSize - 5.0f,  userArea->GetBounds().h - settingsButtonSize - 5.0f, settingsButtonSize, settingsButtonSize });
+	settingsButton->SetColour(theme.panelBackground);
+	settingsButton->SetHighlightColour(theme.accentColour);
+	settingsButton->SetRounding(12.0f);
 
 	//modal->SetVisible(false);
 
@@ -643,9 +656,6 @@ int main(int argc, char* argv)
 
 					textedit::Insert(clipboard);
 				}
-
-
-
 
 				
 				

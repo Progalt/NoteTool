@@ -54,6 +54,8 @@ public:
 			useWindowsDarkTheme = j["use-windows-dark-mode"];
 		}
 
+		enableSRGB = j["enable-srgb"];
+
 		backgroundColour = ColourFromJSON(j["background"]);
 		panelBackground = ColourFromJSON(j["panel-bg"]);
 		panelHighlight = ColourFromJSON(j["panel-highlight"]);
@@ -68,6 +70,10 @@ public:
 
 		textMain = ColourFromJSON(j["text-main"]);
 		textSub = ColourFromJSON(j["text-sub"]);
+
+
+		blockColour = ColourFromJSON(j["block-colour"]);
+		fileExt = ColourFromJSON(j["file-ext"]);
 	}
 
 	void AttemptToLoadLanguageHighlighting()
@@ -100,7 +106,11 @@ public:
 	Colour textMain;
 	Colour textSub;
 
+	Colour blockColour;
+	Colour fileExt;
+
 	float buttonRounding;
+	bool enableSRGB = false;
 
 	std::unordered_map<std::string, LanguageHighlighting> languageHighlighting;
 
@@ -113,7 +123,13 @@ private:
 		r = j[0];
 		g = j[1];
 		b = j[2];
-		return Colour(r, g, b, a);
+
+		Colour col = Colour(r, g, b, a);
+
+		if (enableSRGB)
+			col.ToSRGB();
+
+		return col;
 	}
 
 };

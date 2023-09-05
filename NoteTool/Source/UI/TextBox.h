@@ -108,7 +108,7 @@ namespace gui
 					end.x += padding;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
 
-					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f }, 2.0f);
+					Shape bg = gui::GenerateRoundedQuad(start, end, m_BlockColour, 2.0f);
 				
 
 					drawList.Add(bg.vertices, bg.indices);
@@ -127,7 +127,7 @@ namespace gui
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
 					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 
-					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.03f, 0.03f, 0.03f, 1.0f }, 6.0f);
+					Shape bg = gui::GenerateRoundedQuad(start, end, m_BlockColour, 6.0f);
 					
 					//Shape bgBorder = gui::GenerateRoundedQuad(start - Vector2f{1.0f, 1.0f}, end + Vector2f{ 1.0f, 1.0f }, { 0.06f, 0.06f, 0.06f, 1.0f }, 4.0f);
 
@@ -144,7 +144,7 @@ namespace gui
 					end.y += 1.0f;
 					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 
-					Shape bg = gui::GenerateQuad(start, end, {}, {}, { 0.04f, 0.04f, 0.04f, 1.0f });
+					Shape bg = gui::GenerateQuad(start, end, {}, {}, m_BlockColour);
 
 					drawList.Add(bg.vertices, bg.indices);
 				}
@@ -192,7 +192,7 @@ namespace gui
 					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
 					end.y += m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight() + padding / 2.0f;
 
-					Shape bg = gui::GenerateRoundedQuad(start, end, { 0.04f, 0.04f, 0.04f, 1.0f }, 6.0f);
+					Shape bg = gui::GenerateRoundedQuad(start, end, m_BlockColour, 6.0f);
 
 					drawList.Add(bg.vertices, bg.indices);
 
@@ -205,7 +205,7 @@ namespace gui
 						newEnd.y += 6.0f;
 
 
-						Shape bg = gui::GenerateQuad(newStart, newEnd, {}, {}, { 0.04f, 0.04f, 0.04f, 1.0f });
+						Shape bg = gui::GenerateQuad(newStart, newEnd, {}, {}, m_BlockColour);
 
 						drawList.Add(bg.vertices, bg.indices);
 					}
@@ -397,6 +397,11 @@ namespace gui
 			m_BlankText = str;
 		}
 
+		void SetBlockColour(Colour col)
+		{
+			m_BlockColour = col;
+		}
+
 	private:
 
 		std::function<void()> m_OnEdit;
@@ -422,6 +427,8 @@ namespace gui
 		bool m_FullRerender = true;
 
 		std::string m_BlankText = "";
+
+		Colour m_BlockColour = { 0.04f, 0.04f, 0.04f, 1.0f };
 
 
 		std::vector< TextFormat> m_Formats;

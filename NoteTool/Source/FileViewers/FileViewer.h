@@ -5,6 +5,7 @@
 #include "../UI/FontManager.h"
 #include "../UI/TextBox.h"
 #include "../UI/Text.h"
+#include "../Theme.h"
 
 class WorkspaceUI;
 
@@ -31,7 +32,7 @@ public:
 	virtual void Refresh() { }
 
 	WorkspaceUI* parent;
-
+	Theme* theme;
 
 protected:
 

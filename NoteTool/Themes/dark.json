@@ -3,6 +3,7 @@
   "version": "1.0",
   "author": "Henry Gronow",
   "use-windows-dark-mode": true,
+  "enable-srgb": true,
 
   "background": [ 3, 3, 3 ],
   "panel-bg": [ 5, 5, 5 ],
@@ -16,6 +17,9 @@
   "button-rounding": 6.0,
 
   "text-main": [ 166, 166, 166 ],
-  "text-sub": [ 102, 102, 102 ]
+  "text-sub": [ 102, 102, 102 ],
 
+
+  "block-colour": [ 10, 10, 10 ],
+  "file-ext": [ 20, 20, 20 ]
 }
