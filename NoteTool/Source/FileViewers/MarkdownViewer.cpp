@@ -15,7 +15,14 @@ void MarkdownViewer::LoadFileContents()
 {
 	std::ifstream file(m_File->path);
 
-	assert(file.is_open());
+
+
+	if (!file.is_open())
+	{
+		assert(false);
+		printf("Cannot open file to load contents\n");
+
+	}
 
 	std::stringstream stream;
 	stream << file.rdbuf();
@@ -32,6 +39,10 @@ void MarkdownViewer::InitialiseGUIElements()
 	float padding = 30.0f;
 	float yPos = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetAscent();
 
+	m_Panel->SetDrawVerticalScrollBar(true);
+	Colour col = { 0.06f, 0.06f, 0.06f, 1.0f };
+	col.ToSRGB();
+	m_Panel->SetHighlightColour(col);
 
 	m_TextBox = m_Panel->NewChild<gui::TextBox>();
 
@@ -73,7 +84,11 @@ void MarkdownViewer::Save()
 
 	std::ofstream file(m_File->PathWithoutName() + m_File->NameWithoutExtension() + m_File->extension);
 
-	assert(file.is_open());
+	if (!file.is_open())
+	{
+		assert(false);
+		printf("Cannot open file for saving\n");
+	}
 
 	file << m_FileContents;
 

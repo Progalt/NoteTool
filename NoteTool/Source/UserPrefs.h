@@ -26,5 +26,7 @@ public:
 
 	std::filesystem::path theme;
 
+	int lastOpenedWidth = 1280, lastOpenedHeight = 720;
+
 private:
 };

@@ -41,13 +41,12 @@ namespace gui
 
 				drawList.Add(scrollBarBg.vertices, scrollBarBg.indices);
 
-				// TODO: Fix this scrollbar 
-				float visibleAreaFraction = m_GlobalBounds.h / (m_MaxScrollableArea.y + m_GlobalBounds.h);
-				float scrollBarHeight = m_GlobalBounds.h * visibleAreaFraction;
+				float maxArea = m_GlobalBounds.h + m_MaxScrollableArea.y;
 
-				float offset = m_VisibleOffset.y - m_MaxScrollableArea.y + scrollBarHeight / 1.5f;
-
-
+				float viewableRatio = m_GlobalBounds.h / maxArea;
+				float scrollBarHeight = m_GlobalBounds.h * viewableRatio;
+				float scrolledRatio = m_VisibleOffset.y / maxArea;
+				float offset = m_GlobalBounds.h * scrolledRatio;
 
 				Shape scrollBar = gui::GenerateRoundedQuad({ xPos, yPos + offset }, { xPos + 8.0f, yPos + scrollBarHeight + offset }, m_Highlight, 4.0f);
 

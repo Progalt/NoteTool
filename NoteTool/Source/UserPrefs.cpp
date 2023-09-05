@@ -40,6 +40,12 @@ void UserPrefs::LoadFromJSON(const std::filesystem::path& path)
 			printf("Recently Open: %s\n", path.name.c_str());
 		}
 	}
+
+	if (input.find("width") != input.end())
+		lastOpenedWidth = input["width"];
+
+	if (input.find("height") != input.end())
+		lastOpenedHeight = input["height"];
 }
 
 void UserPrefs::SaveToJSON(const std::filesystem::path& path)
@@ -69,6 +75,9 @@ void UserPrefs::SaveToJSON(const std::filesystem::path& path)
 	outputJson["recentWorkspaces"] = openWorkspaces;
 
 	outputJson["theme"] = theme;
+
+	outputJson["width"] = lastOpenedWidth;
+	outputJson["height"] = lastOpenedHeight;
 
 	
 	outputFile << std::setw(4) << outputJson;

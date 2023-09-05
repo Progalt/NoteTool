@@ -85,7 +85,7 @@ void CreatePanelsForWorkspace()
 
 
 	float rounding = 16.0f;
-	textArea->SetBounds({ 250.0f + borderSize, 0.0f, editableWidth + rounding, windowPanel->GetBounds().h });
+	textArea->SetBounds({ 250.0f + borderSize, 0.0f, editableWidth, windowPanel->GetBounds().h });
 	textArea->SetColour(theme.panelBackground);
 	textArea->SetRounding(rounding);
 	//textArea->SetVisible(false);
@@ -164,6 +164,10 @@ int main(int argc, char* argv)
 {
 	userPrefs.LoadFromJSON(m_UserPrefsPath / "userprefs.json");
 
+
+	window_width = userPrefs.lastOpenedWidth;
+	window_height = userPrefs.lastOpenedHeight;
+
 	theme.LoadFromThemeJSON("Themes/dark.json");
 	workspaceUI.SetTheme(&theme);
 
@@ -178,6 +182,7 @@ int main(int argc, char* argv)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
 
 	std::string title = "Notes " + versionString;
 	win = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
@@ -414,12 +419,19 @@ int main(int argc, char* argv)
 
 			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
 
+			printf("Attempt new note\n");
+
 			//if (!workspaceUI.GetSelectedPath().empty())
 			//	basePath = workspaceUI.GetSelectedPath();
 
 			std::string path = basePath + "/NewFile";
 
-			assert(CreateNewFile(path, ".md"));
+			bool success = CreateNewFile(path, ".md");
+
+			if (!success)
+			{
+				printf("Failed to create new note\n");
+			}
 
 			workspaceUI.Refresh();
 
@@ -434,7 +446,7 @@ int main(int argc, char* argv)
 
 		std::string path = basePath + "/New Folder";
 
-		assert(CreateNewFolder(path));
+		CreateNewFolder(path);
 
 		workspaceUI.Refresh(); });
 
@@ -673,6 +685,9 @@ int main(int argc, char* argv)
 	renderer.Shutdown();
 	SDL_DestroyWindow(win);
 	SDL_Quit();
+
+	userPrefs.lastOpenedWidth = window_width;
+	userPrefs.lastOpenedHeight = window_height;
 
 	if (!std::filesystem::exists(m_UserPrefsPath))
 		std::filesystem::create_directory(m_UserPrefsPath);

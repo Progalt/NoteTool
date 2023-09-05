@@ -135,13 +135,17 @@ inline bool CreateNewFile(const std::string in_path, const std::string ext)
 
 	path += ext;
 
+	printf("Trying to create file: %s\n", path.c_str());
 
 	// std::filesystem doesn't have the ability to create a new file so we use std::ofstream 
 	// and write a blank file out
 	std::ofstream file(path);
 	
 	if (!file.is_open())
+	{
+		printf("Failed to create file: %s\n", path.c_str());
 		return false;
+	}
 
 	file << "";
 	file.close();
