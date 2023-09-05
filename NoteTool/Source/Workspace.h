@@ -12,6 +12,21 @@ enum class FileType
 
 struct File
 {
+	File () { }
+
+	File(const std::filesystem::path& path)
+	{
+		this->path = path;
+
+		if (path.has_extension())
+			extension = path.extension().generic_string();
+
+		if (path.has_filename())
+			name = path.filename().generic_string();
+
+		TypeFromExtension();
+	}
+
 	FileType type;
 	std::string name;
 	std::string extension;

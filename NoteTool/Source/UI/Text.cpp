@@ -67,5 +67,8 @@ namespace gui
 		gui::RenderTextSoftware(m_Image, m_String, m_Font, {}, m_Bounds.w, { 1.0f, 1.0f, 1.0f, 1.0f }, m_Bounds, baseLine);
 
 		m_Texture.CreateFromImage(m_Image);
+
+
+
 	}
 }

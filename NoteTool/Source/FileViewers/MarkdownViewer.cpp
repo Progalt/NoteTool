@@ -38,7 +38,7 @@ void MarkdownViewer::InitialiseGUIElements()
 
 	m_TextBox->SetFontManager(m_FontManager);
 	m_TextBox->SetCodeFontManager(m_CodeFontManager);
-	m_TextBox->SetFontSize(14);
+	m_TextBox->SetFontSize(16);
 
 
 

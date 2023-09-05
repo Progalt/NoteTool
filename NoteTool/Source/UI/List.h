@@ -47,6 +47,11 @@ namespace gui
 
 		struct TextEntry
 		{
+			void Destroy()
+			{
+				texture.~GPUTextureGL();
+			}
+
 			GPUTexture texture;
 			Image image;
 			bool rerender = true;
@@ -55,6 +60,8 @@ namespace gui
 
 			void RasterizeText(const std::string& str, Font* font)
 			{
+				
+
 				textBounds.w = gui::GetTextLength(str, font) + gui::TextPadding;
 				textBounds.h = font->GetMaxHeight() + gui::TextPadding;
 
@@ -102,6 +109,8 @@ namespace gui
 
 		void Clear()
 		{
+			for (auto& entry : m_Entries)
+				entry->textData.Destroy();
 			m_Entries.clear();
 		}
 

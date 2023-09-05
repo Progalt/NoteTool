@@ -212,7 +212,7 @@ namespace gui
 				}
 			}
 
-		/*	for (auto& pos : text.formattedPositions)
+			/*for (auto& pos : text.formattedPositions)
 			{
 				Vector2f min = m_GlobalBounds.position + pos.position;
 				Vector2f max = min - pos.size;
@@ -220,8 +220,8 @@ namespace gui
 				Shape shape = gui::GenerateQuad( min, max, {}, {}, {1.0f, 0.0f, 0.0f, 0.25f});
 
 				drawList.Add(shape.vertices, shape.indices);
-			} 
-			*/
+			} */
+			
 
 			if (!str.empty() && m_Font)
 			{
@@ -316,7 +316,7 @@ namespace gui
 			}
 			else
 			{
-				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
+				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1 && m_Editing)
 				{
 					// We have lost focus
 					m_Editing = false;
@@ -471,6 +471,16 @@ namespace gui
 
 			Vector2f GetPosition(uint32_t idx)
 			{
+				if (formattedPositions.size() == 0)
+					return Vector2f(0.0f, 0.0f);
+
+				if (idx == 0)
+				{
+					Vector2f pos = formattedPositions[0].position;
+					pos.x -= formattedPositions[0].size.x;
+					return pos;
+				}
+
 				if (idx - 1 < formattedPositions.size())
 					return formattedPositions[idx - 1].position;
 

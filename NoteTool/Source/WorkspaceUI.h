@@ -67,6 +67,8 @@ public:
 		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
 
 		AddDirectoryToList(root, nullptr);
+
+
 	}
 
 	std::string GetSelectedPath()

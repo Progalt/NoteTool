@@ -14,6 +14,7 @@ Image::~Image()
 Image::Image(const std::string& path)
 {
 	LoadFromFile(path);
+	m_Id = imageID++;
 }
 
 void Image::LoadFromFile(const std::string& path)

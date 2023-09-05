@@ -199,6 +199,8 @@ namespace gui
 			gui::RenderTextSoftware(m_Text.image, m_Text.str, m_Text.font, {}, m_Text.textBounds.w, { 1.0f, 1.0f, 1.0f, 1.0f }, m_Text.textBounds, baseLine);
 
 			m_Text.texture.CreateFromImage(m_Text.image);
+
+
 		}
 
 		void* m_UserData;

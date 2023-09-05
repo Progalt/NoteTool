@@ -34,10 +34,10 @@ void RendererGL::Initialise(SDL_Window* win)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(MessageCallback, 0);
-#endif
+//#endif
 
 	glEnable(GL_FRAMEBUFFER_SRGB);
 

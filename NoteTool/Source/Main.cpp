@@ -15,6 +15,8 @@ int window_height = 720;
 int modal_start_width = 800;
 int modal_start_height = 500;
 
+const std::string versionString = "v0.01d";
+
 bool open = true;
 
 #include "Font.h"
@@ -99,9 +101,6 @@ void CreatePanelsForWorkspace()
 
 
 
-
-
-
 void Render()
 {
 
@@ -148,7 +147,7 @@ void OpenWorkspace(const std::string path)
 
 	workspaceUIPanel->SetVisible(true);
 
-	std::string title = "Notes - Workspace/" + currentWorkspace.GetRoot().name;
+	std::string title = "Notes " + versionString + " - Editing " + currentWorkspace.GetRoot().name;
 	SDL_SetWindowTitle(win, title.c_str());
 
 	userPrefs.AddRecentlyOpened(
@@ -157,6 +156,8 @@ void OpenWorkspace(const std::string path)
 			path
 		}
 	);
+
+	workspaceUI.Refresh();
 }
 
 int main(int argc, char* argv)
@@ -177,7 +178,8 @@ int main(int argc, char* argv)
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
-	win = SDL_CreateWindow("Notes - Workspace/", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+	std::string title = "Notes " + versionString;
+	win = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 
 	if (!win)
 	{

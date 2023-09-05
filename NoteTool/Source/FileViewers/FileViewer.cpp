@@ -25,7 +25,8 @@ void FileViewer::SetupTitleAndExt()
 
 	m_Title->SetOnLoseCallback([&]()
 		{
-
+			// TODO: This doesn't work
+			//printf("On Lose callback\n");
 			if (!m_Title->string.empty())
 			{
 

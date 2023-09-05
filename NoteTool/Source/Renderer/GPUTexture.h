@@ -16,6 +16,7 @@ class GPUTextureBase
 {
 public:
 
+	virtual void Destroy() = 0;
 
 	virtual void CreateFromImage(Image& img) = 0;
 

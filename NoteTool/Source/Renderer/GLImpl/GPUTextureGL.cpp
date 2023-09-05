@@ -11,8 +11,9 @@ int formatTable[(int)GPUFormat::Count] =
 	GL_RGBA
 };
 
-GPUTextureGL::~GPUTextureGL()
+void GPUTextureGL::Destroy()
 {
+	printf("Deleted texture\n");
 	glDeleteTextures(1, &m_Id);
 }
 

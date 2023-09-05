@@ -5,13 +5,15 @@
 #include <vector>
 #include <string>
 
+static uint32_t imageID;
+
 class Image
 {
 public:
 
 	~Image();
 
-	Image() { }
+	Image() { m_Id = imageID++; }
 
 	Image(const std::string& path);
 
@@ -37,9 +39,18 @@ public:
 
 	uint8_t* GetPixels() { return m_Pixels.data(); }
 
+	bool operator==(Image& img)
+	{
+		if (img.m_Id == m_Id)
+			return true;
+
+		return false;
+	}
+
 private:
 
 
+	uint32_t m_Id;
 	uint32_t m_Width, m_Height, m_Channels;
 	bool m_LoadedFromMemory;
 

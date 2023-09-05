@@ -7,7 +7,7 @@ class GPUTextureGL : public GPUTextureBase
 {
 public:
 
-	~GPUTextureGL();
+	void Destroy() override;
 
 	void CreateFromImage(Image& img) override;
 

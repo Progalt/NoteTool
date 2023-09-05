@@ -21,12 +21,7 @@ void Directory::ParseDirectory(const std::filesystem::path& path)
 		}
 		if (item.is_regular_file())
 		{
-			File file;
-			file.name = item.path().filename().generic_string();
-			file.extension = item.path().extension().generic_string();
-			file.path = item.path();
-
-			file.TypeFromExtension();
+			File file(item.path());
 
 			files.push_back(file);
 			printf("File: %s\n", file.name.c_str());
