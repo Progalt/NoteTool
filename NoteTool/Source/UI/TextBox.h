@@ -59,7 +59,7 @@ namespace gui
 					col = { 0.25f, 0.25f, 0.25f, 1.0f };
 				}
 
-				text.RasterizeTextFormatted(str, m_FontManager, m_CodeFontManager, m_FontSize, m_Bounds.w, m_Formats, m_DefaultWeight, min, max, col);
+				text.RasterizeTextFormatted(str, m_FontManager, m_CodeFontManager, m_FontSize, m_Bounds.w, m_Formats, m_DefaultWeight, min, max, col, gui::EventHandler::cursorOffset);
 				 
 					//text.RasterizeText(string, m_FontManager->Get(gui::FontWeight::Light, m_FontSize), m_Bounds.w);
 
@@ -221,6 +221,8 @@ namespace gui
 
 				drawList.Add(shape.vertices, shape.indices);
 			} */
+
+			
 			
 
 			if (!str.empty() && m_Font)
@@ -233,6 +235,31 @@ namespace gui
 
 				drawList.Add(quad.vertices, quad.indices, &text.texture);
 			}
+
+			/*uint32_t lines = 0;
+			for (uint32_t i = 0; i < str.size(); i++)
+			{
+				if (str[i] == '\n')
+				{
+					lines++;
+				}
+
+
+				if (lines >= 1)
+				{
+					Vector2f start = m_GlobalBounds.position + text.GetPosition(i);
+				
+
+					Vector2f end = start;
+					end.y += 1.0f;
+					end.x = m_GlobalBounds.x + m_GlobalBounds.w;
+
+					Shape bg = gui::GenerateQuad(start, end, {}, {}, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+					drawList.Add(bg.vertices, bg.indices);
+					lines = 0;
+				}
+			}*/
 
 			// Render cursor
 
@@ -285,8 +312,10 @@ namespace gui
 				
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
 				{
+					if (!m_Editing)
+						m_FullRerender = true;
 					m_Editing = true;
-					m_FullRerender = true;
+
 					Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
 					mpoint = mpoint - m_GlobalBounds.position;
 					EventHandler::cursorOffset = gui::GetNearestCharFromPointFormatted(mpoint, 0, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats) + 1;
@@ -318,9 +347,11 @@ namespace gui
 			{
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1 && m_Editing)
 				{
+					if (m_Editing)
+						m_FullRerender = true;
 					// We have lost focus
 					m_Editing = false;
-					m_FullRerender = true;
+					
 
 					if (m_OnLoseFocus)
 						m_OnLoseFocus();
@@ -329,7 +360,7 @@ namespace gui
 			
 
 
-			if (string != m_CachedString || m_Bounds != m_CachedBounds)//|| m_Formats != m_CachedFormat)
+			if (string != m_CachedString || m_Bounds != m_CachedBounds)
 				TriggerRerender();
 		}
 
@@ -341,7 +372,6 @@ namespace gui
 
 			m_CachedString = string;
 			m_CachedBounds = m_Bounds;
-			m_CachedFormat = m_Formats;
 
 			if (m_OnEdit)
 				m_OnEdit();
@@ -389,7 +419,7 @@ namespace gui
 
 		float GetTextBoxHeight()
 		{
-			return gui::GetTextBoxSizeFormatted(string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, {}, m_Bounds.w, {}, {}, 0.0f, m_Formats).y;
+			return text.formattedPositions[text.formattedPositions.size() - 1].y + text.formattedPositions[text.formattedPositions.size() - 1].h + 24.0f;
 		}
 
 		void ShowBlankText(const std::string& str)
@@ -515,36 +545,46 @@ namespace gui
 			}
 
 			void RasterizeTextFormatted(const std::string& str, FontManager* fontManager, FontManager* codeManager, uint32_t fontSize, float textWrap, 
-				std::vector<TextFormat> formatting, FontWeight defaultWeight, uint32_t minTextFormat, uint32_t maxTextFormat, Colour col)
+				std::vector<TextFormat> formatting, FontWeight defaultWeight, uint32_t minTextFormat, uint32_t maxTextFormat, Colour col, uint32_t cursorPos)
 			{
+				PROFILE_BEGIN(rasterTime);
 				Font* font = fontManager->Get(gui::FontWeight::Bold, fontSize);
 
 
 				textBounds.w =   textWrap + gui::TextPadding;
-				float height = gui::TextPadding + ((gui::GetLineCount(str, font, textWrap) + 1) * font->GetLineSpacing());
-
+		
 				float baseLine = (float)font->GetAscent();
 
-				textBounds.h = gui::GetTextBoxSizeFormatted(str, fontManager, codeManager, fontSize,
-					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting).y;
+				//textBounds.h = gui::GetTextBoxSizeFormatted(str, fontManager, codeManager, fontSize,
+				//	defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting).y;
+
+				if (formattedPositions.size() > 0)
+					textBounds.h = formattedPositions[formattedPositions.size() - 1].y + formattedPositions[formattedPositions.size() - 1].h;
+				else 
+					textBounds.h = 1280.0f;
 
 				textBounds.size += { gui::TextPadding, gui::TextPadding };
 
 				image.New((int)textBounds.w, (int)textBounds.h, 4);
-				image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f });
+
+				image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f }, 0);
 
 				
 
 				printf("Rerasterising Textbox...\n");
 
-
-
+				FloatRect bounds = { 0.0f, 0.0f, textBounds.w, textBounds.h };
+			
 				formattedPositions = gui::RenderTextSoftwareFormatted(image, str, fontManager, codeManager, fontSize,
-					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting, minTextFormat, maxTextFormat, col);
-
+					defaultWeight, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine, formatting, bounds, minTextFormat, maxTextFormat, col);
+				
+	
+				
 
 				texture.CreateFromImage(image);
 
+
+				PROFILE_END(rasterTime, "Text Box Raster");
 
 			}
 			

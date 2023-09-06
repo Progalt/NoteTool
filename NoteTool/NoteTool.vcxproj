@@ -168,6 +168,7 @@
     <ClInclude Include="Source\OS.h" />
     <ClInclude Include="Source\Painter\Brush.h" />
     <ClInclude Include="Source\Painter\Painter.h" />
+    <ClInclude Include="Source\ProfileUtil.h" />
     <ClInclude Include="Source\Renderer\GLImpl\GPUTextureGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\RendererGL.h" />
     <ClInclude Include="Source\Renderer\GLImpl\Shader.h" />

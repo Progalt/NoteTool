@@ -1,6 +1,7 @@
 
 #include "Font.h"
 #include <algorithm>
+#include "ProfileUtil.h"
 
 typedef std::pair<uint32_t, uint32_t> AlphabetCodepoints;
 
@@ -52,6 +53,7 @@ void Font::SetFont(const std::string& path, uint32_t pixelSize, bool aa)
 
 void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint32_t y, Colour col)
 {
+	
 
 	uint32_t index = FT_Get_Char_Index(m_Face, codepoint);
 	if (FT_Load_Glyph(m_Face, index, FT_LOAD_RENDER | m_Flags) != 0)
@@ -67,6 +69,7 @@ void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint
 		return;
 	}
 
+	uint8_t r = col.AsByte(0), g = col.AsByte(1), b = col.AsByte(2);
 
 	for (int i = 0; i < (int)m_Face->glyph->bitmap.rows; i++)
 	{
@@ -76,7 +79,7 @@ void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint
 			unsigned char p = m_Face->glyph->bitmap.buffer[i * m_Face->glyph->bitmap.width + j];
 
 
-			img->SetPixel(x + j, y + i, Colour(col.AsByte(0), col.AsByte(1), col.AsByte(2), p));
+			img->SetPixel(x + j, y + i, r, g, b, p);
 
 		}
 

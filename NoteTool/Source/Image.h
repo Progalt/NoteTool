@@ -27,11 +27,17 @@ public:
 
 	void New(uint32_t w, uint32_t h, uint32_t channels);
 
+	void Expand(uint32_t newWidth, uint32_t newHeight);
+
+	void Copy(Image& img, uint32_t x, uint32_t y);
+
 	void SetPixel(uint32_t x, uint32_t y, Colour c);
+
+	void SetPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 	Colour GetPixel(uint32_t x, uint32_t y);
 
-	void Fill(Colour c);
+	void Fill(Colour c, uint32_t yStart = 0);
 
 	const uint32_t GetWidth() const { return m_Width; }
 

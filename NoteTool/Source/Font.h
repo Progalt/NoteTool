@@ -78,6 +78,8 @@ private:
 		uint32_t advance = 0;
 
 		bool packed = false;
+
+		Image pixels;
 	};
 
 	struct GlyphPack

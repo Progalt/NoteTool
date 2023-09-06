@@ -7,6 +7,8 @@
 #include "FontManager.h"
 #include "Formatter.h"
 
+#include <chrono>
+#include "../ProfileUtil.h"
 
 namespace gui
 {
@@ -902,9 +904,10 @@ namespace gui
 		uint32_t textSize,
 		FontWeight defaultWeight,
 		Vector2i position,
-		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting,
+		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting, FloatRect rasteriserBounds, 
 		uint32_t formatHideExcludeStart = 0, uint32_t formatHideExcludeEnd = 0, Colour baseCol = { 1.0f, 1.0f, 1.0f, 1.0f})
 	{
+	
 		float x = 0.0f;
 
 		uint32_t lineCount = 0;
@@ -917,6 +920,7 @@ namespace gui
 
 		std::vector<FloatRect> positions(text.size());
 
+		//uint32_t i = 0;
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
 			// lets see if this index is formatted
@@ -992,7 +996,7 @@ namespace gui
 			{
 				x = 0.0f;
 				if (formatOption == TextFormatOption::CodeBlock)
-					x = 12.0f;
+					x = font->GetCodePointData(' ').advance * 3;
 				lineCount++;
 				lineOffset += font->GetLineSpacing();
 				renderChar = false;
@@ -1044,6 +1048,19 @@ namespace gui
 			float xpos = x + data.bearingX;
 			float ypos = -(float)data.bearingY + yposNoBearing;
 
+			FloatRect bounds;
+			bounds.position = { xpos, ypos };
+			bounds.size = { (float)data.w, (float)data.y };
+
+			if (!rasteriserBounds.Intersects(bounds))
+			{
+				x += (float)data.advance;
+
+				positions[i].position = { xpos, yposNoBearing };
+				positions[i].size = { (float)data.w, (float)data.h };
+
+				continue;
+			}
 
 
 			if (maxX < xpos + (float)data.advance)
@@ -1053,6 +1070,8 @@ namespace gui
 
 			if (formatChar)
 				col = { 0.25f, 0.25f, 0.25f, 1.0f };
+
+			//PROFILE_BEGIN(glyph);
 
 			if (renderChar)
 			{
@@ -1078,14 +1097,327 @@ namespace gui
 				xpos = x + data.bearingX;
 			}
 
+			//PROFILE_END(glyph, "Glyph");
+
 			positions[i].position = { xpos, yposNoBearing };
 			positions[i].size = { (float)data.w, (float)data.h };
+
+			//i++;
 
 		}
 
 		return positions;
 
 	}
+
+	inline void RenderTextSoftwareFormattedWithPositions(Image& img, const std::string& text,
+		FontManager* fontManager,
+		FontManager* codeFontManager,
+		uint32_t textSize,
+		FontWeight defaultWeight,
+		Vector2i position,
+		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting, FloatRect rasteriserBounds, std::vector<FloatRect> positions, 
+		uint32_t formatHideExcludeStart = 0, uint32_t formatHideExcludeEnd = 0, Colour baseCol = { 1.0f, 1.0f, 1.0f, 1.0f })
+	{
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		Font* font = fontManager->Get(defaultWeight, textSize);
+
+		float lineOffset = 0.0f;
+
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+			// lets see if this index is formatted
+			TextFormatOption formatOption = TextFormatOption::None;
+
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
+
+			for (auto& formats : formatting)
+			{
+				if (i >= formats.start - formats.formatterStartSize && i <= formats.end + formats.formatterEndSize)
+				{
+					if (i >= formats.start && i <= formats.end)
+					{
+						formatOption = formats.option;
+					}
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
+
+
+
+			}
+
+			bool renderChar = true;
+			bool formatChar = false;
+
+			if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
+			{
+				if (formatHideExcludeStart == formatHideExcludeEnd)
+				{
+
+					if (i >= currentFormatStart - currentStartFormatterSize && i < currentFormatStart)
+					{
+						renderChar = false;
+					}
+					else if (i > currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						renderChar = false;
+					}
+
+
+				}
+				else
+				{
+					if (i >= currentFormatStart - currentStartFormatterSize && i < currentFormatStart)
+					{
+						formatChar = true;
+					}
+					else if (i > currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						formatChar = true;
+					}
+				}
+			}
+
+			
+
+			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
+
+
+			// Strike through doesn't affect the font at all
+			bool renderStrikeThrough = formatOption == TextFormatOption::StrikeThrough ? true : false;
+			bool renderUnderline = formatOption == TextFormatOption::Underline ? true : false;
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n' || codepoint == '\t')
+				renderChar = false;
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+
+		
+
+
+			float yposNoBearing = lineOffset + font->GetAscent();
+
+			float xpos = positions[i].x;
+			float ypos = -(float)data.bearingY + positions[i].y;
+
+			FloatRect bounds;
+			bounds.position = { xpos, ypos };
+			bounds.size = { (float)data.w, (float)data.y };
+
+			if (!rasteriserBounds.Intersects(bounds))
+			{
+				continue;
+			}
+
+
+			Colour col = baseCol;
+
+			if (formatChar)
+				col = { 0.25f, 0.25f, 0.25f, 1.0f };
+
+			if (renderChar)
+			{
+
+				font->RasterizeGlyph(codepoint, &img, (int)xpos, (int)ypos, col);
+
+				if (renderStrikeThrough || renderUnderline)
+				{
+					uint32_t max = data.w + data.advance;
+					if (i == currentFormatEnd)
+						max = data.advance;
+
+					for (uint32_t p = 0; p < max; p++)
+					{
+						// Determine the y offset
+						int offset = (renderStrikeThrough) ? (font->GetAscent() / 2) - 3 : 0;
+
+						img.SetPixel((int)xpos + p, (int)yposNoBearing - offset, col);
+					}
+				}
+			}
+
+	
+		}
+
+
+
+	}
+
+	inline std::vector<FloatRect> GetFormattedTextPositions(Image& img, const std::string& text,
+		FontManager* fontManager,
+		FontManager* codeFontManager,
+		uint32_t textSize,
+		FontWeight defaultWeight,
+		Vector2i position,
+		float textWrap, Colour col, FloatRect bounds, float baseLine, std::vector<TextFormat> formatting,
+		uint32_t formatHideExcludeStart = 0, uint32_t formatHideExcludeEnd = 0, Colour baseCol = { 1.0f, 1.0f, 1.0f, 1.0f })
+	{
+		float x = 0.0f;
+
+		uint32_t lineCount = 0;
+
+		float maxX = 0.0f, maxY = 0.0f;
+
+		Font* font = fontManager->Get(defaultWeight, textSize);
+
+		float lineOffset = 0.0f;
+
+		std::vector<FloatRect> positions(text.size());
+
+		for (uint32_t i = 0; i < text.size(); i++)
+		{
+			// lets see if this index is formatted
+			TextFormatOption formatOption = TextFormatOption::None;
+
+			uint32_t currentFormatEnd = UINT32_MAX;
+			uint32_t currentFormatStart = UINT32_MAX;
+			uint32_t currentStartFormatterSize = 0;
+			uint32_t currentEndFormatterSize = 0;
+
+			for (auto& formats : formatting)
+			{
+				if (i >= formats.start - formats.formatterStartSize && i <= formats.end + formats.formatterEndSize)
+				{
+					if (i >= formats.start && i <= formats.end)
+					{
+						formatOption = formats.option;
+					}
+					currentStartFormatterSize = formats.formatterStartSize;
+					currentEndFormatterSize = formats.formatterEndSize;
+					currentFormatEnd = formats.end;
+					currentFormatStart = formats.start;
+				}
+
+
+
+			}
+
+			bool renderChar = true;
+			bool formatChar = false;
+
+			if (currentFormatStart != UINT32_MAX && currentFormatEnd != UINT32_MAX)
+			{
+				if (formatHideExcludeStart == formatHideExcludeEnd)
+				{
+
+					if (i >= currentFormatStart - currentStartFormatterSize && i < currentFormatStart)
+					{
+						renderChar = false;
+					}
+					else if (i > currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						renderChar = false;
+					}
+
+
+				}
+				else
+				{
+					if (i >= currentFormatStart - currentStartFormatterSize && i < currentFormatStart)
+					{
+						formatChar = true;
+					}
+					else if (i > currentFormatEnd && i <= currentFormatEnd + currentEndFormatterSize)
+					{
+						formatChar = true;
+					}
+				}
+			}
+
+
+
+			Font* font = GetFontForFormat(formatOption, fontManager, codeFontManager, defaultWeight, textSize);
+
+
+			uint32_t codepoint = text[i];
+
+			if (codepoint == '\n')
+			{
+				x = 0.0f;
+				if (formatOption == TextFormatOption::CodeBlock)
+					x = font->GetCodePointData(' ').advance * 3;
+				lineCount++;
+				lineOffset += font->GetLineSpacing();
+				renderChar = false;
+			}
+
+			if (codepoint == '\t')
+			{
+				x += font->GetCodePointData(' ').advance * 4;
+				renderChar = false;
+			}
+
+
+
+			Alphabet alphabet = font->GetAlphabetForCodepoint(codepoint);
+			GlyphData data = font->GetCodePointData(codepoint);
+
+
+			// This is if word wrapped is enabled
+			if (textWrap != 0.0f)
+			{
+				// We want to wrap per word so lets get the word lengths
+				int wordLength = 0;
+				int wordOffset = x;
+				bool forceNewLine = false;
+				for (uint32_t w = i; w < text.size(); w++)
+				{
+					if (text[w] == ' ' || text[w] == '\n')
+						break;
+
+					uint32_t cp = text[w];
+
+					GlyphData d = font->GetCodePointData(cp);
+					wordOffset += d.advance;
+					wordLength += d.advance;
+				}
+
+				// if the word length is greater than the wrap limit go onto a new line 
+				if (wordOffset > textWrap || forceNewLine)
+				{
+					x = 0;
+					lineCount++;
+					lineOffset += font->GetLineSpacing();
+				}
+			}
+
+
+			float yposNoBearing = lineOffset + font->GetAscent();
+
+			float xpos = x + data.bearingX;
+			float ypos = -(float)data.bearingY + yposNoBearing;
+
+			
+
+			positions[i].position = { xpos, yposNoBearing };
+			positions[i].size = { (float)data.w, (float)data.h };
+
+			//if (renderChar)
+			x += (float)data.advance;
+
+		}
+
+		return positions;
+
+	}
+
+	
 
 	inline Vector2f GetPositionOfCharFormatted(uint32_t idx, const std::string& text, FontManager* fontManager,
 		FontManager* codeFontManager,
