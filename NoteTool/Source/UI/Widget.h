@@ -8,6 +8,31 @@
 
 namespace gui
 {
+
+	enum class ResizeLock
+	{
+		LockPositionY = 1 << 1,
+		LockPositionX = 1 << 2,
+
+		LockScaleX = 1 << 3,
+		LockScaleY = 1 << 4
+
+	};
+
+	inline ResizeLock operator|(ResizeLock lh, ResizeLock rh)
+	{
+		return static_cast<ResizeLock>(
+			static_cast<int>(lh) |
+			static_cast<int>(rh)
+			);
+	}
+
+	inline bool operator&(ResizeLock lh, ResizeLock rh)
+	{
+		return static_cast<int>(lh) &
+			static_cast<int>(rh);
+	}
+
 	class DrawList
 	{
 	public:
@@ -285,8 +310,16 @@ namespace gui
 
 		void SetVisible(bool vis) { m_Visible = vis; }
 
-		void SetLockSize(bool lock) { m_LockSize = lock; }
-		void SetLockPosition(bool lock) { m_LockPosition = lock; }
+		void SetLockSize(bool lock) { 
+			m_LockSize = lock; 
+			m_Locks = m_Locks | ResizeLock::LockScaleX | ResizeLock::LockScaleY;
+		}
+		void SetLockPosition(bool lock) { 
+			m_LockPosition = lock; 
+			m_Locks = m_Locks | ResizeLock::LockPositionX | ResizeLock::LockPositionY;
+		}
+
+		void SetLockFlags(ResizeLock locks) { m_Locks = locks; }
 
 		void HandleResize()
 		{
@@ -323,18 +356,58 @@ namespace gui
 				{
 					Vector2f anchor = GetAnchorPosition();
 
-					if (!m_LockPosition)
+					if (!(m_Locks & ResizeLock::LockPositionX))
+					{
+						m_Bounds.position.x = anchor.x + m_MinOffsetFromAnchor.x;
+
+						if (m_Bounds.position.x < 0.0f)
+						{
+							m_Bounds.position.x = 0.0f;
+						}
+					}
+
+					if (!(m_Locks & ResizeLock::LockPositionY))
+					{
+						m_Bounds.position.y = anchor.y + m_MinOffsetFromAnchor.y;
+
+						if (m_Bounds.position.y < 0.0f)
+						{
+							m_Bounds.position.y = 0.0f;
+						}
+					}
+
+					if (!(m_Locks & ResizeLock::LockScaleX))
+					{
+						m_Bounds.size.x = (anchor.x + m_MaxOffsetFromAnchor.x) - m_Bounds.position.x;
+					}
+
+					if (!(m_Locks & ResizeLock::LockScaleY))
+					{
+						m_Bounds.size.y = (anchor.y + m_MaxOffsetFromAnchor.y) - m_Bounds.position.y;
+					}
+
+					/*if (!m_LockPosition)
 					{
 						m_Bounds.position = anchor + m_MinOffsetFromAnchor;
 
-					}
+						if (m_Bounds.position.x < 0.0f)
+						{
+							m_Bounds.position.x = 0.0f;
+						}
 
-					if (!m_LockSize)
+						if (m_Bounds.position.y < 0.0f)
+						{
+							m_Bounds.position.y = 0.0f;
+						}
+
+					}*/
+
+					/*if (!m_LockSize)
 					{
 						m_Bounds.size = (anchor + m_MaxOffsetFromAnchor) - m_Bounds.position;
 
 
-					}
+					}*/
 					RecalculateAllBounds();
 				}
 
@@ -446,5 +519,7 @@ namespace gui
 
 		bool m_LockPosition = false;
 		bool m_LockSize = false;
+
+		ResizeLock m_Locks;
 	};
 }

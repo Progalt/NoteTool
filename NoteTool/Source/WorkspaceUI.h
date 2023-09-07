@@ -279,8 +279,9 @@ private:
 		tab->panel = m_TextArea->NewChild<gui::Panel>();
 		m_TextArea->InheritTheme(tab->panel);
 		tab->panel->SetBounds(bounds);
-		tab->panel->SetAnchor(gui::Anchor::BottomCentre);
-		
+		tab->panel->SetAnchor(gui::Anchor::BottomRight);
+		//tab->panel->SetLockPosition(true);
+		//tab->panel->SetLockFlags(gui::ResizeLock::LockPositionY);
 
 		gui::ContextMenu* menu = tab->panel->GetContextMenu();
 		menu->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 12));
@@ -291,17 +292,22 @@ private:
 
 		menu->AddOption("Split Vertically", [&]()
 			{
-				
-
+				float padding = 3.0f;
 				m_ActiveTab->bounds.w /= 2.0f;
+				m_ActiveTab->bounds.w -= padding;
 				m_ActiveTab->panel->SetBounds(m_ActiveTab->bounds);
 				m_ActiveTab->panel->RecalculateAllBounds();
+				m_ActiveTab->panel->SetAnchor(gui::Anchor::BottomRight);
+				//m_ActiveTab->panel->SetLockFlags(gui::ResizeLock::LockPositionY);
+				
 
 				FloatRect newBounds = m_ActiveTab->bounds;
-				newBounds.x += m_ActiveTab->bounds.w;
+				newBounds.x += m_ActiveTab->bounds.w + padding * 2.0f;
+				
 				WorkspaceTab* t = NewTab();
 				OpenNewTab(t, newBounds);
 			});
+		
 
 		tab->panel->SetOnFocusCallback([&](void* userData) 
 			{

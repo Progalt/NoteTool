@@ -40,6 +40,8 @@ void Workspace::OpenWorkspace(const std::filesystem::path& path)
 	}
 
 	m_Root.ParseDirectory(path);
+
+	
 }
 
 bool Workspace::Exists(const std::string& file)

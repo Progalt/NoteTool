@@ -38,14 +38,15 @@ bool open = true;
 
 #include "TextEdit.h"
 #include "UserPrefs.h"
-
+#include "Window.h"
 
 gui::Panel* windowPanel;
 Renderer renderer;
 Theme theme;
-SDL_Window* win;
 GPUTexture whiteTexture;
 Matrix4x4f screen;
+
+Window win;
 
 Workspace currentWorkspace;
 WorkspaceUI workspaceUI;
@@ -67,27 +68,31 @@ gui::Panel* tabsArea;
 gui::Panel* modal;
 
 float borderSize = 1.0f;
+float fileBrowserUISize = 300.0f;
 
 const std::filesystem::path m_BaseWorkspacePath = GetDocumentsPath() /  "Workspaces";
 const std::filesystem::path m_UserPrefsPath = GetAppDataPath() / "NotesTool";
 
 void CreatePanelsForWorkspace()
 {
-	filelistArea->SetBounds({ 0.0f , 0.0f, 250.0f, windowPanel->GetBounds().h, });
-	filelistArea->SetColour(theme.backgroundColour);
+	float padding = 6.0f;
+	filelistArea->SetBounds({ padding , padding, fileBrowserUISize - padding * 2.0f, windowPanel->GetBounds().h - padding * 2.0f });
+	filelistArea->SetColour(theme.panelBackground);
 	//filelistArea->SetHighlightColour(theme.panelHighlight);
 	filelistArea->SetTransparency(1.0f);
 	filelistArea->SetAnchor(gui::Anchor::CentreLeft);
 	//filelistArea->SetVisible(false);
 	filelistArea->SetFlags(gui::PanelFlags::DrawBorder);
+	filelistArea->SetRounding(16.0f);
 
 	float editableWidth = windowPanel->GetBounds().w - filelistArea->GetBounds().w - 1.0f;
 
 
 	float rounding = 16.0f;
-	textArea->SetBounds({ 250.0f + borderSize, 0.0f, editableWidth, windowPanel->GetBounds().h });
+	textArea->SetBounds({ fileBrowserUISize + borderSize, padding, editableWidth - padding * 3.0f, windowPanel->GetBounds().h - padding * 2.0f });
 	textArea->SetColour(theme.panelBackground);
 	textArea->SetRounding(rounding);
+	textArea->SetDummyPanel(true);
 	//textArea->SetVisible(false);
 
 
@@ -131,7 +136,7 @@ void Render()
 
 	renderer.EndRenderpass();
 
-	SDL_GL_SwapWindow(win);
+	win.Swap();
 }
 
 void OpenWorkspace(const std::string path)
@@ -148,7 +153,8 @@ void OpenWorkspace(const std::string path)
 	workspaceUIPanel->SetVisible(true);
 
 	std::string title = "Notes " + versionString + " - Editing " + currentWorkspace.GetRoot().name;
-	SDL_SetWindowTitle(win, title.c_str());
+	
+	win.SetTitle(title);
 
 	userPrefs.AddRecentlyOpened(
 		{
@@ -176,49 +182,20 @@ int main(int argc, char* argv)
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
 
 	std::string title = "Notes " + versionString;
-	win = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-
-	int wx, wy;
-	SDL_GetWindowSize(win, &wx, &wy);
-	window_width = wx;
-	window_height = wy;
-
-	if (!win)
-	{
-		printf("Failed to make window \n");
-	}
-
-	SDL_SetWindowResizable(win, SDL_TRUE);
+	win.Create(title, window_width, window_height, WindowFlags::Resizable | WindowFlags::OpenGL);
 
 	// only enable dark mode for the hwnd if the theme wants it to be
 	if (theme.useWindowsDarkTheme)
 	{
-		ToggleDarkModeForHwnd(win);
+		ToggleDarkModeForHwnd(win.GetWindow());
 	}
 
-	// Init context
 
-	SDL_GLContext ctx;
 
-	ctx = SDL_GL_CreateContext(win);
-
-	if (!ctx)
-	{
-		printf("Failed to make opengl context\n");
-	}
-
-	// Initialise the rendering
-
-	renderer.Initialise(win);
+	renderer.Initialise(win.GetWindow());
 
 
 	// Init base content
@@ -491,6 +468,8 @@ int main(int argc, char* argv)
 
 		while (SDL_PollEvent(&evnt))
 		{
+			win.HandleWindowEvents(&evnt);
+
 			switch (evnt.type)
 			{
 			case SDL_QUIT:
@@ -683,7 +662,9 @@ int main(int argc, char* argv)
 	delete windowPanel;
 
 	renderer.Shutdown();
-	SDL_DestroyWindow(win);
+	
+	win.Close();
+
 	SDL_Quit();
 
 	userPrefs.lastOpenedWidth = window_width;
