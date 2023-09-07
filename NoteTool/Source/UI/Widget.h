@@ -203,10 +203,26 @@ namespace gui
 
 		void SetBounds(FloatRect bounds) 
 		{ 
+			static bool setOriginalBounds = false;
+			if (!setOriginalBounds)
+			{
+				SetOldBounds(m_Bounds);
+				setOriginalBounds = true;
+			}
 			m_Bounds = bounds; 
 			m_GlobalBounds = m_Bounds;
 			if (m_Parent)
+			{
 				m_GlobalBounds.position += m_Parent->GetBounds().position - m_Parent->m_VisibleOffset;
+				
+				/*Vector2f dif = (m_Bounds.position + m_Bounds.size) - m_Parent->GetBounds().size;
+				if (dif.x > 0.0f)
+				{
+					m_Bounds.size.x -= dif.x;
+				}*/
+			}
+
+			//HandleResize();
 
 		}
 
@@ -251,15 +267,17 @@ namespace gui
 		{
 			SetBounds(m_Bounds);
 
-			/*if (m_Parent)
+			if (m_Parent)
 			{
 				if (m_Bounds.x + m_Bounds.w > m_Parent->GetBounds().w)
 				{
+
 					float dif = m_Parent->GetBounds().w - (m_Bounds.x + m_Bounds.w);
 					m_Bounds.w += dif;
 				}
-			}*/
+			}
 
+			//HandleResize();
 
 			for (auto& child : m_Children)
 				child->RecalculateAllBounds();
@@ -269,6 +287,62 @@ namespace gui
 
 		void SetLockSize(bool lock) { m_LockSize = lock; }
 		void SetLockPosition(bool lock) { m_LockPosition = lock; }
+
+		void HandleResize()
+		{
+			switch (m_Anchor)
+			{
+			case Anchor::Centre:
+			{
+				if (m_Parent)
+				{
+
+
+					Vector2f widgetCentre = m_Bounds.position + (m_Bounds.size / 2.0f);
+
+					Vector2f parentCentre = Vector2f(m_Parent->m_Bounds.w, m_Parent->m_Bounds.h) / 2.0f;
+
+					Vector2f distanceToCentre = parentCentre - widgetCentre;
+
+					m_Bounds.position += distanceToCentre;
+					RecalculateAllBounds();
+
+				}
+			}
+			break;
+
+			case Anchor::BottomRight:
+			case Anchor::BottomLeft:
+			case Anchor::BottomCentre:
+			case Anchor::TopLeft:
+			case Anchor::TopRight:
+			case Anchor::CentreLeft:
+
+
+				if (m_Parent)
+				{
+					Vector2f anchor = GetAnchorPosition();
+
+					if (!m_LockPosition)
+					{
+						m_Bounds.position = anchor + m_MinOffsetFromAnchor;
+
+					}
+
+					if (!m_LockSize)
+					{
+						m_Bounds.size = (anchor + m_MaxOffsetFromAnchor) - m_Bounds.position;
+
+
+					}
+					RecalculateAllBounds();
+				}
+
+				break;
+			}
+
+		}
+
 
 	protected:
 
@@ -334,61 +408,7 @@ namespace gui
 
 		}
 
-		void HandleResize()
-		{
-			switch (m_Anchor)
-			{
-			case Anchor::Centre:
-			{
-				if (m_Parent)
-				{
-
-
-					Vector2f widgetCentre = m_Bounds.position + (m_Bounds.size / 2.0f);
-
-					Vector2f parentCentre = Vector2f(m_Parent->m_Bounds.w, m_Parent->m_Bounds.h) / 2.0f;
-
-					Vector2f distanceToCentre = parentCentre - widgetCentre;
-
-					m_Bounds.position += distanceToCentre;
-					RecalculateAllBounds();
-
-				}
-			}
-			break;
 		
-			case Anchor::BottomRight:
-			case Anchor::BottomLeft:
-			case Anchor::BottomCentre:
-			case Anchor::TopLeft:
-			case Anchor::TopRight:
-			case Anchor::CentreLeft:
-			
-
-				if (m_Parent)
-				{
-					Vector2f anchor = GetAnchorPosition();
-
-					if (!m_LockPosition)
-					{
-						m_Bounds.position = anchor + m_MinOffsetFromAnchor;
-						
-					}
-
-					if (!m_LockSize)
-					{
-						m_Bounds.size = (anchor + m_MaxOffsetFromAnchor) - m_Bounds.position;
-
-						
-					}
-					RecalculateAllBounds();
-				}
-
-				break;
-			}
-
-		}
-
 		bool m_Hovered = false;
 
 		bool m_Visible = true;

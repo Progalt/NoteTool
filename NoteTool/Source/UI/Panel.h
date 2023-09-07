@@ -63,11 +63,30 @@ namespace gui
 			return m_ContextMenu;
 		}
 
+		void InheritTheme(gui::Panel* newPanel)
+		{
+			newPanel->SetColour(m_Colour);
+			newPanel->SetHighlightColour(m_Highlight);
+			newPanel->SetShadowColour(m_ShadowColour);
+			newPanel->SetRounding(m_Rounding);
+
+		}
+
+		void SetOnFocusCallback(std::function<void(void*)> func, void* userData)
+		{
+			m_OnFocusCallback = func;
+			m_UserData = userData;
+		}
+		
+
 	private:
 
 		PanelFlags m_Flags;
 
 		bool m_DummyPanel;
+		
+		std::function<void(void*)> m_OnFocusCallback;
+		void* m_UserData;
 
 		float m_PopUpTime = 0.5f;
 

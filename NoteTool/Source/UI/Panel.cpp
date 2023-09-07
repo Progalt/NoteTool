@@ -39,7 +39,7 @@ namespace gui
 				float yPos = m_GlobalBounds.y;
 				Shape scrollBarBg = gui::GenerateQuad({ xPos, yPos }, { xPos + scrollBarSize, yPos + m_GlobalBounds.h }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, m_Colour);
 
-				drawList.Add(scrollBarBg.vertices, scrollBarBg.indices);
+				//drawList.Add(scrollBarBg.vertices, scrollBarBg.indices);
 
 				float maxArea = m_GlobalBounds.h + m_MaxScrollableArea.y;
 
@@ -103,6 +103,12 @@ namespace gui
 
 				// 25 feels responsive enough but smooth enough
 				m_VisibleOffset.y = Lerp(m_VisibleOffset.y, m_ScrollTargetY, EventHandler::deltaTime * 25.0f);
+			}
+
+			if (EventHandler::mouseButton[MOUSE_LEFT].clicks == 1)
+			{
+				if (m_OnFocusCallback)
+					m_OnFocusCallback(m_UserData);
 			}
 
 			if (m_ContextMenu && EventHandler::mouseButton[MOUSE_RIGHT].clicks >= 1)

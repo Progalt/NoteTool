@@ -157,10 +157,15 @@ void Image::Fill(Colour c, uint32_t yStart)
 	if (c == Colour{ 0.0f, 0.0f, 0.0f, 0.0f })
 	{
 		// Alternative path to quickly 0 the memory
+
+		if (yStart > m_Height)
+			return;
 		
-		uint32_t offset = yStart * m_Width;
+		uint32_t offset = yStart * m_Width * m_Channels;
 		uint32_t pixelCount = m_Width * m_Height * m_Channels;
-		memset(m_Pixels.data(), offset, pixelCount * sizeof(uint8_t));
+		pixelCount -= offset;
+		memset(m_Pixels.data() + offset, 0, pixelCount * sizeof(uint8_t));
+
 	}
 	else
 	{

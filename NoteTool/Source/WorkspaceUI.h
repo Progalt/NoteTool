@@ -12,6 +12,8 @@ struct WorkspaceTab
 	std::string tabName;
 	bool saved;
 	FileViewer* currentFileView;
+	gui::Panel* panel;
+	FloatRect bounds;
 };
 
 // UI to show directory tree
@@ -23,6 +25,11 @@ public:
 	{
 		for (auto& viewer : m_Viewers)
 			delete viewer;
+
+		for (auto& tab : m_Tabs)
+		{
+			delete tab;
+		}
 	}
 
 	void Init(gui::Panel* panel, Workspace* workspace, Font* font)
@@ -32,8 +39,10 @@ public:
 		m_Font = font;
 		m_Panel->SetAnchor(gui::Anchor::CentreLeft);
 
-		m_Tabs.push_back(WorkspaceTab());
-		m_ActiveTab = &m_Tabs[m_Tabs.size() - 1];
+		//m_Tabs.push_back(WorkspaceTab());
+		//m_ActiveTab = &m_Tabs[m_Tabs.size() - 1];
+
+	
 
 		SetupGUI();
 	}
@@ -107,6 +116,13 @@ public:
 
 private:
 
+	WorkspaceTab* NewTab()
+	{
+		WorkspaceTab* tab = new WorkspaceTab();
+		m_Tabs.push_back(tab);
+		return tab;
+	}
+
 	void SetupGUI()
 	{
 		m_FileList = m_Panel->NewChild<gui::List>();
@@ -114,12 +130,9 @@ private:
 		m_Panel->SetAnchor(gui::Anchor::BottomLeft);
 		m_Panel->SetLockPosition(true);
 
-		RefreshGUI();
+	
 
-		m_FileList->SetFont(m_Font);
-		m_FileList->SetBounds({ 5.0f, 30.0f, m_Panel->GetBounds().w - 5.0f, m_Panel->GetBounds().h - 30.0f });
-		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
-		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
+	
 
 		m_WorkspaceName = m_Panel->NewChild<gui::Text>();
 		m_WorkspaceName->SetString(m_Workspace->GetRoot().name);
@@ -135,6 +148,22 @@ private:
 		m_NothingOpenText->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 24));
 		m_NothingOpenText->SetBounds({ m_TextArea->GetBounds().w / 2.0f - gui::GetTextLength(m_NothingOpenText->GetString(), m_FontManager->Get(gui::FontWeight::Bold, 24)), m_TextArea->GetBounds().h / 2.0f, 300.0f, 50.0f });
 		m_NothingOpenText->SetAnchor(gui::Anchor::Centre);
+
+
+		FloatRect startBounds = { 0.0f, 0.0f, m_TextArea->GetBounds().w, m_TextArea->GetBounds().h };
+		WorkspaceTab* tab1 = NewTab();
+		OpenNewTab(tab1, startBounds);
+
+	
+
+		m_ActiveTab = tab1;
+
+		RefreshGUI();
+
+		m_FileList->SetFont(m_Font);
+		m_FileList->SetBounds({ 5.0f, 30.0f, m_Panel->GetBounds().w - 5.0f, m_Panel->GetBounds().h - 30.0f });
+		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
+		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
 		
 	}
 
@@ -167,6 +196,9 @@ private:
 				{
 					File* file = (File*)userData;
 
+					if (!m_ActiveTab)
+						return;
+
 					if (m_ActiveTab->currentFileView)
 						m_ActiveTab->currentFileView->Hide();
 
@@ -195,7 +227,7 @@ private:
 							PlainTextViewer* viewer = new PlainTextViewer;
 							viewer->theme = m_Theme;
 							viewer->SetFontManager(m_FontManager);
-							viewer->SetParentPanel(m_TextArea);
+							viewer->SetParentPanel(m_ActiveTab->panel);
 							viewer->SetCodeFontManager(m_CodeFontManager);
 							viewer->SetFile(file);
 							viewer->parent = this;
@@ -212,7 +244,7 @@ private:
 							MarkdownViewer* viewer = new MarkdownViewer;
 							viewer->theme = m_Theme;
 							viewer->SetFontManager(m_FontManager);
-							viewer->SetParentPanel(m_TextArea);
+							viewer->SetParentPanel(m_ActiveTab->panel);
 							viewer->SetCodeFontManager(m_CodeFontManager);
 							viewer->SetFile(file);
 							viewer->parent = this;
@@ -241,6 +273,44 @@ private:
 
 	}
 
+	void OpenNewTab(WorkspaceTab* tab, FloatRect bounds)
+	{
+		tab->bounds = bounds;
+		tab->panel = m_TextArea->NewChild<gui::Panel>();
+		m_TextArea->InheritTheme(tab->panel);
+		tab->panel->SetBounds(bounds);
+		tab->panel->SetAnchor(gui::Anchor::BottomCentre);
+		
+
+		gui::ContextMenu* menu = tab->panel->GetContextMenu();
+		menu->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 12));
+		menu->SetColour(m_Theme->panelBackground);
+		menu->SetBorderColour(m_Theme->panelHighlight);
+		menu->SetPosition({ 100.0f, 100.0f });
+		menu->SetRounding(m_Theme->buttonRounding);
+
+		menu->AddOption("Split Vertically", [&]()
+			{
+				
+
+				m_ActiveTab->bounds.w /= 2.0f;
+				m_ActiveTab->panel->SetBounds(m_ActiveTab->bounds);
+				m_ActiveTab->panel->RecalculateAllBounds();
+
+				FloatRect newBounds = m_ActiveTab->bounds;
+				newBounds.x += m_ActiveTab->bounds.w;
+				WorkspaceTab* t = NewTab();
+				OpenNewTab(t, newBounds);
+			});
+
+		tab->panel->SetOnFocusCallback([&](void* userData) 
+			{
+				printf("Changing active tab\n");
+				m_ActiveTab = (WorkspaceTab*)userData;
+
+			}, tab);
+	}
+
 
 	Workspace* m_Workspace;
 	gui::Panel* m_Panel;
@@ -264,13 +334,7 @@ private:
 	std::vector<FileViewer*> m_Viewers;
 
 	WorkspaceTab* m_ActiveTab;
-	std::vector<WorkspaceTab> m_Tabs;
+	std::vector<WorkspaceTab*> m_Tabs;
 
-	struct
-	{
-		std::vector<gui::Button*> activeButtons;
-		gui::Panel* panel;
-
-	} m_TabArea;
 
 };
