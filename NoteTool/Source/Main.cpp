@@ -17,7 +17,6 @@ int modal_start_height = 500;
 
 const std::string versionString = "v0.01d";
 
-bool open = true;
 
 #include "Font.h"
 #include "Theme.h"
@@ -83,12 +82,12 @@ void CreatePanelsForWorkspace()
 	filelistArea->SetAnchor(gui::Anchor::CentreLeft);
 	//filelistArea->SetVisible(false);
 	filelistArea->SetFlags(gui::PanelFlags::DrawBorder);
-	filelistArea->SetRounding(16.0f);
+	filelistArea->SetRounding(8.0f);
 
 	float editableWidth = windowPanel->GetBounds().w - filelistArea->GetBounds().w - 1.0f;
 
 
-	float rounding = 16.0f;
+	float rounding = 8.0f;
 	textArea->SetBounds({ fileBrowserUISize + borderSize, padding, editableWidth - padding * 3.0f, windowPanel->GetBounds().h - padding * 2.0f });
 	textArea->SetColour(theme.panelBackground);
 	textArea->SetRounding(rounding);
@@ -448,7 +447,7 @@ int main(int argc, char* argv)
 	
 
 	SDL_Event evnt;
-	while (open)
+	while (win.IsOpen())
 	{
 		LAST = NOW;
 		NOW = SDL_GetPerformanceCounter();
@@ -472,14 +471,7 @@ int main(int argc, char* argv)
 
 			switch (evnt.type)
 			{
-			case SDL_QUIT:
-			{
-				open = false;
-				SDL_Event pushEvent;
-				pushEvent.type = SDL_QUIT;
-				SDL_PushEvent(&pushEvent);
-			}
-			break;
+		
 			case SDL_WINDOWEVENT:
 
 				switch (evnt.window.event)
@@ -627,7 +619,6 @@ int main(int argc, char* argv)
 				{
 					printf("Saving...\n");
 					workspaceUI.TriggerSave();
-					//modalPopup.DisplayModal(ModalType::Success, "Successfully saved", (float)window_width / 2.0f);
 				}
 
 
@@ -670,6 +661,7 @@ int main(int argc, char* argv)
 	userPrefs.lastOpenedWidth = window_width;
 	userPrefs.lastOpenedHeight = window_height;
 
+	// If the userprefs path doesn't exist we want to make it otherwise we can't save the json
 	if (!std::filesystem::exists(m_UserPrefsPath))
 		std::filesystem::create_directory(m_UserPrefsPath);
 

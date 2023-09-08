@@ -66,7 +66,7 @@ void Window::Create(const std::string& title, const uint32_t initialWidth, const
 
 void Window::Close()
 {
-	if (m_Window)
+	if (m_Window && m_IsOpen)
 	{
 		if (m_Context)
 			SDL_GL_DeleteContext(m_Context);
@@ -88,6 +88,20 @@ void Window::HandleWindowEvents(SDL_Event* ev)
 		// Filter out the events for other windows
 		if (ev->window.windowID != m_WindowID)
 			return;
+
+		switch (ev->window.event)
+		{
+		case SDL_WINDOWEVENT_CLOSE:
+			m_IsOpen = false;
+			Close();
+			break;
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+
+			m_Width = ev->window.data1;
+			m_Height = ev->window.data2;
+
+			break;
+		}
 	}
 }
 

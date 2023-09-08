@@ -22,6 +22,14 @@ namespace gui
 			m_RerenderText = false;
 		}
 
+		// Sometimes after a resize we can get a fractional coordinate. 
+		// Due to the way the GPU rasterizes triangles fractional coordinates cause distorted text because sample positions are also on pixel borders. 
+		// We round to remove the fractional part of the coordinate
+		m_GlobalBounds.x = roundf(m_GlobalBounds.x);
+		m_GlobalBounds.y = roundf(m_GlobalBounds.y);
+		m_GlobalBounds.w = roundf(m_GlobalBounds.w);
+		m_GlobalBounds.h = roundf(m_GlobalBounds.h);
+
 		Shape shape = gui::GenerateQuad(m_GlobalBounds.position, m_GlobalBounds.position + m_GlobalBounds.size, { 0.0f, 0.0f }, { 1.0f, 1.0f }, col);
 
 		drawList.Add(shape.vertices, shape.indices, &m_Texture);
