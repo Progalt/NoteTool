@@ -23,7 +23,11 @@ namespace gui
 	};
 
 	
-
+	/*
+		The font manager loads a specific font and manages its sort of "sub" fonts like different weights or pixel sizes.
+		Since every change in font size or font weight requires a different font object. 
+		This only loads the ones requested so its not wasting memory. 
+	*/
 	class FontManager
 	{
 	public:
@@ -42,6 +46,7 @@ namespace gui
 		{
 			size_t operator()(const FontEntry& fe) const
 			{
+				// Luckily its relatively easy to hash 
 				size_t h1 = std::hash<int>()((int)fe.weight);
 				size_t h2 = std::hash<uint32_t>()((uint32_t)fe.pixelSize);
 

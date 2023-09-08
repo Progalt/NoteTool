@@ -233,3 +233,53 @@ inline std::filesystem::path BrowseForFolder(const std::string& title, const std
 	return "";
 }
 #endif
+
+enum class CursorType
+{
+	Pointer, 
+	Hand,
+	IBeam,
+
+	Count
+};
+
+class OS
+{
+public:
+
+	static OS& GetInstance()
+	{
+		static OS instance;
+
+		return instance;
+	}
+
+	OS(OS const&) = delete;
+	void operator=(OS const&) = delete;
+
+	void InitCursors()
+	{
+		m_Cursors[(int)CursorType::Pointer] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		m_Cursors[(int)CursorType::Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		m_Cursors[(int)CursorType::IBeam] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+	}
+
+	void DestroyCursors()
+	{
+		for (uint32_t i = 0; i < (uint32_t)CursorType::Count; i++)
+			SDL_FreeCursor(m_Cursors[i]);
+	}
+
+	void SetCursor(CursorType type)
+	{
+		SDL_SetCursor(m_Cursors[(int)type]);
+	}
+
+private:
+	OS() { }
+
+
+	SDL_Cursor* m_Cursors[(int)CursorType::Count];
+
+
+};

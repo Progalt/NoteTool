@@ -186,6 +186,8 @@ int main(int argc, char* argv)
 	std::string title = "Notes " + versionString;
 	win.Create(title, window_width, window_height, WindowFlags::Resizable | WindowFlags::OpenGL);
 
+	OS::GetInstance().InitCursors();
+
 	// only enable dark mode for the hwnd if the theme wants it to be
 	if (theme.useWindowsDarkTheme)
 	{
@@ -465,9 +467,11 @@ int main(int argc, char* argv)
 
 		SDL_StartTextInput();
 
+
 		while (SDL_PollEvent(&evnt))
 		{
 			win.HandleWindowEvents(&evnt);
+
 
 			switch (evnt.type)
 			{
@@ -655,6 +659,8 @@ int main(int argc, char* argv)
 	renderer.Shutdown();
 	
 	win.Close();
+
+	OS::GetInstance().DestroyCursors();
 
 	SDL_Quit();
 

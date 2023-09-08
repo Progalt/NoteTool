@@ -137,7 +137,7 @@ private:
 		m_WorkspaceName = m_Panel->NewChild<gui::Text>();
 		m_WorkspaceName->SetString(m_Workspace->GetRoot().name);
 		m_WorkspaceName->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 14));
-		m_WorkspaceName->SetPosition({ 24.0f, 64.0f });
+		m_WorkspaceName->SetPosition({ 24.0f, 12.0f });
 		m_WorkspaceName->SetAnchor(gui::Anchor::TopLeft);
 			 
 		m_TextArea->SetAnchor(gui::Anchor::BottomRight);

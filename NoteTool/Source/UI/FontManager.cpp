@@ -15,6 +15,8 @@ namespace gui
 
 	std::string FontManager::GetFontPath(FontWeight weight, uint32_t pixelSize)
 	{
+		// Fonts are required to be stored in a *fontname*-*font-weight*.ttf style
+		// Within the same folder which is themes. 
 		std::string weightStr;
 
 		switch (weight)
