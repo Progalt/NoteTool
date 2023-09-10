@@ -133,6 +133,21 @@ struct Directory
 		return files[idx];
 	}
 
+	File& GetFile(const std::string& name)
+	{
+		for (auto& file : files)
+			if (file.name == name)
+				return file;
+
+		for (auto& dir : subdirectories)
+			return dir.GetFile(name);
+	}
+
+	File* GetFilePtr(size_t idx)
+	{
+		return &files[idx];
+	}
+
 	size_t DirectoryCount() { return subdirectories.size(); }
 
 	size_t FileCount() { return files.size(); }

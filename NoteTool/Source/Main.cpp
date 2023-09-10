@@ -9,6 +9,8 @@
 
 #include "Platform.h"
 
+#include "UI/IconManager.h"
+
 
 int window_width = 1280;
 int window_height = 720;
@@ -201,6 +203,7 @@ int main(int argc, char* argv)
 
 	// Init base content
 
+	IconManager::GetInstance().LoadIcons();
 
 
 	fontManager.SetInitialFont("DMSans");

@@ -139,6 +139,7 @@
     <ClCompile Include="Source\Renderer\GLImpl\GPUTextureGL.cpp" />
     <ClCompile Include="Source\Renderer\GLImpl\RendererGL.cpp" />
     <ClCompile Include="Source\Renderer\GLImpl\Shader.cpp" />
+    <ClCompile Include="Source\UI\ButtonList.cpp" />
     <ClCompile Include="Source\UI\ContextMenu.cpp" />
     <ClCompile Include="Source\UI\EventHandler.cpp" />
     <ClCompile Include="Source\UI\FontManager.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="Source\UI\FontManager.h" />
     <ClInclude Include="Source\UI\Formatter.h" />
     <ClInclude Include="Source\UI\GeometryUtil.h" />
+    <ClInclude Include="Source\UI\IconManager.h" />
     <ClInclude Include="Source\UI\List.h" />
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Text.h" />

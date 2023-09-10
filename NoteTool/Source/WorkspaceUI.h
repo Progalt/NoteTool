@@ -6,6 +6,7 @@
 #include "FileViewers/PlainTextViewer.h"
 #include "FileViewers/MarkdownViewer.h"
 #include "Theme.h"
+#include "UI/ButtonList.h"
 
 struct WorkspaceTab
 {
@@ -70,31 +71,26 @@ public:
 
 	void RefreshGUI()
 	{
-		m_FileList->Clear();
+		m_ButtonList->Clear();
 
-		Directory& root = m_Workspace->GetRoot();
+		gui::ButtonList::Collection& pins = m_ButtonList->NewCollection("Pins");
+		pins.paddingGap = 32.0f;
+		pins.iconOverride = IconType::Pin;
+		pins.renderDivLine = true;
 
-		//gui::ListEntry entry(m_Workspace->GetRoot().name, NULL);
+		AddDirectoryToList(&m_Workspace->GetRoot(), "General", true, m_ButtonList);
 
-		AddDirectoryToList(root, nullptr);
+		for (auto& dir : m_Workspace->GetRoot().subdirectories)
+		{
+			AddDirectoryToList(&dir, dir.name, false, m_ButtonList);
+		}
 
 
 	}
 
 	std::string GetSelectedPath()
 	{
-		gui::ListEntry* sel = m_FileList->GetSelected();
-
-		if (sel)
-		{
-			if (sel->directory)
-			{
-				Directory* dir = (Directory*)sel->userData;
-				assert(dir);
-				return dir->path.generic_string();
-			}
-			
-		}
+		// TODO: Implement
 
 		return "";
 	}
@@ -125,7 +121,6 @@ private:
 
 	void SetupGUI()
 	{
-		m_FileList = m_Panel->NewChild<gui::List>();
 
 		m_Panel->SetAnchor(gui::Anchor::BottomLeft);
 		m_Panel->SetLockPosition(true);
@@ -136,7 +131,7 @@ private:
 
 		m_WorkspaceName = m_Panel->NewChild<gui::Text>();
 		m_WorkspaceName->SetString(m_Workspace->GetRoot().name);
-		m_WorkspaceName->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 14));
+		m_WorkspaceName->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 16));
 		m_WorkspaceName->SetPosition({ 24.0f, 12.0f });
 		m_WorkspaceName->SetAnchor(gui::Anchor::TopLeft);
 			 
@@ -153,49 +148,62 @@ private:
 		FloatRect startBounds = { 0.0f, 0.0f, m_TextArea->GetBounds().w, m_TextArea->GetBounds().h };
 		WorkspaceTab* tab1 = NewTab();
 		OpenNewTab(tab1, startBounds);
-
+		 
 	
 
 		m_ActiveTab = tab1;
 
+		 
+
+		m_ButtonList = m_Panel->NewChild<gui::ButtonList>();
+
+	/*	gui::ButtonList::Collection& school = buttonList->NewCollection("Work");
+		school.AddButton("rfhdrehdf", nullptr, nullptr);
+		school.AddButton("dadad", nullptr, nullptr);
+		school.AddButton("adadawfa", nullptr, nullptr);
+		gui::ButtonList::Collection&  work = buttonList->NewCollection("School");
+		work.AddButton("Ohoh", nullptr, nullptr);
+		work.AddButton("hadwd", nullptr, nullptr);
+		work.AddButton("wegfaeg", nullptr, nullptr);
+		work.AddButton("sgsgf", nullptr, nullptr);
+		work.AddButton("sgeg", nullptr, nullptr);
+		buttonList->NewCollection("Personal");*/
+	
 		RefreshGUI();
 
-		m_FileList->SetFont(m_Font);
-		m_FileList->SetBounds({ 5.0f, 30.0f, m_Panel->GetBounds().w - 5.0f, m_Panel->GetBounds().h - 30.0f });
-		m_FileList->SetHoveredColour({ 0.05f, 0.05f, 0.05f, 1.0f });
-		m_FileList->SetTextColour({ 0.65f, 0.65f, 0.65f, 1.0f });
-		
+		m_ButtonList->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 14));
+		m_ButtonList->SetRounding(m_Theme->buttonRounding);
+		m_ButtonList->SetBounds({ 4.0f, 64.0f, m_Panel->GetBounds().w - 4.0f * 2.0f, 400.0f });
+		m_ButtonList->SetHoveredColour(m_Theme->accentColour);
 	}
 
-	
-
-	void AddDirectoryToList(Directory& dir, gui::ListEntry* entry)
+	void AddDirectoryToList(Directory* dir, const std::string& name,  bool root, gui::ButtonList* buttonList)
 	{
-
 		
-		
-		for (size_t i = 0; i < dir.DirectoryCount(); i++)
+		struct UserData
 		{
-			Directory& directory = dir.GetDirectory(i);
+			Directory* dir;
+			uint32_t dirIndex;
+		};
 
-			gui::ListEntry* dirEntry = m_FileList->NewListEntry(directory.name, NULL, &directory, true);
-			
-			AddDirectoryToList(dir.GetDirectory(i), dirEntry);
+		gui::ButtonList::Collection& collection = buttonList->NewCollection(name);
 
-			if (entry)
-				entry->AddChild(dirEntry);
-			else
-				m_FileList->AddEntry(dirEntry);
-		}
-
-		for (size_t i = 0; i < dir.FileCount(); i++)
+		for (size_t i = 0; i < dir->FileCount(); i++)
 		{
-			File& file = dir.GetFile(i);
+			File& fileRef = dir->GetFile(i);
 
-			gui::ListEntry* fileEntry = m_FileList->NewListEntry(file.isCodeFile ? file.name : file.NameWithoutExtension(), [&](void* userData)
+			// TODO: This is not the best 
+			// And also a memory leak 
+			UserData* userData = new UserData();
+			userData->dir = dir;
+			userData->dirIndex = i;
+
+			collection.AddButton(fileRef.NameWithoutExtension(), [&](void* userData)
 				{
-					File* file = (File*)userData;
+					UserData* data = (UserData*)userData;
 
+					File* file = &data->dir->GetFile(data->dirIndex);
+					
 					if (!m_ActiveTab)
 						return;
 
@@ -214,7 +222,7 @@ private:
 
 							found = true;
 
-							
+
 						}
 
 
@@ -248,7 +256,7 @@ private:
 							viewer->SetCodeFontManager(m_CodeFontManager);
 							viewer->SetFile(file);
 							viewer->parent = this;
-						
+
 
 							m_Viewers.push_back(viewer);
 
@@ -259,20 +267,15 @@ private:
 					}
 
 
-				}, &file, false);
-			
-			if (entry)
-				entry->AddChild(fileEntry);
-			else
-				m_FileList->AddEntry(fileEntry);
+					
+					
+				}, userData);
 		}
-
-
 
 		
 
 	}
-
+	
 	void OpenNewTab(WorkspaceTab* tab, FloatRect bounds)
 	{
 		tab->bounds = bounds;
@@ -321,13 +324,14 @@ private:
 	Workspace* m_Workspace;
 	gui::Panel* m_Panel;
 
-	gui::List* m_FileList;
 	gui::Text* m_WorkspaceName;
 	Font* m_Font;
 
 	File* m_ActiveFile;
 
 	Theme* m_Theme;
+
+	gui::ButtonList* m_ButtonList;
 
 
 	gui::Panel* m_TextArea;

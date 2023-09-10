@@ -43,7 +43,7 @@ public:
 
 	const uint32_t GetHeight() const { return m_Height; }
 
-	uint8_t* GetPixels() { return m_Pixels.data(); }
+	const uint8_t* GetPixels() { return m_Pixels.data(); }
 
 	bool operator==(Image& img)
 	{
