@@ -140,10 +140,10 @@ namespace gui
 		// radians
 		float cornerAngleBase[4] =
 		{
-			0.0,
-			(M_PI / 2.0),
-			(M_PI),
-			((M_PI / 2.0) * 3.0)
+			0.0f,
+			(static_cast<float>(M_PI) / 2.0f),
+			(static_cast<float>(M_PI)),
+			((static_cast<float>(M_PI) / 2.0f) * 3.0f)
 		};
 
 		Vector2f cornerCenters[4] =
@@ -159,7 +159,7 @@ namespace gui
 		for (uint32_t b = 0; b < 4; b++)
 		{
 
-			vertexOffset = vertices.size();
+			vertexOffset = static_cast<uint32_t>(vertices.size());
 
 			vertices.push_back({ { cornerCenters[b].x, cornerCenters[b].y }, {0.0f, 0.0f}, col });
 

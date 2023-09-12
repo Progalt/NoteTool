@@ -19,7 +19,10 @@ enum class IconType
 
 	FileDropArrow,
 
-	Cross
+	Cross,
+	Plus, 
+
+	Bin
 };
 
 
@@ -66,6 +69,12 @@ public:
 
 		Image cross("Icons/X.png");
 		m_Icons[IconType::Cross].CreateFromImage(cross);
+
+		Image bin("Icons/Bin.png");
+		m_Icons[IconType::Bin].CreateFromImage(bin);
+
+		Image plus("Icons/Plus.png");
+		m_Icons[IconType::Plus].CreateFromImage(plus);
 	}
 
 	void DestroyIcons()

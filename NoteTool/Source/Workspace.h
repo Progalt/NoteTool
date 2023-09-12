@@ -59,7 +59,7 @@ struct File
 			return name;
 
 
-		uint32_t offset = name.find(extension);
+		size_t offset = name.find(extension);
 
 		std::string output = name.substr(0, offset);
 

@@ -103,6 +103,43 @@ namespace gui
 
 			drawList.Add(textQuad.vertices, textQuad.indices, &currentCollection.texture);
 
+			// Lets draw a side button
+			if (currentCollection.hovered)
+			{
+				for (uint32_t j = 0; j < currentCollection.sidebuttons.size(); j++)
+				{
+					SideButton& sideButton = currentCollection.sidebuttons[j];
+
+					if (sideButton.icon == IconType::None)
+						continue;
+
+					min = m_GlobalBounds.position;
+					min.x += m_GlobalBounds.size.x - m_IconSize * (float)(j + 1);
+					min.y += yOffset;
+					max = min;
+					max.y += m_IconSize;
+					max.x += m_IconSize;
+
+
+					Colour sideCol = m_HoveredColour;
+
+					if (sideButton.hovered)
+					{
+						sideCol = sideButton.hoverColour;
+					}
+
+					Shape sideButtonQuad = gui::GenerateQuad(min, max, { 0.0f, 0.0f }, { 1.0f, 1.0f }, sideCol);
+					GPUTexture* sideIcon = nullptr;
+					sideIcon = IconManager::GetInstance()[sideButton.icon];
+
+					drawList.Add(sideButtonQuad.vertices, sideButtonQuad.indices, sideIcon);
+
+					sideButton.bounds.position = min;
+					sideButton.bounds.size = max - min;
+
+				}
+			}
+
 			// Offset the Y for the next element
 			yOffset += m_ButtonSize + m_ElementPadding;
 
@@ -197,17 +234,18 @@ namespace gui
 								continue;
 
 							min = m_GlobalBounds.position;
+							min.x += m_GlobalBounds.size.x - m_IconSize * (float)(j + 1);
 							min.y += yOffset;
 							max = min;
 							max.y += m_IconSize;
-							max.x += m_GlobalBounds.size.x;
-							min.x += m_GlobalBounds.size.x - m_IconSize * (float)(j + 1);
+							max.x += m_IconSize;
+							
 
 							Colour sideCol = m_HoveredColour;
 
 							if (sideButton.hovered)
 							{
-								sideCol = { 0.5f, 0.5f, 1.0f, 1.0f };
+								sideCol = sideButton.hoverColour;
 							}
 
 							Shape sideButtonQuad = gui::GenerateQuad(min, max, { 0.0f, 0.0f }, { 1.0f, 1.0f }, sideCol);
@@ -292,6 +330,24 @@ namespace gui
 			if (currentCollection.bounds.Contains((float)gui::EventHandler::x, (float)gui::EventHandler::y))
 			{
 				currentCollection.hovered = true;
+
+				for (auto& sidebutton : currentCollection.sidebuttons)
+				{
+					if (sidebutton.bounds.Contains((float)gui::EventHandler::x, (float)gui::EventHandler::y))
+					{
+						sidebutton.hovered = true;
+					}
+					else
+					{
+						sidebutton.hovered = false;
+					}
+
+					if (sidebutton.hovered && gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks >= 1)
+					{
+						if (sidebutton.callback)
+							sidebutton.callback(sidebutton.userData);
+					}
+				}
 			}
 			else
 			{
@@ -301,9 +357,9 @@ namespace gui
 
 			if (currentCollection.hovered && gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks >= 1)
 			{
-
-
-				currentCollection.expanded = !currentCollection.expanded;
+				float maxX = currentCollection.bounds.x + currentCollection.bounds.w - (m_IconSize * (float)currentCollection.sidebuttons.size());
+				if ((float)gui::EventHandler::x < maxX)
+					currentCollection.expanded = !currentCollection.expanded;
 			}
 
 			if (currentCollection.expanded)

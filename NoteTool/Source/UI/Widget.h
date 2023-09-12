@@ -67,7 +67,7 @@ namespace gui
 				m_CurrentCall = &drawcalls[drawcalls.size() - 1ui64];
 				m_CurrentCall->texture = tex;
 				m_CurrentCall->scissor = m_CurrentScissor;
-				m_CurrentCall->firstVertex = vertices.size();
+				m_CurrentCall->firstVertex = static_cast<uint32_t>(vertices.size());
 
 				m_CurrentCall->firstIndex = 0;
 			}
@@ -79,9 +79,9 @@ namespace gui
 				m_CurrentCall = &drawcalls[drawcalls.size() - 1ui64];
 				m_CurrentCall->texture = tex;
 				m_CurrentCall->scissor = m_CurrentScissor;
-				m_CurrentCall->firstVertex = vertices.size();
+				m_CurrentCall->firstVertex = static_cast<uint32_t>(vertices.size());
 
-				m_CurrentCall->firstIndex = indices.size();
+				m_CurrentCall->firstIndex = static_cast<uint32_t>(indices.size());
 			}
 
 			size_t offset = vertices.size();
@@ -92,12 +92,12 @@ namespace gui
 			std::copy(newIndices.begin(), newIndices.end(), offsetIndices.begin());
 
 			for (auto& idx : offsetIndices)
-				idx += offset;
+				idx += static_cast<unsigned int>(offset);
 
 			vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 			indices.insert(indices.end(), offsetIndices.begin(), offsetIndices.end());
 
-			m_CurrentCall->indexCount += newIndices.size();
+			m_CurrentCall->indexCount += static_cast<uint32_t>(newIndices.size());
 		}
 
 	private:

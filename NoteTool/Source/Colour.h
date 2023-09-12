@@ -8,7 +8,7 @@ class Colour
 {
 public:
 
-	Colour() { }
+	Colour() : r(0.0f), g(0.0f), b(0.0f), a(1.0f) { }
 	Colour(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a) { }
 	Colour(int r, int g, int b, int a = 255)
 	{
@@ -37,6 +37,7 @@ public:
 		{
 			float r, g, b, a;
 		};
+
 		float c[4];
 	};
 };

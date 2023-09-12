@@ -25,6 +25,8 @@ namespace gui
 			std::function<void(void*)> callback;
 			void* userData;
 
+			Colour hoverColour = { 0.5f, 0.5f, 1.0f, 1.0f };
+
 			FloatRect bounds;
 			bool hovered = false;
 		};
@@ -49,9 +51,11 @@ namespace gui
 
 			std::vector<SideButton> sidebuttons;
 
-			void AddSideButton(IconType icon, std::function<void(void*)> callback, void* userData)
+			SideButton& AddSideButton(IconType icon, std::function<void(void*)> callback, void* userData)
 			{
 				sidebuttons.push_back({ icon, callback, userData });
+
+				return sidebuttons[sidebuttons.size() - 1];
 			}
 		};
 
@@ -60,6 +64,7 @@ namespace gui
 			std::string name;
 
 			std::vector<Button> m_Buttons;
+			std::vector<SideButton> sidebuttons;
 
 			IconType iconOverride = IconType::None;
 		
@@ -81,6 +86,16 @@ namespace gui
 					});
 
 				return m_Buttons[m_Buttons.size() - 1];
+			}
+
+
+			
+
+			SideButton& AddSideButton(IconType icon, std::function<void(void*)> callback, void* userData)
+			{
+				sidebuttons.push_back({ icon, callback, userData });
+
+				return sidebuttons[sidebuttons.size() - 1];
 			}
 
 			GPUTexture texture;

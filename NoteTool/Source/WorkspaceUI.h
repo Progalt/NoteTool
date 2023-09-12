@@ -226,6 +226,7 @@ private:
 		
 
 		gui::ButtonList::Collection& collection = buttonList->NewCollection(name);
+		collection.AddSideButton(IconType::Plus, nullptr, nullptr);
 
 		for (size_t i = 0; i < dir->FileCount(); i++)
 		{
@@ -243,8 +244,11 @@ private:
 			userData->dirIndex = i;
 
 
+			
 			gui::ButtonList::Button& button = collection.AddButton(fileRef.NameWithoutExtension(), m_OpenFileCallback, userData);
 
+			gui::ButtonList::SideButton& bin = button.AddSideButton(IconType::Bin, nullptr, nullptr);
+			bin.hoverColour = { 1.0f, 0.5f, 0.5f, 1.0f };
 
 			button.AddSideButton(IconType::Pin, [&](void* userData) {
 
@@ -269,6 +273,8 @@ private:
 				}
 
 				}, userData);
+
+			
 		}
 
 		

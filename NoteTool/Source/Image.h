@@ -13,7 +13,7 @@ public:
 
 	~Image();
 
-	Image() { m_Id = imageID++; }
+	Image() : m_Width(0), m_Height(0), m_Channels(0), m_LoadedFromMemory(false) { m_Id = imageID++; }
 
 	Image(const std::string& path);
 
