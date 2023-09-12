@@ -668,6 +668,8 @@ int main(int argc, char* argv)
 
 	SDL_Quit();
 
+	currentWorkspace.Close();
+
 	userPrefs.lastOpenedWidth = window_width;
 	userPrefs.lastOpenedHeight = window_height;
 

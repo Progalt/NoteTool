@@ -1,5 +1,10 @@
 
 #include "Workspace.h"
+#include <fstream>
+
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 void Directory::ParseDirectory(const std::filesystem::path& path)
 {
@@ -21,9 +26,13 @@ void Directory::ParseDirectory(const std::filesystem::path& path)
 		}
 		if (item.is_regular_file())
 		{
+
+
 			File file(item.path());
 
-			file.parentDirectory = this;
+			// We don't want to add the json config file
+			if (file.name == WorkspaceJSONFile)
+				continue;
 
 			files.push_back(file);
 			printf("File: %s\n", file.name.c_str());
@@ -43,7 +52,47 @@ void Workspace::OpenWorkspace(const std::filesystem::path& path)
 
 	m_Root.ParseDirectory(path);
 
-	
+	std::filesystem::path configPath = path / WorkspaceJSONFile;
+
+	if (std::filesystem::exists(configPath))
+	{
+		// Lets load the config file
+
+		std::ifstream configFile(configPath);
+
+		if (!configFile.is_open())
+		{
+			printf("Failed to open workspace config file for reading\n");
+			return;
+		}
+
+		json input;
+
+		configFile >> input;
+
+		// If no pins exist in workspace it doesn't get written to config so we need 
+		// to test and see if it exists
+		if (input.find("pins") != input.end())
+		{
+			json storedPins = input["pins"];
+
+			pins.clear();
+
+			// Loop through and load pins
+			for (auto& pin : storedPins)
+			{
+				std::string name = pin;
+
+				File* file = m_Root.GetFile(name);
+
+				if (file)
+				{
+					printf("Found pin: %s\n", file->name.c_str());
+					pins.push_back(file);
+				}
+			}
+		}
+	}
 }
 
 bool Workspace::Exists(const std::string& file)
@@ -54,4 +103,31 @@ bool Workspace::Exists(const std::string& file)
 void Workspace::Refresh()
 {
 	OpenWorkspace(m_Root.path);
+}
+
+void Workspace::Close()
+{
+	std::filesystem::path configPath = m_Root.path / WorkspaceJSONFile;
+	std::ofstream config(configPath);
+
+	if (!config.is_open())
+	{
+		printf("Failed to open workspace config file for writing\n");
+		return;
+	}
+
+	json output;
+
+	if (pins.size() > 0)
+	{
+		uint32_t i = 0;
+		for (auto& pin : pins)
+		{
+			output["pins"][i] = pin->name;
+
+			i++;
+		}
+	}
+
+	config << std::setw(4) << output;
 }

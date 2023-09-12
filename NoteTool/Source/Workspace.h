@@ -11,6 +11,8 @@ enum class FileType
 };
 struct Directory;
 
+const std::string WorkspaceJSONFile = "workspace-config.json";
+
 struct File
 {
 	File () { }
@@ -123,6 +125,20 @@ struct Directory
 
 	void ParseDirectory(const std::filesystem::path& path);
 
+	Directory* GetDirectoryOfFile(File* file)
+	{
+		for (auto& f : files)
+			if (f == *file)
+				return this;
+
+		Directory* dir = nullptr;
+		for (auto& d : subdirectories)
+		{
+			dir = d.GetDirectoryOfFile(file);
+		}
+
+		return dir;
+	}
 
 	Directory& GetDirectory(size_t idx) 
 	{ 
@@ -136,14 +152,20 @@ struct Directory
 		return files[idx];
 	}
 
-	File& GetFile(const std::string& name)
+	File* GetFile(const std::string& name)
 	{
 		for (auto& file : files)
 			if (file.name == name)
-				return file;
+				return &file;
 
-		for (auto& dir : subdirectories)
-			return dir.GetFile(name);
+		File* file = nullptr;
+
+		for (auto& d : subdirectories)
+		{
+			file = d.GetFile(name);
+		}
+
+		return file;
 	}
 
 	File* GetFilePtr(size_t idx)
@@ -176,6 +198,8 @@ class Workspace
 public:
 
 	void OpenWorkspace(const std::filesystem::path& path);
+
+	void Close();
 
 	void Refresh();
 

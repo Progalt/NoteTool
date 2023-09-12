@@ -15,8 +15,7 @@ namespace gui
 
 		~ButtonList()
 		{
-			for (auto& collection : m_Collections)
-				collection.texture.Destroy();
+			Clear();
 		}
 
 		struct SideButton
@@ -120,6 +119,8 @@ namespace gui
 				m_Collections.clear();
 			}
 		}
+
+		Collection& GetCollection(uint32_t i) { return m_Collections[i]; }
 
 	private:
 

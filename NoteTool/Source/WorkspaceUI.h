@@ -7,6 +7,7 @@
 #include "FileViewers/MarkdownViewer.h"
 #include "Theme.h"
 #include "UI/ButtonList.h"
+#include "Allocator/LinearAllocator.h"
 
 struct WorkspaceTab
 {
@@ -71,7 +72,9 @@ public:
 
 	void RefreshGUI()
 	{
-		m_AllocatedDataForFileSystem.clear();
+		//m_AllocatedDataForFileSystem.clear();
+
+		m_UserDataForFilesysten.FreeAll();
 
 		m_ButtonList->Clear();
 
@@ -90,17 +93,19 @@ public:
 
 
 		// Add pins
-
+	
 		for (auto& workspacePin : m_Workspace->pins)
 		{
-			// Allocating some new userdata here is easier than passing multiple ptrs around
-			m_AllocatedDataForFileSystem.push_back(FileUserData());
+			printf("Pin %s\n", workspacePin->name.c_str());
+			printf("Path: %s\n", m_Workspace->GetRoot().GetDirectoryOfFile(workspacePin)->path.generic_string().c_str());
 
-			FileUserData* userData = &m_AllocatedDataForFileSystem[m_AllocatedDataForFileSystem.size() - 1];
-			userData->dir = workspacePin->parentDirectory;
-			userData->dirIndex = workspacePin->parentDirectory->GetFileIndex(workspacePin);
+			
+			FileUserData* userData = m_UserDataForFilesysten.Allocate();
+			Directory* dir = m_Workspace->GetRoot().GetDirectoryOfFile(workspacePin);
+			userData->dir = dir;
+			userData->dirIndex = dir->GetFileIndex(workspacePin);
 
-			gui::ButtonList::Button& button = pins.AddButton(workspacePin->NameWithoutExtension(), m_OpenFileCallback, userData);
+			pins.AddButton(workspacePin->NameWithoutExtension(), m_OpenFileCallback, userData);
 		}
 
 	}
@@ -169,24 +174,33 @@ private:
 
 		m_ButtonList = m_Panel->NewChild<gui::ButtonList>();
 
-	/*	gui::ButtonList::Collection& school = buttonList->NewCollection("Work");
-		school.AddButton("rfhdrehdf", nullptr, nullptr);
-		school.AddButton("dadad", nullptr, nullptr);
-		school.AddButton("adadawfa", nullptr, nullptr);
-		gui::ButtonList::Collection&  work = buttonList->NewCollection("School");
-		work.AddButton("Ohoh", nullptr, nullptr);
-		work.AddButton("hadwd", nullptr, nullptr);
-		work.AddButton("wegfaeg", nullptr, nullptr);
-		work.AddButton("sgsgf", nullptr, nullptr);
-		work.AddButton("sgeg", nullptr, nullptr);
-		buttonList->NewCollection("Personal");*/
-	
-		RefreshGUI();
-
 		m_ButtonList->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 14));
 		m_ButtonList->SetRounding(m_Theme->buttonRounding);
 		m_ButtonList->SetBounds({ 4.0f, 72.0f, m_Panel->GetBounds().w - 4.0f * 2.0f, 400.0f });
 		m_ButtonList->SetHoveredColour(m_Theme->accentColour);
+
+	
+		// wtf? 
+		// for some reason calling this here causes a crash due to pins being unreadable but then immediately refreshing GUI after the function call fixes it all
+		// What? How? Why? Am I going mad. 
+		// TODO: Figure out why this happens? 
+		//RefreshGUI();
+
+		// Lets call this here to fix the pin issue for now
+		m_ButtonList->Clear();
+
+		gui::ButtonList::Collection& pins = m_ButtonList->NewCollection("Pins");
+		pins.paddingGap = 32.0f;
+		pins.iconOverride = IconType::Pin;
+		pins.renderDivLine = true;
+
+		// All files within the root of the workspace get added to the general
+		AddDirectoryToList(&m_Workspace->GetRoot(), "General", true, m_ButtonList);
+
+		for (auto& dir : m_Workspace->GetRoot().subdirectories)
+		{
+			AddDirectoryToList(&dir, dir.name, false, m_ButtonList);
+		}
 	}
 
 	void AddDirectoryToList(Directory* dir, const std::string& name,  bool root, gui::ButtonList* buttonList)
@@ -201,10 +215,13 @@ private:
 			File& fileRef = dir->GetFile(i);
 
 			// TODO: This is not the best 
-			// And also a memory leak (Mostly fixed)
-			m_AllocatedDataForFileSystem.push_back(FileUserData());
 
-			FileUserData* userData = &m_AllocatedDataForFileSystem[m_AllocatedDataForFileSystem.size() - 1];
+
+			//m_AllocatedDataForFileSystem.push_back(FileUserData());
+
+			//FileUserData* userData = &m_AllocatedDataForFileSystem[m_AllocatedDataForFileSystem.size() - 1];
+			// Grab some allocated data from the linear allocator
+			FileUserData* userData = m_UserDataForFilesysten.Allocate();
 			userData->dir = dir;
 			userData->dirIndex = i;
 
@@ -216,10 +233,23 @@ private:
 
 				FileUserData* data = (FileUserData*)userData;
 
-				File* file = &data->dir->GetFile(data->dirIndex);
+				if (data->dir != nullptr)
+				{
 
-				m_Workspace->pins.push_back({ file });
-				RefreshGUI();
+					File* file = &data->dir->GetFile(data->dirIndex);
+
+					bool found = false;
+
+					for (auto& pin : m_Workspace->pins)
+						if (pin == file)
+							found = true;
+
+					if (!found)
+					{
+						m_Workspace->pins.push_back({ &data->dir->GetFile(data->dirIndex) });
+						RefreshGUI();
+					}
+				}
 
 				}, userData);
 		}
@@ -308,7 +338,9 @@ private:
 		uint32_t dirIndex;
 	};
 
-	std::vector<FileUserData> m_AllocatedDataForFileSystem;
+	//std::vector<FileUserData> m_AllocatedDataForFileSystem;
+
+	LinearAllocator<FileUserData> m_UserDataForFilesysten;
 
 	std::function<void(void*)> m_OpenFileCallback = [&](void* userData)
 		{

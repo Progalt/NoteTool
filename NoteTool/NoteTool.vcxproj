@@ -153,6 +153,7 @@
     <ClCompile Include="Source\Workspace.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Allocator\LinearAllocator.h" />
     <ClInclude Include="Source\Colour.h" />
     <ClInclude Include="Source\FileViewers\FileViewer.h" />
     <ClInclude Include="Source\FileViewers\MarkdownViewer.h" />
