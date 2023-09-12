@@ -186,6 +186,42 @@ namespace gui
 
 					drawList.Add(textQuad.vertices, textQuad.indices, &entry.texture);
 
+					// Lets draw a side button
+					if (entry.hovered)
+					{
+						for (uint32_t j = 0; j < entry.sidebuttons.size(); j++)
+						{
+							SideButton& sideButton = entry.sidebuttons[j];
+
+							if (sideButton.icon == IconType::None)
+								continue;
+
+							min = m_GlobalBounds.position;
+							min.y += yOffset;
+							max = min;
+							max.y += m_IconSize;
+							max.x += m_GlobalBounds.size.x;
+							min.x += m_GlobalBounds.size.x - m_IconSize * (float)(j + 1);
+
+							Colour sideCol = m_HoveredColour;
+
+							if (sideButton.hovered)
+							{
+								sideCol = { 0.5f, 0.5f, 1.0f, 1.0f };
+							}
+
+							Shape sideButtonQuad = gui::GenerateQuad(min, max, { 0.0f, 0.0f }, { 1.0f, 1.0f }, sideCol);
+							GPUTexture* sideIcon = nullptr;
+							sideIcon = IconManager::GetInstance()[sideButton.icon];
+
+							drawList.Add(sideButtonQuad.vertices, sideButtonQuad.indices, sideIcon);
+
+							sideButton.bounds.position = min;
+							sideButton.bounds.size = max - min;
+
+						}
+					}
+
 					// Draw the file tree connector
 
 					min = m_GlobalBounds.position;
@@ -199,6 +235,8 @@ namespace gui
 					Shape connector = gui::GenerateQuad(min, max, {}, {}, m_HoveredColour);
 
 					drawList.Add(connector.vertices, connector.indices);
+
+					
 
 					yOffset += m_ButtonSize + m_ElementPadding;
 
@@ -283,10 +321,31 @@ namespace gui
 
 					if (entry.hovered && gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks >= 1)
 					{
+						float maxX = entry.bounds.x + entry.bounds.w - (m_IconSize * (float)entry.sidebuttons.size());
+						if ((float)gui::EventHandler::x < maxX)
+						{
 
+							if (entry.callback)
+								entry.callback(entry.userData);
+						}
+					}
 
-						if (entry.callback)
-							entry.callback(entry.userData);
+					for (auto& sidebutton : entry.sidebuttons)
+					{
+						if (sidebutton.bounds.Contains((float)gui::EventHandler::x, (float)gui::EventHandler::y))
+						{
+							sidebutton.hovered = true;
+						}
+						else
+						{
+							sidebutton.hovered = false;
+						}
+
+						if (sidebutton.hovered && gui::EventHandler::mouseButton[gui::MOUSE_LEFT].clicks >= 1)
+						{
+							if (sidebutton.callback)
+								sidebutton.callback(sidebutton.userData);
+						}
 					}
 				}
 			}

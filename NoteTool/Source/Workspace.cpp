@@ -23,6 +23,8 @@ void Directory::ParseDirectory(const std::filesystem::path& path)
 		{
 			File file(item.path());
 
+			file.parentDirectory = this;
+
 			files.push_back(file);
 			printf("File: %s\n", file.name.c_str());
 		}

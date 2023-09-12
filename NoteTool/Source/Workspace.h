@@ -9,6 +9,7 @@ enum class FileType
 	Image,
 	Markdown
 };
+struct Directory;
 
 struct File
 {
@@ -106,6 +107,8 @@ struct File
 
 		return false;
 	}
+
+	Directory* parentDirectory = nullptr;
 };
 
 struct Directory
@@ -148,6 +151,20 @@ struct Directory
 		return &files[idx];
 	}
 
+	uint32_t GetFileIndex(File* file)
+	{
+		uint32_t i = 0;
+		for (auto& f : files)
+		{
+			if (*file == f)
+				return i;
+
+			i++;
+		}
+
+		return -1;
+	}
+
 	size_t DirectoryCount() { return subdirectories.size(); }
 
 	size_t FileCount() { return files.size(); }
@@ -168,9 +185,13 @@ public:
 
 	Directory& GetRoot() { return m_Root; }
 
+	std::vector<File*> pins;
+
 private:
 
 	Directory m_Root;
+
+	
 
 
 };

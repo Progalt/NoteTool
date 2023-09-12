@@ -175,15 +175,11 @@ int main(int argc, char* argv)
 	window_width = userPrefs.lastOpenedWidth;
 	window_height = userPrefs.lastOpenedHeight;
 
+	// TODO: Move themes to appdata area
 	theme.LoadFromThemeJSON("Themes/dark.json");
 	workspaceUI.SetTheme(&theme);
 
-	// Initialise the base window and context
-	// TODO: Probably could move this to a class or something 
-
 	SDL_Init(SDL_INIT_EVERYTHING);
-
-
 
 	std::string title = "Notes " + versionString;
 	win.Create(title, window_width, window_height, WindowFlags::Resizable | WindowFlags::OpenGL);
@@ -213,14 +209,17 @@ int main(int argc, char* argv)
 
 	codeFontManager.SetInitialFont("SourceCodePro");
 
+	// Create a plain white texture
+	// I just use a 2x2 image
 	unsigned char pixels[16] = { 255, 255, 255, 255, 255, 255, 255, 255,255, 255, 255, 255,255, 255, 255, 255 };
 	whiteTexture.CreateFromPixels(pixels, 2, 2, GPUFormat::RGBA8);
 
 
-
+	// Setup screen matrix
 	screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
 
-
+	// We use one big window panel for the GUI
+	// Its a dummy panel so no rendering just events
 	FloatRect fullWindowBounds;
 	fullWindowBounds.size = { (float)window_width, (float)window_height };
 	windowPanel = new gui::Panel();
@@ -240,6 +239,8 @@ int main(int argc, char* argv)
 	CreatePanelsForWorkspace();
 
 	Vector2f modalSize = { 800.0f, 500.0f };
+
+	// TODO: Move this start up modal somewhere else for init
 
 	modal = windowPanel->NewChild<gui::Panel>();
 	modal->SetDummyPanel(false);

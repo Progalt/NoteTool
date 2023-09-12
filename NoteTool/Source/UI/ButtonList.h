@@ -19,6 +19,17 @@ namespace gui
 				collection.texture.Destroy();
 		}
 
+		struct SideButton
+		{
+			IconType icon = IconType::None;
+
+			std::function<void(void*)> callback;
+			void* userData;
+
+			FloatRect bounds;
+			bool hovered = false;
+		};
+
 		struct Button
 		{
 			std::string text;
@@ -36,6 +47,13 @@ namespace gui
 			
 
 			FloatRect bounds;
+
+			std::vector<SideButton> sidebuttons;
+
+			void AddSideButton(IconType icon, std::function<void(void*)> callback, void* userData)
+			{
+				sidebuttons.push_back({ icon, callback, userData });
+			}
 		};
 
 		struct Collection
@@ -54,7 +72,7 @@ namespace gui
 			float paddingGap = 0.0f;
 			bool renderDivLine = false;
 
-			Collection& AddButton(const std::string& text, std::function<void(void*)> callback, void* userData)
+			Button& AddButton(const std::string& text, std::function<void(void*)> callback, void* userData)
 			{
 				m_Buttons.push_back({
 						text,
@@ -63,7 +81,7 @@ namespace gui
 						false
 					});
 
-				return *this;
+				return m_Buttons[m_Buttons.size() - 1];
 			}
 
 			GPUTexture texture;
@@ -92,7 +110,12 @@ namespace gui
 			if (m_Collections.size() > 0)
 			{
 				for (auto& collection : m_Collections)
+				{
+					for (auto& buttons : collection.m_Buttons)
+						buttons.texture.Destroy();
+
 					collection.texture.Destroy();
+				}
 
 				m_Collections.clear();
 			}

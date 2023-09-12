@@ -71,6 +71,8 @@ public:
 
 	void RefreshGUI()
 	{
+		m_AllocatedDataForFileSystem.clear();
+
 		m_ButtonList->Clear();
 
 		gui::ButtonList::Collection& pins = m_ButtonList->NewCollection("Pins");
@@ -78,6 +80,7 @@ public:
 		pins.iconOverride = IconType::Pin;
 		pins.renderDivLine = true;
 
+		// All files within the root of the workspace get added to the general
 		AddDirectoryToList(&m_Workspace->GetRoot(), "General", true, m_ButtonList);
 
 		for (auto& dir : m_Workspace->GetRoot().subdirectories)
@@ -85,6 +88,20 @@ public:
 			AddDirectoryToList(&dir, dir.name, false, m_ButtonList);
 		}
 
+
+		// Add pins
+
+		for (auto& workspacePin : m_Workspace->pins)
+		{
+			// Allocating some new userdata here is easier than passing multiple ptrs around
+			m_AllocatedDataForFileSystem.push_back(FileUserData());
+
+			FileUserData* userData = &m_AllocatedDataForFileSystem[m_AllocatedDataForFileSystem.size() - 1];
+			userData->dir = workspacePin->parentDirectory;
+			userData->dirIndex = workspacePin->parentDirectory->GetFileIndex(workspacePin);
+
+			gui::ButtonList::Button& button = pins.AddButton(workspacePin->NameWithoutExtension(), m_OpenFileCallback, userData);
+		}
 
 	}
 
@@ -132,18 +149,13 @@ private:
 		m_WorkspaceName = m_Panel->NewChild<gui::Text>();
 		m_WorkspaceName->SetString(m_Workspace->GetRoot().name);
 		m_WorkspaceName->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 16));
-		m_WorkspaceName->SetPosition({ 24.0f, 12.0f });
+		m_WorkspaceName->SetPosition({ 8.0f, 12.0f });
 		m_WorkspaceName->SetAnchor(gui::Anchor::TopLeft);
 			 
 		m_TextArea->SetAnchor(gui::Anchor::BottomRight);
 		m_TextArea->SetLockPosition(true);
 
-		m_NothingOpenText = m_TextArea->NewChild<gui::Text>();
-		m_NothingOpenText->SetString("No file is open");
-		m_NothingOpenText->SetFont(m_FontManager->Get(gui::FontWeight::Bold, 24));
-		m_NothingOpenText->SetBounds({ m_TextArea->GetBounds().w / 2.0f - gui::GetTextLength(m_NothingOpenText->GetString(), m_FontManager->Get(gui::FontWeight::Bold, 24)), m_TextArea->GetBounds().h / 2.0f, 300.0f, 50.0f });
-		m_NothingOpenText->SetAnchor(gui::Anchor::Centre);
-
+	
 
 		FloatRect startBounds = { 0.0f, 0.0f, m_TextArea->GetBounds().w, m_TextArea->GetBounds().h };
 		WorkspaceTab* tab1 = NewTab();
@@ -173,18 +185,14 @@ private:
 
 		m_ButtonList->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 14));
 		m_ButtonList->SetRounding(m_Theme->buttonRounding);
-		m_ButtonList->SetBounds({ 4.0f, 64.0f, m_Panel->GetBounds().w - 4.0f * 2.0f, 400.0f });
+		m_ButtonList->SetBounds({ 4.0f, 72.0f, m_Panel->GetBounds().w - 4.0f * 2.0f, 400.0f });
 		m_ButtonList->SetHoveredColour(m_Theme->accentColour);
 	}
 
 	void AddDirectoryToList(Directory* dir, const std::string& name,  bool root, gui::ButtonList* buttonList)
 	{
 		
-		struct UserData
-		{
-			Directory* dir;
-			uint32_t dirIndex;
-		};
+		
 
 		gui::ButtonList::Collection& collection = buttonList->NewCollection(name);
 
@@ -193,82 +201,26 @@ private:
 			File& fileRef = dir->GetFile(i);
 
 			// TODO: This is not the best 
-			// And also a memory leak 
-			UserData* userData = new UserData();
+			// And also a memory leak (Mostly fixed)
+			m_AllocatedDataForFileSystem.push_back(FileUserData());
+
+			FileUserData* userData = &m_AllocatedDataForFileSystem[m_AllocatedDataForFileSystem.size() - 1];
 			userData->dir = dir;
 			userData->dirIndex = i;
 
-			collection.AddButton(fileRef.NameWithoutExtension(), [&](void* userData)
-				{
-					UserData* data = (UserData*)userData;
 
-					File* file = &data->dir->GetFile(data->dirIndex);
-					
-					if (!m_ActiveTab)
-						return;
-
-					if (m_ActiveTab->currentFileView)
-						m_ActiveTab->currentFileView->Hide();
-
-					bool found = false;
-
-					for (auto& viewer : m_Viewers)
-					{
-						if (*viewer->GetFile() == *file)
-						{
-							m_ActiveTab->currentFileView = viewer;
-							m_ActiveTab->currentFileView->Show();
-							gui::EventHandler::cursorOffset = 0;
-
-							found = true;
+			gui::ButtonList::Button& button = collection.AddButton(fileRef.NameWithoutExtension(), m_OpenFileCallback, userData);
 
 
-						}
+			button.AddSideButton(IconType::Pin, [&](void* userData) {
 
+				FileUserData* data = (FileUserData*)userData;
 
-					}
+				File* file = &data->dir->GetFile(data->dirIndex);
 
-					if (!found)
-					{
-						if (file->type == FileType::PlainText)
-						{
-							PlainTextViewer* viewer = new PlainTextViewer;
-							viewer->theme = m_Theme;
-							viewer->SetFontManager(m_FontManager);
-							viewer->SetParentPanel(m_ActiveTab->panel);
-							viewer->SetCodeFontManager(m_CodeFontManager);
-							viewer->SetFile(file);
-							viewer->parent = this;
+				m_Workspace->pins.push_back({ file });
+				RefreshGUI();
 
-							m_Viewers.push_back(viewer);
-
-							m_ActiveTab->currentFileView = viewer;
-
-							m_NothingOpenText->SetVisible(false);
-						}
-
-						if (file->type == FileType::Markdown)
-						{
-							MarkdownViewer* viewer = new MarkdownViewer;
-							viewer->theme = m_Theme;
-							viewer->SetFontManager(m_FontManager);
-							viewer->SetParentPanel(m_ActiveTab->panel);
-							viewer->SetCodeFontManager(m_CodeFontManager);
-							viewer->SetFile(file);
-							viewer->parent = this;
-
-
-							m_Viewers.push_back(viewer);
-
-							m_ActiveTab->currentFileView = viewer;
-
-							m_NothingOpenText->SetVisible(false);
-						}
-					}
-
-
-					
-					
 				}, userData);
 		}
 
@@ -278,6 +230,9 @@ private:
 	
 	void OpenNewTab(WorkspaceTab* tab, FloatRect bounds)
 	{
+		// TODO: Tab Scaling is off
+		// Use percentage resize scaling? 
+
 		tab->bounds = bounds;
 		tab->panel = m_TextArea->NewChild<gui::Panel>();
 		m_TextArea->InheritTheme(tab->panel);
@@ -338,13 +293,92 @@ private:
 	gui::FontManager* m_FontManager;
 	gui::FontManager* m_CodeFontManager;
 
-	gui::Text* m_NothingOpenText;
 
 	//FileViewer* m_CurrentView;
 	std::vector<FileViewer*> m_Viewers;
 
 	WorkspaceTab* m_ActiveTab;
 	std::vector<WorkspaceTab*> m_Tabs;
+
+	
+
+	struct FileUserData
+	{
+		Directory* dir;
+		uint32_t dirIndex;
+	};
+
+	std::vector<FileUserData> m_AllocatedDataForFileSystem;
+
+	std::function<void(void*)> m_OpenFileCallback = [&](void* userData)
+		{
+			FileUserData* data = (FileUserData*)userData;
+
+			File* file = &data->dir->GetFile(data->dirIndex);
+
+			if (!m_ActiveTab)
+				return;
+
+			if (m_ActiveTab->currentFileView)
+				m_ActiveTab->currentFileView->Hide();
+
+			bool found = false;
+
+			for (auto& viewer : m_Viewers)
+			{
+				if (*viewer->GetFile() == *file)
+				{
+					m_ActiveTab->currentFileView = viewer;
+					m_ActiveTab->currentFileView->Show();
+					gui::EventHandler::cursorOffset = 0;
+
+					found = true;
+
+
+				}
+
+
+			}
+
+			if (!found)
+			{
+				if (file->type == FileType::PlainText)
+				{
+					PlainTextViewer* viewer = new PlainTextViewer;
+					viewer->theme = m_Theme;
+					viewer->SetFontManager(m_FontManager);
+					viewer->SetParentPanel(m_ActiveTab->panel);
+					viewer->SetCodeFontManager(m_CodeFontManager);
+					viewer->SetFile(file);
+					viewer->parent = this;
+
+					m_Viewers.push_back(viewer);
+
+					m_ActiveTab->currentFileView = viewer;
+
+				}
+
+				if (file->type == FileType::Markdown)
+				{
+					MarkdownViewer* viewer = new MarkdownViewer;
+					viewer->theme = m_Theme;
+					viewer->SetFontManager(m_FontManager);
+					viewer->SetParentPanel(m_ActiveTab->panel);
+					viewer->SetCodeFontManager(m_CodeFontManager);
+					viewer->SetFile(file);
+					viewer->parent = this;
+
+
+					m_Viewers.push_back(viewer);
+
+					m_ActiveTab->currentFileView = viewer;
+				}
+			}
+
+
+
+
+		};
 
 
 };
