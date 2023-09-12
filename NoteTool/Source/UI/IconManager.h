@@ -17,7 +17,9 @@ enum class IconType
 
 	ThreeDots,
 
-	FileDropArrow
+	FileDropArrow,
+
+	Cross
 };
 
 
@@ -61,6 +63,9 @@ public:
 
 		Image dropArrow("Icons/FileDropArrow24.png");
 		m_Icons[IconType::FileDropArrow].CreateFromImage(dropArrow);
+
+		Image cross("Icons/X.png");
+		m_Icons[IconType::Cross].CreateFromImage(cross);
 	}
 
 	void DestroyIcons()

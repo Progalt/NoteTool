@@ -104,8 +104,25 @@ public:
 			Directory* dir = m_Workspace->GetRoot().GetDirectoryOfFile(workspacePin);
 			userData->dir = dir;
 			userData->dirIndex = dir->GetFileIndex(workspacePin);
+			userData->workspace = m_Workspace;
 
-			pins.AddButton(workspacePin->NameWithoutExtension(), m_OpenFileCallback, userData);
+			gui::ButtonList::Button& pin = pins.AddButton(workspacePin->NameWithoutExtension(), m_OpenFileCallback, userData);
+			pin.AddSideButton(IconType::Cross, [&](void* userData)
+				{
+					FileUserData* data = (FileUserData*)userData;
+
+					File* file = &data->dir->GetFile(data->dirIndex);
+
+					for (uint32_t i = 0; i < data->workspace->pins.size(); i++)
+					{
+						if (data->workspace->pins[i] == file)
+						{
+							data->workspace->pins.erase(data->workspace->pins.begin() + i);
+							RefreshGUI();
+						}
+					}
+
+				}, userData);
 		}
 
 	}
@@ -336,6 +353,7 @@ private:
 	{
 		Directory* dir;
 		uint32_t dirIndex;
+		Workspace* workspace;
 	};
 
 	//std::vector<FileUserData> m_AllocatedDataForFileSystem;
