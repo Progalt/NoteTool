@@ -32,6 +32,8 @@ public:
 
 private:
 
+	float m_Margin = 48.0f;
+
 	NoteFile m_NoteFile;
 
 	void LoadFileContents() override;
@@ -40,5 +42,5 @@ private:
 
 	void ReformatGUI();
 
-	void InsertNewParagraphElement(NoteElement* parent, std::string text);
+	NoteElement* InsertNewElement(NoteElement* parent, NoteElementType type);
 };

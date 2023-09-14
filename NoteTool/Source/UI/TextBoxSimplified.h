@@ -265,6 +265,23 @@ namespace gui
 			m_BlankText = str;
 		}
 
+		void RemoveFocus()
+		{
+			m_Editing = false;
+		}
+
+		void TakeFocus()
+		{
+			if (!m_Editing)
+			{
+				m_FullRerender = true;
+			}
+			m_Editing = true;
+
+			EventHandler::textInput = &string;
+			gui::EventHandler::cursorOffset = 0;
+		}
+
 
 	private:
 

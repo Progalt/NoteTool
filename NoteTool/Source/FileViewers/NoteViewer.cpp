@@ -19,7 +19,6 @@ void NoteViewer::ReformatGUI()
 	float yOffset = 98.0f;
 
 	float elementEndPadding = 16.0f;
-	float margin = 32.0f;
 
 	while (element != nullptr)
 	{
@@ -31,7 +30,7 @@ void NoteViewer::ReformatGUI()
 
 			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 32)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
-			text->SetBounds({ margin, yOffset, m_Panel->GetBounds().w - margin * 2.0f, fontSize + 2.0f });
+			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 
 			yOffset += text->GetTextBoxHeight() + elementEndPadding;
 
@@ -44,7 +43,7 @@ void NoteViewer::ReformatGUI()
 
 			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 24)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
-			text->SetBounds({ margin, yOffset, m_Panel->GetBounds().w - margin * 2.0f, fontSize + 2.0f });
+			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 
 			yOffset += text->GetTextBoxHeight() + elementEndPadding;
 		}
@@ -55,7 +54,7 @@ void NoteViewer::ReformatGUI()
 
 			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
-			text->SetBounds({ margin, yOffset, m_Panel->GetBounds().w - margin * 2.0f, fontSize + 2.0f });
+			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 
 			yOffset += text->GetTextBoxHeight() + elementEndPadding;
 
@@ -81,7 +80,6 @@ void NoteViewer::InitialiseGUIElements()
 	float yOffset = 98.0f;
 
 	float elementEndPadding = 16.0f;
-	float margin = 48.0f;
 
 	while (element != nullptr)
 	{
@@ -95,7 +93,7 @@ void NoteViewer::InitialiseGUIElements()
 
 			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 32)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
-			text->SetBounds({ margin, yOffset, m_Panel->GetBounds().w - margin * 2.0f, fontSize + 2.0f });
+			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 			text->SetFontSize(32, gui::FontWeight::Bold);
 			text->string = element->header.text;
 
@@ -114,7 +112,7 @@ void NoteViewer::InitialiseGUIElements()
 
 			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 24)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
-			text->SetBounds({ margin, yOffset, m_Panel->GetBounds().w - margin * 2.0f, fontSize + 2.0f });
+			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 			text->SetFontSize(24, gui::FontWeight::Bold);
 			text->string = element->header.text;
 
@@ -133,11 +131,36 @@ void NoteViewer::InitialiseGUIElements()
 
 			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
-			text->SetBounds({ margin, yOffset, m_Panel->GetBounds().w - margin * 2.0f, fontSize + 2.0f });
+			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 			text->SetFontSize(16, gui::FontWeight::Light);
 			text->string = element->paragraph.text;
 
 			text->SetOnEditCallback([&](void* userData) {
+
+				NoteElement* baseElement = (NoteElement*)userData;
+
+				gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)baseElement->userData;
+
+				std::string str = textBox->string;
+
+				size_t pos = str.find("\n\n");
+
+				
+				if (pos != std::string::npos)
+				{
+					textBox->string.erase(pos, 2);
+
+
+					NoteElement* newElement = InsertNewElement(baseElement, NoteElementType::Paragraph);
+					printf("Created new paragraph element\n");
+
+					textBox->RemoveFocus();
+
+					gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)newElement->userData;
+
+					newTextBox->TakeFocus();
+				}
+
 
 				ReformatGUI();
 				}, element);
@@ -185,3 +208,58 @@ void NoteViewer::Save()
 	m_NoteFile.WriteToJSON(m_File->path);
 }
 
+NoteElement* NoteViewer::InsertNewElement(NoteElement* parent, NoteElementType type)
+{
+	
+	NoteElement* newElement = m_NoteFile.Insert(parent);
+
+	newElement->type = type;
+
+	switch (newElement->type)
+	{
+	case NoteElementType::Paragraph:
+
+		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+
+		float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+		text->SetFontManager(m_FontManager);
+		text->SetBounds({ m_Margin, 10.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+		text->SetFontSize(16, gui::FontWeight::Light);
+		text->string = newElement->paragraph.text;
+		newElement->userData = text;
+
+		text->SetOnEditCallback([&](void* userData) {
+
+			NoteElement* baseElement = (NoteElement*)userData;
+
+			gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)baseElement->userData;
+
+			std::string str = textBox->string;
+
+			size_t pos = str.find("\n\n");
+
+
+			if (pos != std::string::npos)
+			{
+				textBox->string.erase(pos, 2);
+
+
+				NoteElement* newElement = InsertNewElement(baseElement, NoteElementType::Paragraph);
+				printf("Created new paragraph element\n");
+
+				textBox->RemoveFocus();
+
+				gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)newElement->userData;
+
+				newTextBox->TakeFocus();
+			}
+
+
+			ReformatGUI();
+			}, newElement);
+
+		break;
+	}
+
+	return newElement;
+}

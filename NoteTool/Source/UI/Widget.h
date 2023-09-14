@@ -196,8 +196,9 @@ namespace gui
 			if (m_Visible)
 				OnEvent();
 
+			std::vector<gui::Widget*> currentChildren = m_Children;
 
-			for (auto& child : m_Children)
+			for (auto& child : currentChildren)
 			{
 	
 				if (child->m_Visible)
