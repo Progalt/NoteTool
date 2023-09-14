@@ -8,6 +8,7 @@
 
 class WorkspaceUI;
 
+
 class MarkdownViewer : public FileViewer
 {
 public:
@@ -52,4 +53,5 @@ private:
 	bool m_ShowLineNumbers = false;
 
 	gui::TextBox* m_TextBox;
+
 };

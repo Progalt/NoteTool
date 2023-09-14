@@ -45,7 +45,7 @@ public:
 
 	uint32_t GetPixelSize() const { return m_PixelSize; }
 
-	uint32_t GetLineSpacing() { return (uint32_t)m_Face->height / 64; }
+	uint32_t GetLineSpacing() { return (uint32_t)m_Face->size->metrics.height / 64; }
 
 	int GetMaxHeight()
 	{

@@ -15,7 +15,7 @@ namespace gui
 	constexpr uint32_t TextPadding = 2;
 
 
-	inline void RenderText(DrawList& list, const std::string& text, Font* font, Vector2i position, float textWrap, Colour col, FloatRect bounds)
+	inline std::vector<FloatRect> RenderText(DrawList& list, const std::string& text, Font* font, Vector2i position, float textWrap, Colour col, FloatRect bounds)
 	{
 		float x = 0.0f;
 
@@ -25,6 +25,8 @@ namespace gui
 		//	return;
 
 		float maxX = 0.0f, maxY = 0.0f;
+
+		std::vector<FloatRect> positions(text.size());
 
 		for (uint32_t i = 0; i < text.size(); i++)
 		{
@@ -125,18 +127,13 @@ namespace gui
 
 			std::vector<uint32_t> indices = { 0, 1, 3, 1, 2, 3 };
 
-			FloatRect glyphBounds;
-			glyphBounds.position = vertices[0].position;
-			glyphBounds.size = vertices[2].position - vertices[0].position;
-
-			if (!bounds.IsNull())
-				if (!bounds.Intersects(glyphBounds))
-					continue;
-
 			list.Add(vertices, indices, font->GetTexture(alphabet));
+
+			positions[i].position = { xpos, ypos };
 
 		}
 
+		return positions;
 	}
 
 	// This software rasterizes text into an image
@@ -350,7 +347,6 @@ namespace gui
 
 			if (!controlChar)
 				x += (float)data.advance;
-			y = (float)lineCount * (float)font->GetLineSpacing();
 
 		}
 		

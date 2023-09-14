@@ -5,9 +5,11 @@
 #include "UI/TextBox.h"
 #include "FileViewers/PlainTextViewer.h"
 #include "FileViewers/MarkdownViewer.h"
+#include "FileViewers/NoteViewer.h"
 #include "Theme.h"
 #include "UI/ButtonList.h"
 #include "Allocator/LinearAllocator.h"
+#include "OS.h"
 
 struct WorkspaceTab
 {
@@ -96,6 +98,14 @@ public:
 	
 		for (auto& workspacePin : m_Workspace->pins)
 		{
+			// If it equals nullptr we want to remove it from the list
+			if (workspacePin == nullptr)
+			{
+
+
+				
+			}
+
 			printf("Pin %s\n", workspacePin->name.c_str());
 			printf("Path: %s\n", m_Workspace->GetRoot().GetDirectoryOfFile(workspacePin)->path.generic_string().c_str());
 
@@ -223,10 +233,22 @@ private:
 	void AddDirectoryToList(Directory* dir, const std::string& name,  bool root, gui::ButtonList* buttonList)
 	{
 		
-		
+		FileUserData* createUserData = m_UserDataForFilesysten.Allocate();
+		createUserData->dir = dir;
+		createUserData->dirIndex = 0;
+		createUserData->workspace = m_Workspace;
 
 		gui::ButtonList::Collection& collection = buttonList->NewCollection(name);
-		collection.AddSideButton(IconType::Plus, nullptr, nullptr);
+		collection.AddSideButton(IconType::Plus, [&](void* userData) {
+
+			FileUserData* data = (FileUserData*)userData;
+
+			std::string path = data->dir->path.generic_string();
+			path += "/New Note";
+			CreateNewFile(path, ".md");
+			Refresh();
+
+			}, createUserData);
 
 		for (size_t i = 0; i < dir->FileCount(); i++)
 		{
@@ -247,7 +269,27 @@ private:
 			
 			gui::ButtonList::Button& button = collection.AddButton(fileRef.NameWithoutExtension(), m_OpenFileCallback, userData);
 
-			gui::ButtonList::SideButton& bin = button.AddSideButton(IconType::Bin, nullptr, nullptr);
+			gui::ButtonList::SideButton& bin = button.AddSideButton(IconType::Bin, [&](void* userData) {
+
+				FileUserData* data = (FileUserData*)userData;
+
+				File* file = &data->dir->GetFile(data->dirIndex);
+
+				std::filesystem::path path = file->path;
+
+				// TODO: Prompt this so we don't have miss clicks. 
+				// TODO: We probably also want to move to recycle bin. Not just straight up delete it
+
+				if (std::filesystem::exists(path))
+				{
+					std::filesystem::remove(path);
+					printf("Deleting file: %s\n", path.generic_string().c_str());
+				}
+				
+				Refresh();
+
+				}, userData);
+
 			bin.hoverColour = { 1.0f, 0.5f, 0.5f, 1.0f };
 
 			button.AddSideButton(IconType::Pin, [&](void* userData) {
@@ -417,6 +459,22 @@ private:
 				if (file->type == FileType::Markdown)
 				{
 					MarkdownViewer* viewer = new MarkdownViewer;
+					viewer->theme = m_Theme;
+					viewer->SetFontManager(m_FontManager);
+					viewer->SetParentPanel(m_ActiveTab->panel);
+					viewer->SetCodeFontManager(m_CodeFontManager);
+					viewer->SetFile(file);
+					viewer->parent = this;
+
+
+					m_Viewers.push_back(viewer);
+
+					m_ActiveTab->currentFileView = viewer;
+				}
+
+				if (file->type == FileType::Note)
+				{
+					NoteViewer* viewer = new NoteViewer;
 					viewer->theme = m_Theme;
 					viewer->SetFontManager(m_FontManager);
 					viewer->SetParentPanel(m_ActiveTab->panel);

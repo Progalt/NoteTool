@@ -7,7 +7,8 @@ enum class FileType
 	Unrecognised,
 	PlainText, 
 	Image,
-	Markdown
+	Markdown,
+	Note
 };
 struct Directory;
 
@@ -79,6 +80,11 @@ struct File
 		if (extension == ".md")
 		{
 			type = FileType::Markdown;
+		}
+
+		if (extension == ".json")
+		{
+			type = FileType::Note;
 		}
 
 		if (extension == ".cpp" || extension == ".hpp" ||

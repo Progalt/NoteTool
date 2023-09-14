@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdio>
 
 // Really dead simple allocator
 // Does not free any data until destructor

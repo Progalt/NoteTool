@@ -131,6 +131,8 @@
   <ItemGroup>
     <ClCompile Include="Source\FileViewers\FileViewer.cpp" />
     <ClCompile Include="Source\FileViewers\MarkdownViewer.cpp" />
+    <ClCompile Include="Source\FileViewers\NoteFile.cpp" />
+    <ClCompile Include="Source\FileViewers\NoteViewer.cpp" />
     <ClCompile Include="Source\FileViewers\PlainTextViewer.cpp" />
     <ClCompile Include="Source\Font.cpp" />
     <ClCompile Include="Source\Image.cpp" />
@@ -156,7 +158,9 @@
     <ClInclude Include="Source\Allocator\LinearAllocator.h" />
     <ClInclude Include="Source\Colour.h" />
     <ClInclude Include="Source\FileViewers\FileViewer.h" />
+    <ClInclude Include="Source\FileViewers\NoteFile.h" />
     <ClInclude Include="Source\FileViewers\MarkdownViewer.h" />
+    <ClInclude Include="Source\FileViewers\NoteViewer.h" />
     <ClInclude Include="Source\FileViewers\PlainTextViewer.h" />
     <ClInclude Include="Source\Font.h" />
     <ClInclude Include="Source\History.h" />
@@ -195,6 +199,7 @@
     <ClInclude Include="Source\UI\Panel.h" />
     <ClInclude Include="Source\UI\Text.h" />
     <ClInclude Include="Source\UI\TextBox.h" />
+    <ClInclude Include="Source\UI\TextBoxSimplified.h" />
     <ClInclude Include="Source\UI\Utility.h" />
     <ClInclude Include="Source\UI\Widget.h" />
     <ClInclude Include="Source\UserPrefs.h" />
