@@ -130,6 +130,7 @@ void NoteFile::WriteToJSON(const std::filesystem::path& path)
 				{ "type", "paragraph" },
 				{ "text", element->paragraph.text }
 			};
+			break;
 		case NoteElementType::Dividor:
 			elements[idx] = {
 				{ "type", "dividor" }

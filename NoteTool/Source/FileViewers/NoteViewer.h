@@ -3,6 +3,12 @@
 #include "FileViewer.h"
 #include "NoteFile.h"
 
+static const std::vector<std::pair<std::string, NoteElementType>> Commands = {
+	{ "dividor", NoteElementType::Dividor },
+	{ "paragraph", NoteElementType::Paragraph },
+	{ "h1", NoteElementType::Header1 },
+	{ "h2", NoteElementType::Header2 }
+};
 
 class NoteViewer : public FileViewer
 {
@@ -46,6 +52,8 @@ private:
 
 	void NewParagraphOnNewlines(NoteElement* base);
 	void NewDividorOnNewLines(NoteElement* base);
+
+	void Command(NoteElement* base);
 
 	void OnEdit(NoteElement* base);
 };

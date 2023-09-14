@@ -200,7 +200,9 @@ namespace gui
 
 			for (auto& child : currentChildren)
 			{
-	
+				if (child == nullptr)
+					continue;
+
 				if (child->m_Visible)
 				{
 					child->HandleEvents();
