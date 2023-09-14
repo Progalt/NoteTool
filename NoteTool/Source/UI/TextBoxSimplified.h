@@ -93,11 +93,19 @@ namespace gui
 				{
 					Vector2f cursorPos = GetPosition(gui::EventHandler::cursorOffset); // gui::GetPositionOfCharFormatted(gui::EventHandler::cursorOffset, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats);
 
+					
 					//cursorPos.x += 1.0f;
 
 					TextFormatOption formatOption = GetFormattingAtPoint(gui::EventHandler::cursorOffset);
 
 					Font* font = GetFontForFormat(formatOption, m_FontManager, m_CodeFontManager, m_DefaultWeight, m_FontSize);
+
+					if (cursorPos == Vector2f(0.0f, 0.0f))
+					{
+						// no text so cursor defaults to 0, 0 
+						// just manually offset it by font ascent
+						cursorPos.y += font->GetAscent();
+					}
 
 					Shape cursor = gui::GenerateQuad(m_GlobalBounds.position + cursorPos + Vector2f{ 0.0f, cursorMod },
 						{ m_GlobalBounds.position.x + cursorPos.x + 2.0f, m_GlobalBounds.position.y + cursorPos.y - (float)font->GetAscent() },

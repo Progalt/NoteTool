@@ -1,6 +1,7 @@
 
 #include "NoteViewer.h"
 #include "../UI/TextBoxSimplified.h"
+#include "../UI/Shape.h"
 
 void NoteViewer::LoadFileContents()
 {
@@ -61,6 +62,14 @@ void NoteViewer::ReformatGUI()
 			element->userData = text;
 		}
 		break;
+		case NoteElementType::Dividor:
+		{
+			gui::ShapeWidget* shape = (gui::ShapeWidget*)element->userData;
+			shape->SetPosition({ m_Margin, yOffset });
+
+			yOffset += 2.0f + elementEndPadding;
+		}
+		break;
 		}
 
 		element = element->next;
@@ -98,8 +107,13 @@ void NoteViewer::InitialiseGUIElements()
 			text->string = element->header.text;
 
 			text->SetOnEditCallback([&](void* userData) {
+
+				NoteElement* baseElement = (NoteElement*)userData;
+
+				OnEdit(baseElement);
+
 				ReformatGUI();
-				});
+				}, element);
 
 			yOffset += text->GetBounds().h + elementEndPadding;
 			
@@ -117,8 +131,13 @@ void NoteViewer::InitialiseGUIElements()
 			text->string = element->header.text;
 
 			text->SetOnEditCallback([&](void* userData) {
+
+				NoteElement* baseElement = (NoteElement*)userData;
+
+				OnEdit(baseElement);
+
 				ReformatGUI();
-				});
+				}, element);
 
 			yOffset += text->GetBounds().h + elementEndPadding;
 
@@ -139,28 +158,7 @@ void NoteViewer::InitialiseGUIElements()
 
 				NoteElement* baseElement = (NoteElement*)userData;
 
-				gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)baseElement->userData;
-
-				std::string str = textBox->string;
-
-				size_t pos = str.find("\n\n");
-
-				
-				if (pos != std::string::npos)
-				{
-					textBox->string.erase(pos, 2);
-
-
-					NoteElement* newElement = InsertNewElement(baseElement, NoteElementType::Paragraph);
-					printf("Created new paragraph element\n");
-
-					textBox->RemoveFocus();
-
-					gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)newElement->userData;
-
-					newTextBox->TakeFocus();
-				}
-
+				OnEdit(baseElement);
 
 				ReformatGUI();
 				}, element);
@@ -168,6 +166,19 @@ void NoteViewer::InitialiseGUIElements()
 			yOffset += text->GetBounds().h + elementEndPadding;
 
 			element->userData = text;
+		}
+			break;
+		case NoteElementType::Dividor:
+		{
+			gui::ShapeWidget* shape = m_Panel->NewChild<gui::ShapeWidget>();
+
+			shape->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+			shape->SetPosition({ m_Margin, yOffset });
+			shape->SetAsRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, 2.0f });
+
+			element->userData = shape;
+
+			yOffset += 2.0f + elementEndPadding;
 		}
 			break;
 		}
@@ -218,7 +229,7 @@ NoteElement* NoteViewer::InsertNewElement(NoteElement* parent, NoteElementType t
 	switch (newElement->type)
 	{
 	case NoteElementType::Paragraph:
-
+	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
 
 		float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
@@ -232,34 +243,88 @@ NoteElement* NoteViewer::InsertNewElement(NoteElement* parent, NoteElementType t
 
 			NoteElement* baseElement = (NoteElement*)userData;
 
-			gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)baseElement->userData;
-
-			std::string str = textBox->string;
-
-			size_t pos = str.find("\n\n");
-
-
-			if (pos != std::string::npos)
-			{
-				textBox->string.erase(pos, 2);
-
-
-				NoteElement* newElement = InsertNewElement(baseElement, NoteElementType::Paragraph);
-				printf("Created new paragraph element\n");
-
-				textBox->RemoveFocus();
-
-				gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)newElement->userData;
-
-				newTextBox->TakeFocus();
-			}
-
+			OnEdit(baseElement);
 
 			ReformatGUI();
 			}, newElement);
+	}
+		break;
+	case NoteElementType::Dividor:
+	{		
+		gui::ShapeWidget* shape = m_Panel->NewChild<gui::ShapeWidget>();
 
+		shape->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
+		shape->SetPosition({ m_Margin, 0.0f });
+		shape->SetAsRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, 2.0f });
+
+		newElement->userData = shape;
+	}
 		break;
 	}
 
 	return newElement;
+}
+
+void NoteViewer::NewParagraphOnNewlines(NoteElement* base)
+{
+	gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)base->userData;
+
+	std::string str = textBox->string;
+
+	size_t pos = str.find("\n\n");
+
+
+	if (pos != std::string::npos)
+	{
+		textBox->string.erase(pos, 2);
+
+
+		NoteElement* newElement = InsertNewElement(base, NoteElementType::Paragraph);
+		printf("Created new paragraph element\n");
+
+		textBox->RemoveFocus();
+
+		gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)newElement->userData;
+
+		newTextBox->TakeFocus();
+	}
+}
+
+void NoteViewer::NewDividorOnNewLines(NoteElement* base)
+{
+	gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)base->userData;
+
+	std::string str = textBox->string;
+
+	size_t pos = str.find("---");
+
+
+	if (pos != std::string::npos)
+	{
+		textBox->string.erase(pos, 3);
+
+		bool insertParagraph = (base->next == nullptr);
+
+		NoteElement* newElement = InsertNewElement(base, NoteElementType::Dividor);
+		printf("Created new dividor element\n");
+
+		textBox->RemoveFocus();
+
+		// Also insert a new paragraph after 
+		// but only if the current next is nullptr so we have a paragraph after
+		if (insertParagraph)
+		{
+			NoteElement* afterPara = InsertNewElement(newElement, NoteElementType::Paragraph);
+
+			gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)afterPara->userData;
+
+			newTextBox->TakeFocus();
+		}
+	}
+}
+
+void NoteViewer::OnEdit(NoteElement* base)
+{
+	NewParagraphOnNewlines(base);
+	NewDividorOnNewLines(base);
 }

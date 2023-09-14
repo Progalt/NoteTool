@@ -197,6 +197,7 @@
     <ClInclude Include="Source\UI\IconManager.h" />
     <ClInclude Include="Source\UI\List.h" />
     <ClInclude Include="Source\UI\Panel.h" />
+    <ClInclude Include="Source\UI\Shape.h" />
     <ClInclude Include="Source\UI\Text.h" />
     <ClInclude Include="Source\UI\TextBox.h" />
     <ClInclude Include="Source\UI\TextBoxSimplified.h" />

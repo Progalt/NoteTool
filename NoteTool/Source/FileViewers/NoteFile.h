@@ -8,7 +8,8 @@ enum class NoteElementType
 {
 	Header1, 
 	Header2,
-	Paragraph
+	Paragraph,
+	Dividor
 };
 
 // Note Elements

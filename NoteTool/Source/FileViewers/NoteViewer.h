@@ -43,4 +43,9 @@ private:
 	void ReformatGUI();
 
 	NoteElement* InsertNewElement(NoteElement* parent, NoteElementType type);
+
+	void NewParagraphOnNewlines(NoteElement* base);
+	void NewDividorOnNewLines(NoteElement* base);
+
+	void OnEdit(NoteElement* base);
 };

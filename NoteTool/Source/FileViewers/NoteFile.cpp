@@ -78,6 +78,10 @@ void NoteFile::LoadFromJSON(const std::filesystem::path& path)
 			current->type = NoteElementType::Paragraph;
 			current->paragraph.text = element["text"];
 		}
+		else if (type == "dividor")
+		{
+			current->type = NoteElementType::Dividor;
+		}
 
 		last = current;
 	}
@@ -125,6 +129,10 @@ void NoteFile::WriteToJSON(const std::filesystem::path& path)
 			elements[idx] = {
 				{ "type", "paragraph" },
 				{ "text", element->paragraph.text }
+			};
+		case NoteElementType::Dividor:
+			elements[idx] = {
+				{ "type", "dividor" }
 			};
 			break;
 		}
