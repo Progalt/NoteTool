@@ -435,7 +435,7 @@ void NoteViewer::Command(NoteElement* base)
 				// range check
 				if (pos + cmd.size() + 1 < str.size())
 				{
-					if (str.substr(pos + 1, cmd.size()) == cmd)
+					if (str.substr(pos + 1, cmd.size()) == cmd && gui::EventHandler::enter)
 					{
 						// it matches
 
@@ -448,7 +448,7 @@ void NoteViewer::Command(NoteElement* base)
 						if (textBox->string.size() == 0)
 							RemoveElement(base);
 
-						// Take focus if the new element was a text based one
+						// Take focus if the new element was a text bas ed one
 						if (type == NoteElementType::Paragraph || type == NoteElementType::Header1
 							|| type == NoteElementType::Header2 || type == NoteElementType::BulletPoint)
 						{
@@ -491,6 +491,7 @@ void NoteViewer::RemoveElement(NoteElement* element)
 
 	NoteElement* parent = FindParent(element);
 
+
 	printf("Attempting remove element\n");
 
 	// TODO: Actually delete the widget
@@ -498,19 +499,29 @@ void NoteViewer::RemoveElement(NoteElement* element)
 	gui::Widget* widget = (gui::Widget*)element->userData;
 	widget->SetVisible(false);
 
-	if (element->next)
+	if (parent)
 	{
-		parent->next = element->next;
+		if (element->next)
+		{
+				parent->next = element->next;
+		}
+		else
+		{
+				parent->next = nullptr;
+		}
 	}
 	else
 	{
-		parent->next = nullptr;
+
 	}
 }
 
 NoteElement* NoteViewer::FindParent(NoteElement* element)
 {
 	NoteElement* el = m_NoteFile.Start();
+
+	if (el == element)
+		return nullptr;
 
 	while (el != nullptr)
 	{

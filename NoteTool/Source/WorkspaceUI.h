@@ -245,7 +245,14 @@ private:
 
 			std::string path = data->dir->path.generic_string();
 			path += "/New Note";
-			CreateNewFile(path, ".md");
+			CreateNewFile(path, ".json");
+
+			NoteFile file;
+			NoteElement* base = file.Insert(nullptr);
+			base->type = NoteElementType::Paragraph;
+			base->paragraph.text = "";
+			file.WriteToJSON(path + ".json");
+
 			Refresh();
 
 			}, createUserData);

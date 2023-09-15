@@ -14,13 +14,19 @@ public:
 
 	LinearAllocator()
 	{
-		Reallocate(64);
+		AllocateBlock(nullptr);
 	}
 
 	~LinearAllocator()
 	{
-		if (m_Memory)
-			delete[] m_Memory;
+		Block* block = m_Root;
+
+		while (block != nullptr)
+		{
+			delete[] block->memPtr;
+
+			block = block->next;
+		}
 	}
 
 	void FreeAll()
@@ -30,12 +36,53 @@ public:
 
 	_Ty* Allocate()
 	{
-		if (m_Pointer + 1 > m_AllocatedSize)
+		return GetNext();
+	}
+
+
+
+private:
+
+	const uint32_t m_BlockSize = 16;
+
+	struct Block
+	{
+		_Ty* memPtr;
+		Block* next;
+	};
+
+	Block* m_Root;
+	Block* m_Current;
+
+	void AllocateBlock(Block* parent)
+	{
+		if (parent)
 		{
-			Reallocate(m_AllocatedSize + 1);
+			parent->next = new Block();
+			parent->next->memPtr = new _Ty[m_BlockSize];
+
+			m_Current = parent->next;
+		}
+		else
+		{
+			m_Root = new Block();
+			m_Root->memPtr = new _Ty[m_BlockSize];
+
+			m_Current = m_Root;
 		}
 
-		_Ty* ptr = &m_Memory[m_Pointer];
+		printf("Allocated New Block\n");
+	}
+
+	_Ty* GetNext()
+	{
+		if (m_Pointer >= m_BlockSize)
+		{
+			AllocateBlock(m_Current);
+			m_Pointer = 0;
+		}
+
+		_Ty* ptr = &m_Current->memPtr[m_Pointer];
 
 		m_Pointer++;
 
@@ -43,29 +90,10 @@ public:
 	}
 
 
-
-private:
-
-	void Reallocate(size_t size)
-	{
-
-		_Ty* temp = new _Ty[size];
-
-		if (m_Memory)
-		{
-			printf("Reallocating Memory...\n");
-			for (uint32_t i = 0; i < m_AllocatedSize; i++)
-				temp[i] = m_Memory[i];
-
-			delete[] m_Memory;
-		}
-
-		m_Memory = temp;
-		m_AllocatedSize = size;
-	}
-
 	size_t m_AllocatedSize = 0;
 	size_t m_Pointer = 0;
 
 	_Ty* m_Memory;
+
+	
 };
