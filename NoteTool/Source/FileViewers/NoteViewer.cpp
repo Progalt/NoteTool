@@ -26,25 +26,13 @@ void NoteViewer::ReformatGUI()
 		switch (element->type)
 		{
 		case NoteElementType::Header1:
-		{
-			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)element->userData;
-
-			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 32)->GetMaxHeight();
-			text->SetFontManager(m_FontManager);
-			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
-
-			element->bounds = text->GetBounds();
-
-			yOffset += text->GetTextBoxHeight() + elementEndPadding;
-
-			element->userData = text;
-		}
-		break;
 		case NoteElementType::Header2:
 		{
+
+
 			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)element->userData;
 
-			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 24)->GetMaxHeight();
+			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, (element->type == NoteElementType::Header1) ? 32 : 24)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
 			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
 
@@ -352,6 +340,8 @@ void NoteViewer::NewDividorOnNewLines(NoteElement* base)
 
 	std::string str = textBox->string;
 
+	// We add a dividor if there is three - 
+	// or you can use /div
 	size_t pos = str.find("---");
 
 
@@ -414,6 +404,9 @@ void NoteViewer::Command(NoteElement* base)
 
 						textBox->string.erase(pos, cmd.size() + 2);
 
+						if (textBox->string.size() == 0)
+							RemoveElement(base);
+
 						// Take focus if the new element was a text based one
 						if (type == NoteElementType::Paragraph || type == NoteElementType::Header1
 							|| type == NoteElementType::Header2)
@@ -449,4 +442,42 @@ void NoteViewer::OnEdit(NoteElement* base)
 	NewParagraphOnNewlines(base);
 	NewDividorOnNewLines(base);
 	Command(base);
+}
+
+void NoteViewer::RemoveElement(NoteElement* element)
+{
+	// TODO: Move this to the file
+
+	NoteElement* parent = FindParent(element);
+
+	printf("Attempting remove element\n");
+
+	// TODO: Actually delete the widget
+	// Memory wise its all handled correctly on close. We just hide it until then. 
+	gui::Widget* widget = (gui::Widget*)element->userData;
+	widget->SetVisible(false);
+
+	if (element->next)
+	{
+		parent->next = element->next;
+	}
+	else
+	{
+		parent->next = nullptr;
+	}
+}
+
+NoteElement* NoteViewer::FindParent(NoteElement* element)
+{
+	NoteElement* el = m_NoteFile.Start();
+
+	while (el != nullptr)
+	{
+		if (el->next == element)
+			break;
+
+		el = el->next;
+	}
+
+	return el;
 }

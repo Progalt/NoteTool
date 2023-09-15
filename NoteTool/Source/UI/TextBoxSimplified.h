@@ -23,6 +23,8 @@ namespace gui
 				formattedString = string;
 			}
 
+			drawList.SetScissor(m_Parent->GetBounds());
+
 			Colour col = { 1.0f, 1.0f, 1.0f, 1.0f };
 			std::string str = m_Format ? formattedString : string;
 			bool dim = false;

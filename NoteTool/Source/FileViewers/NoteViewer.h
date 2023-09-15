@@ -4,7 +4,7 @@
 #include "NoteFile.h"
 
 static const std::vector<std::pair<std::string, NoteElementType>> Commands = {
-	{ "dividor", NoteElementType::Dividor },
+	{ "div", NoteElementType::Dividor },
 	{ "paragraph", NoteElementType::Paragraph },
 	{ "h1", NoteElementType::Header1 },
 	{ "h2", NoteElementType::Header2 }
@@ -38,7 +38,7 @@ public:
 
 private:
 
-	float m_Margin = 48.0f;
+	float m_Margin = 64.0f;
 
 	NoteFile m_NoteFile;
 
@@ -56,4 +56,8 @@ private:
 	void Command(NoteElement* base);
 
 	void OnEdit(NoteElement* base);
+
+	void RemoveElement(NoteElement* element);
+
+	NoteElement* FindParent(NoteElement* element);
 };

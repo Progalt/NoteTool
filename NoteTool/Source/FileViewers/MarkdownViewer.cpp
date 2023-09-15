@@ -98,3 +98,4 @@ void MarkdownViewer::Save()
 
 	m_SavedCircle->SetVisible(false);
 }
+
