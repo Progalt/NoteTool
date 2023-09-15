@@ -7,7 +7,8 @@ static const std::vector<std::pair<std::string, NoteElementType>> Commands = {
 	{ "div", NoteElementType::Dividor },
 	{ "paragraph", NoteElementType::Paragraph },
 	{ "h1", NoteElementType::Header1 },
-	{ "h2", NoteElementType::Header2 }
+	{ "h2", NoteElementType::Header2 },
+	{ "bullet", NoteElementType::BulletPoint }
 };
 
 class NoteViewer : public FileViewer
@@ -60,4 +61,7 @@ private:
 	void RemoveElement(NoteElement* element);
 
 	NoteElement* FindParent(NoteElement* element);
+
+	void DeleteOnBackspace(NoteElement* element);
+	void EnterDuplicateElement(NoteElement* element);
 };

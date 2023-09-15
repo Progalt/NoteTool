@@ -23,5 +23,8 @@ namespace gui
 	int EventHandler::cursorOffset = 0;
 	std::string* EventHandler::textInput = nullptr;
 
+	bool EventHandler::backspace = false;
+	bool EventHandler::enter = false;
+
 	EventHandler::MouseButton EventHandler::mouseButton[MOUSE_BUTTON_COUNT];
 }

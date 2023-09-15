@@ -25,6 +25,36 @@ namespace gui
 		return output;
 	}
 
+	inline Shape GenerateCircle(Vector2f pos, float radius, Colour col)
+	{
+		Shape output;
+
+		output.vertices.push_back({ { pos.x, pos.y }, {},  col });
+
+		uint32_t detail = 32;
+
+		for (uint32_t i = 0; i < detail; i++)
+		{
+			float angle = i * ((M_PI * 2.0) / static_cast<float>(detail));
+
+			float s = sin(angle) * radius;
+			float c = cos(angle) * radius;
+
+			output.vertices.push_back({ { pos.x + (float)s, pos.y + (float)c }, {},  col });
+		}
+
+		for (uint32_t i = 1; i < detail + 1; i++)
+		{
+			output.indices.push_back(0);
+			output.indices.push_back(i);
+			output.indices.push_back(i + 1);
+		}
+
+		output.indices[output.indices.size() - 1] = 1;
+
+		return output;
+	}
+
 	// 0 up and 2 down
 	inline Shape GenerateAlignedEqualTri(Vector2f min, Vector2f max, Colour col, int dir)
 	{

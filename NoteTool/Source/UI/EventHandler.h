@@ -38,6 +38,9 @@ namespace gui
 		static std::string* textInput;
 		static int cursorOffset;
 
+		static bool backspace;
+		static bool enter;
+
 		struct MouseButton
 		{
 			unsigned char clicks = 0;

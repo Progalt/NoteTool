@@ -66,6 +66,26 @@ void NoteViewer::ReformatGUI()
 			element->bounds = { m_Margin, yOffset - 4.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, 8.0f };
 		}
 		break;
+		case NoteElementType::BulletPoint:
+		{
+			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)element->userData;
+
+			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+			text->SetFontManager(m_FontManager);
+			text->SetBounds({ m_Margin + 32.0f, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+
+			float padding = elementEndPadding;
+			if (element->next)
+				if (element->next->type == NoteElementType::BulletPoint)
+					padding = 4.0f;
+
+			yOffset += text->GetTextBoxHeight() + padding;
+
+			element->bounds = text->GetBounds();
+
+			element->userData = text;
+		}
+		break;
 		}
 
 		element = element->next;
@@ -93,13 +113,15 @@ void NoteViewer::InitialiseGUIElements()
 		switch (element->type)
 		{
 		case NoteElementType::Header1:
+		case NoteElementType::Header2:
 		{
 			gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
 
-			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 32)->GetMaxHeight();
+			int fontPointSize = (element->type == NoteElementType::Header1) ? 32 : 24;
+			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, fontPointSize)->GetMaxHeight();
 			text->SetFontManager(m_FontManager);
 			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
-			text->SetFontSize(32, gui::FontWeight::Bold);
+			text->SetFontSize(fontPointSize, gui::FontWeight::Bold);
 			text->string = element->header.text;
 
 			text->SetOnEditCallback([&](void* userData) {
@@ -113,30 +135,6 @@ void NoteViewer::InitialiseGUIElements()
 
 			yOffset += text->GetBounds().h + elementEndPadding;
 			
-			element->userData = text;
-		}
-			break;
-		case NoteElementType::Header2:
-		{
-			gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
-
-			float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 24)->GetMaxHeight();
-			text->SetFontManager(m_FontManager);
-			text->SetBounds({ m_Margin, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
-			text->SetFontSize(24, gui::FontWeight::Bold);
-			text->string = element->header.text;
-
-			text->SetOnEditCallback([&](void* userData) {
-
-				NoteElement* baseElement = (NoteElement*)userData;
-
-				OnEdit(baseElement);
-
-				ReformatGUI();
-				}, element);
-
-			yOffset += text->GetBounds().h + elementEndPadding;
-
 			element->userData = text;
 		}
 			break;
@@ -177,6 +175,41 @@ void NoteViewer::InitialiseGUIElements()
 			yOffset += 2.0f + elementEndPadding;
 		}
 			break;
+		case NoteElementType::BulletPoint:
+		{
+			gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+
+			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+			text->SetFontManager(m_FontManager);
+			text->SetBounds({ m_Margin + 32.0f, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+			text->SetFontSize(16, gui::FontWeight::Light);
+			text->string = element->paragraph.text;
+
+			text->SetOnEditCallback([&](void* userData) {
+
+				NoteElement* baseElement = (NoteElement*)userData;
+
+				OnEdit(baseElement);
+				EnterDuplicateElement(baseElement);
+
+				ReformatGUI();
+				}, element);
+
+			gui::ShapeWidget* circle = text->NewChild<gui::ShapeWidget>();
+			circle->SetColour({ 1.0f, 1.0f, 1.0f, 1.0f });
+			circle->SetPosition({ -16.0f, fontSize / 2.0f + 2.0f });
+			circle->SetAsCircle(2.5f);
+
+			float padding = elementEndPadding;
+			if (element->next)
+				if (element->next->type == NoteElementType::BulletPoint)
+					padding = 4.0f;
+
+			yOffset += text->GetBounds().h + padding;
+
+			element->userData = text;
+		}
+			break;
 		}
 
 
@@ -201,6 +234,7 @@ void NoteViewer::Save()
 			element->header.text = ((gui::TextBoxSimplified*)element->userData)->string;
 			break;
 		case NoteElementType::Paragraph:
+		case NoteElementType::BulletPoint:
 			element->paragraph.text = ((gui::TextBoxSimplified*)element->userData)->string;
 			break;
 		};
@@ -257,13 +291,15 @@ NoteElement* NoteViewer::InsertNewElement(NoteElement* parent, NoteElementType t
 	}
 		break;
 	case NoteElementType::Header1:
+	case NoteElementType::Header2:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
 
-		float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 32)->GetMaxHeight();
+		int fontPointSize = (newElement->type == NoteElementType::Header1) ? 32 : 24;
+		float fontSize = m_FontManager->Get(gui::FontWeight::Bold, fontPointSize)->GetMaxHeight();
 		text->SetFontManager(m_FontManager);
 		text->SetBounds({ m_Margin, 10.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
-		text->SetFontSize(32, gui::FontWeight::Bold);
+		text->SetFontSize(fontPointSize, gui::FontWeight::Bold);
 		text->string = newElement->header.text;
 
 		text->SetOnEditCallback([&](void* userData) {
@@ -279,26 +315,31 @@ NoteElement* NoteViewer::InsertNewElement(NoteElement* parent, NoteElementType t
 
 		newElement->userData = text;
 	}
-		break;
-	case NoteElementType::Header2:
+	break;
+	case NoteElementType::BulletPoint:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
 
-		float fontSize = m_FontManager->Get(gui::FontWeight::Bold, 24)->GetMaxHeight();
+		float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
 		text->SetFontManager(m_FontManager);
-		text->SetBounds({ m_Margin, 10.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
-		text->SetFontSize(24, gui::FontWeight::Bold);
-		text->string = newElement->header.text;
+		text->SetBounds({ m_Margin + 32.0f, 10.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+		text->SetFontSize(16, gui::FontWeight::Light);
+		text->string = newElement->paragraph.text;
 
 		text->SetOnEditCallback([&](void* userData) {
 
 			NoteElement* baseElement = (NoteElement*)userData;
 
 			OnEdit(baseElement);
+			EnterDuplicateElement(baseElement);
 
 			ReformatGUI();
 			}, newElement);
 
+		gui::ShapeWidget* circle = text->NewChild<gui::ShapeWidget>();
+		circle->SetColour({ 1.0f, 1.0f, 1.0f, 1.0f });
+		circle->SetPosition({ -16.0f, fontSize / 2.0f + 2.0f });
+		circle->SetAsCircle(2.5f);
 
 
 		newElement->userData = text;
@@ -409,7 +450,7 @@ void NoteViewer::Command(NoteElement* base)
 
 						// Take focus if the new element was a text based one
 						if (type == NoteElementType::Paragraph || type == NoteElementType::Header1
-							|| type == NoteElementType::Header2)
+							|| type == NoteElementType::Header2 || type == NoteElementType::BulletPoint)
 						{
 							textBox->RemoveFocus();
 
@@ -420,7 +461,7 @@ void NoteViewer::Command(NoteElement* base)
 
 
 
-						if (type == NoteElementType::Dividor)
+						if (type == NoteElementType::Dividor && insertParagraph)
 						{
 							NoteElement* afterPara = InsertNewElement(newElement, NoteElementType::Paragraph);
 
@@ -480,4 +521,54 @@ NoteElement* NoteViewer::FindParent(NoteElement* element)
 	}
 
 	return el;
+}
+
+void NoteViewer::DeleteOnBackspace(NoteElement* element)
+{
+	gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)element->userData;
+
+	std::string str = textBox->string;
+
+	if (str.size() == 0 && gui::EventHandler::backspace)
+	{
+		RemoveElement(element);
+	}
+}
+
+void NoteViewer::EnterDuplicateElement(NoteElement* element)
+{
+	gui::TextBoxSimplified* textBox = (gui::TextBoxSimplified*)element->userData;
+
+
+	if (textBox->string.size() > 1 && gui::EventHandler::enter)
+	{
+		size_t pos = textBox->string.find_last_of("\n");
+
+		if (pos != std::string::npos && pos > textBox->string.size() - 2)
+		{
+			textBox->string.erase(pos);
+
+			NoteElement* afterPara = InsertNewElement(element, element->type);
+
+			textBox->RemoveFocus();
+
+			gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)afterPara->userData;
+
+			newTextBox->TakeFocus();
+		}
+	}
+	else if (gui::EventHandler::enter)
+	{
+		
+		NoteElement* afterPara = InsertNewElement(element, NoteElementType::Paragraph);
+
+		textBox->RemoveFocus();
+
+		gui::TextBoxSimplified* newTextBox = (gui::TextBoxSimplified*)afterPara->userData;
+
+		newTextBox->TakeFocus();
+
+		RemoveElement(element);
+
+	}
 }

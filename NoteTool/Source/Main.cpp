@@ -468,6 +468,8 @@ int main(int argc, char* argv)
 
 		gui::EventHandler::resizeEvent = false;
 		gui::EventHandler::verticalScroll = 0;
+		gui::EventHandler::backspace = false;
+		gui::EventHandler::enter = false;
 
 		SDL_StartTextInput();
 
@@ -572,6 +574,10 @@ int main(int argc, char* argv)
 
 				if (gui::EventHandler::textInput)
 				{
+					if (evnt.key.keysym.sym == SDLK_BACKSPACE)
+					{
+						gui::EventHandler::backspace = true;
+					}
 					if (evnt.key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
 					{
 						/*if (gui::EventHandler::selecting)
@@ -593,7 +599,7 @@ int main(int argc, char* argv)
 					if (evnt.key.keysym.sym == SDLK_RETURN)
 					{
 						textedit::Insert("\n");
-
+						gui::EventHandler::enter = true;
 					}
 
 					if (evnt.key.keysym.sym == SDLK_TAB)

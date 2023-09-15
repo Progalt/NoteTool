@@ -15,6 +15,10 @@ namespace gui
 			switch (m_Type)
 			{
 			case Type::Circle:
+
+				shape = gui::GenerateCircle(position, circle.radius, m_Colour);
+
+
 				break;
 			case Type::Rectangle:
 
@@ -29,6 +33,7 @@ namespace gui
 		void SetAsCircle(float radius)
 		{
 			m_Type = Type::Circle;
+			circle.radius = radius;
 		}
 
 		void SetAsRectangle(Vector2f size)

@@ -9,7 +9,8 @@ enum class NoteElementType
 	Header1, 
 	Header2,
 	Paragraph,
-	Dividor
+	Dividor,
+	BulletPoint
 };
 
 // Note Elements
