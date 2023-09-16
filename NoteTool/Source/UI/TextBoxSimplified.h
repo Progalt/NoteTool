@@ -16,6 +16,8 @@ namespace gui
 			if (!m_Visible || m_GlobalBounds.w <= 0.0f || m_GlobalBounds.h <= 0.0f)
 				return;
 
+			GenerateChildVertexLists(drawList);
+
 			float cursorMod = 2.0f;
 
 			if (m_Format)
@@ -23,7 +25,8 @@ namespace gui
 				formattedString = string;
 			}
 
-			drawList.SetScissor(m_Parent->GetBounds());
+			if (!m_IgnoreScissor)
+				drawList.SetScissor(m_Parent->GetBounds());
 
 			Colour col = { 1.0f, 1.0f, 1.0f, 1.0f };
 			std::string str = m_Format ? formattedString : string;
@@ -124,7 +127,7 @@ namespace gui
 				//m_Bounds.h = gui::GetTextBoxSizeFormatted(string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, {}, m_Bounds.w, {}, {}, 0.0f, m_Formats).y;
 			}
 
-			GenerateChildVertexLists(drawList);
+			// GenerateChildVertexLists(drawList);
 
 		}
 
@@ -292,8 +295,14 @@ namespace gui
 			gui::EventHandler::cursorOffset = 0;
 		}
 
+		void SetIgnoreScissor(bool scissor)
+		{
+			m_IgnoreScissor = scissor;
+		}
 
 	private:
+
+		bool m_IgnoreScissor = false;
 
 		std::function<void(void*)> m_OnEdit;
 		void* m_OnEditUserData;

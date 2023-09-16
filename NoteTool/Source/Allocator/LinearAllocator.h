@@ -43,7 +43,7 @@ public:
 
 private:
 
-	const uint32_t m_BlockSize = 16;
+	const uint32_t m_BlockSize = 32;
 
 	struct Block
 	{

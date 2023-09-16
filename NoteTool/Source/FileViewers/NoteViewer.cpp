@@ -86,6 +86,21 @@ void NoteViewer::ReformatGUI()
 			element->userData = text;
 		}
 		break;
+		case NoteElementType::Quote:
+		{
+			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)element->userData;
+
+			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+			yOffset += fontSize * 2.0f;
+			text->SetFontManager(m_FontManager);
+			text->SetBounds({ m_Margin + 32.0f, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+
+			
+
+			yOffset += text->GetBounds().h + 48.0f;
+
+		}
+		break;
 		}
 
 		element = element->next;
@@ -210,6 +225,58 @@ void NoteViewer::InitialiseGUIElements()
 			element->userData = text;
 		}
 			break;
+		case NoteElementType::Quote:
+		{
+			gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+
+		
+
+			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+
+			yOffset += fontSize * 2.0f;
+			text->SetFontManager(m_FontManager);
+			text->SetBounds({ m_Margin + 32.0f, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+			text->SetFontSize(16, gui::FontWeight::Light);
+			text->string = element->quote.text;
+
+			text->SetOnEditCallback([&](void* userData) {
+
+				NoteElement* baseElement = (NoteElement*)userData;
+
+				OnEdit(baseElement);
+
+				ReformatGUI();
+
+				gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)baseElement->userData;
+
+				gui::ShapeWidget* shape = text->GetChild<gui::ShapeWidget>(0);
+				float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+
+				shape->SetAsRoundedRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, text->GetTextBoxHeight() + fontSize * 3.0f }, 8.0f);
+
+				}, element);
+
+		
+
+			gui::ShapeWidget* square = text->NewChild<gui::ShapeWidget>();
+			square->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+			square->SetPosition({ -32.0f, -fontSize * 2.0f });
+			square->SetAsRoundedRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, text->GetTextBoxHeight() + fontSize * 2.75f }, 8.0f);
+
+			fontSize = m_FontManager->Get(gui::FontWeight::Bold, 16)->GetMaxHeight();
+
+			gui::TextBoxSimplified* title = text->NewChild<gui::TextBoxSimplified>();
+			title->SetFontManager(m_FontManager);
+			title->SetBounds({ 0.0f, -fontSize * 1.25f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+			title->SetFontSize(16, gui::FontWeight::BoldItalic);
+			title->string = element->quote.title;
+			title->SetIgnoreScissor(true);
+
+			yOffset += text->GetBounds().h + fontSize * 2.0f + elementEndPadding;
+
+			element->userData = text;
+		}
+			break;
 		}
 
 
@@ -236,6 +303,10 @@ void NoteViewer::Save()
 		case NoteElementType::Paragraph:
 		case NoteElementType::BulletPoint:
 			element->paragraph.text = ((gui::TextBoxSimplified*)element->userData)->string;
+			break;
+		case NoteElementType::Quote:
+			element->quote.title = ((gui::TextBoxSimplified*)element->userData)->GetChild<gui::TextBoxSimplified>(1)->string;
+			element->quote.text = ((gui::TextBoxSimplified*)element->userData)->string;
 			break;
 		};
 
@@ -345,6 +416,53 @@ NoteElement* NoteViewer::InsertNewElement(NoteElement* parent, NoteElementType t
 		newElement->userData = text;
 	}
 	break;
+	case NoteElementType::Quote:
+	{
+		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+
+
+
+		float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+
+		
+		text->SetFontManager(m_FontManager);
+		text->SetBounds({ m_Margin + 32.0f, 10.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+		text->SetFontSize(16, gui::FontWeight::Light);
+		text->string = newElement->quote.text;
+
+		text->SetOnEditCallback([&](void* userData) {
+
+			NoteElement* baseElement = (NoteElement*)userData;
+
+			OnEdit(baseElement);
+
+			ReformatGUI();
+
+			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)baseElement->userData;
+
+			gui::ShapeWidget* shape = text->GetChild<gui::ShapeWidget>(0);
+			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+
+			shape->SetAsRoundedRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, text->GetTextBoxHeight() + fontSize * 3.0f }, 8.0f);
+
+			}, newElement);
+
+
+		gui::ShapeWidget* square = text->NewChild<gui::ShapeWidget>();
+		square->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+		square->SetPosition({ -32.0f, -fontSize * 2.0f });
+		square->SetAsRoundedRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, text->GetTextBoxHeight() + fontSize * 2.75f }, 8.0f);
+
+		gui::TextBoxSimplified* title = text->NewChild<gui::TextBoxSimplified>();
+		title->SetFontManager(m_FontManager);
+		title->SetBounds({ 0.0f, -fontSize * 1.25f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+		title->SetFontSize(16, gui::FontWeight::BoldItalic);
+		title->string = "Note";
+		title->SetIgnoreScissor(true);
+
+		newElement->userData = text;
+	}
+	break;
 	}
 
 	return newElement;
@@ -450,7 +568,8 @@ void NoteViewer::Command(NoteElement* base)
 
 						// Take focus if the new element was a text bas ed one
 						if (type == NoteElementType::Paragraph || type == NoteElementType::Header1
-							|| type == NoteElementType::Header2 || type == NoteElementType::BulletPoint)
+							|| type == NoteElementType::Header2 || type == NoteElementType::BulletPoint ||
+							type == NoteElementType::Quote)
 						{
 							textBox->RemoveFocus();
 

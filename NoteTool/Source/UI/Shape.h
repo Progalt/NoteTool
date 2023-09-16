@@ -25,6 +25,11 @@ namespace gui
 				shape = gui::GenerateQuad(position, position + rectangle.size, {}, {}, m_Colour);
 
 				break;
+			case Type::RoundedRectangle:
+
+				shape = gui::GenerateRoundedQuad(position, position + rectangle.size, m_Colour, rectangle.rounding);
+
+				break;
 			}
 
 			drawList.Add(shape.vertices, shape.indices);
@@ -42,13 +47,21 @@ namespace gui
 			rectangle.size = size;
 		}
 
+		void SetAsRoundedRectangle(Vector2f size, float rounding)
+		{
+			m_Type = Type::RoundedRectangle;
+			rectangle.size = size;
+			rectangle.rounding = rounding;
+		}
+
 	private:
 
 		enum class Type
 		{
 			None,
 			Circle,
-			Rectangle
+			Rectangle,
+			RoundedRectangle
 		};
 
 		Type m_Type = Type::None;
@@ -62,6 +75,7 @@ namespace gui
 		struct
 		{
 			Vector2f size;
+			float rounding;
 		} rectangle;
 
 

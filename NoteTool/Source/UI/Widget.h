@@ -142,6 +142,12 @@ namespace gui
 
 		virtual void OnEvent() { }
 
+		template<typename _Ty>
+		_Ty* GetChild(uint32_t idx)
+		{
+			return dynamic_cast<_Ty*>(m_Children[idx]);
+		}
+
 		void RemoveChildren(uint32_t first = 0)
 		{
 			for (uint32_t i = first; i < m_Children.size(); i++)

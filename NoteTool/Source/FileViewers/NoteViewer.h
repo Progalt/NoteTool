@@ -8,7 +8,8 @@ static const std::vector<std::pair<std::string, NoteElementType>> Commands = {
 	{ "paragraph", NoteElementType::Paragraph },
 	{ "h1", NoteElementType::Header1 },
 	{ "h2", NoteElementType::Header2 },
-	{ "bullet", NoteElementType::BulletPoint }
+	{ "bullet", NoteElementType::BulletPoint },
+	{ "quote", NoteElementType::Quote } 
 };
 
 class NoteViewer : public FileViewer

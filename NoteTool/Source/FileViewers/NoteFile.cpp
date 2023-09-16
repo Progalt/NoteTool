@@ -87,6 +87,12 @@ void NoteFile::LoadFromJSON(const std::filesystem::path& path)
 			current->type = NoteElementType::BulletPoint;
 			current->paragraph.text = element["text"];
 		}
+		else if (type == "quote")
+		{
+			current->type = NoteElementType::Quote;
+			current->quote.text = element["text"];
+			current->quote.title = element["title"];
+		}
 
 		last = current;
 	}
@@ -145,6 +151,13 @@ void NoteFile::WriteToJSON(const std::filesystem::path& path)
 			elements[idx] = {
 				{ "type", "bulletPoint"},
 				{ "text", element->paragraph.text }
+			};
+			break;
+		case NoteElementType::Quote:
+			elements[idx] = {
+				{ "type", "quote"},
+				{ "text", element->quote.text },
+				{ "title", element->quote.title }
 			};
 			break;
 		}

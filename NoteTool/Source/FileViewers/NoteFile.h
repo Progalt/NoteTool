@@ -10,7 +10,8 @@ enum class NoteElementType
 	Header2,
 	Paragraph,
 	Dividor,
-	BulletPoint
+	BulletPoint,
+	Quote
 };
 
 // Note Elements
@@ -26,6 +27,12 @@ struct Paragraph
 	std::string text;
 };
 
+struct Quote
+{
+	std::string title;
+	std::string text;
+};
+
 struct NoteElement
 {
 	NoteElementType type;
@@ -35,6 +42,7 @@ struct NoteElement
 
 	Header header;
 	Paragraph paragraph;
+	Quote quote;
 
 	NoteElement* next = nullptr;
 
