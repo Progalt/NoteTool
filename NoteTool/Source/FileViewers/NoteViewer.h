@@ -65,4 +65,6 @@ private:
 
 	void DeleteOnBackspace(NoteElement* element);
 	void EnterDuplicateElement(NoteElement* element);
+
+	void InitialiseGUIElement(NoteElement* element);
 };
