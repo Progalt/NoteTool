@@ -421,9 +421,12 @@ private:
 	{
 		FileViewer* v = nullptr;
 
-		for (auto& viewer : m_Viewers)
-			if (*viewer->GetFile() == *file)
-				v = viewer;
+		for (auto& tab : m_Tabs)
+			if (tab->currentFileView)
+			{
+				if (*tab->currentFileView->GetFile() == *file)
+					v = tab->currentFileView;
+			}
 
 		return v;
 
@@ -452,8 +455,16 @@ private:
 				return;
 
 			
+			
+
 			if (m_ActiveTab->currentFileView)
 			{
+				//if (m_ActiveTab->currentFileView->GetFile() == file)
+				//{
+				//	m_ActiveTab->panel->SetCurrentScrollDistance(0.0f);
+				//	return;
+				//}
+
 				OS::GetInstance().DebugPrint("Destroying tab\n");
 				
 				m_ActiveTab->currentFileView->Hide();
@@ -464,7 +475,7 @@ private:
 
 			bool found = false;
 
-			FileViewer* viewer = GetViewer(file);
+			//FileViewer* viewer = GetViewer(file);
 
 	
 		/*	if (viewer != nullptr)
