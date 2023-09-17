@@ -127,7 +127,13 @@ void NoteViewer::ReformatGUI()
 	}
 
 	m_Panel->SetScrollable(true);
-	m_Panel->SetScrollableArea(Vector2f(0.0f, yOffset));
+
+	float scrollOffset = 0.0f;
+	if (m_Panel->GetBounds().h < yOffset)
+	{
+		scrollOffset = yOffset - m_Panel->GetBounds().h + 64.0f;
+	}
+	m_Panel->SetScrollableArea(Vector2f(0.0f, scrollOffset));
 	m_Panel->SetDrawVerticalScrollBar(true);
 }
 
