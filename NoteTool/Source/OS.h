@@ -66,6 +66,11 @@ public:
 #endif
 	}
 
+	void SetClipboardContents(const std::string& str)
+	{
+		SDL_SetClipboardText(str.c_str());
+	}
+
 private:
 	OS() { }
 

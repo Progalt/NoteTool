@@ -3,6 +3,7 @@
 #include "Widget.h"
 #include "../Font.h"
 #include "Utility.h"
+#include "Button.h"
 
 namespace gui
 {
@@ -84,7 +85,7 @@ namespace gui
 
 			float lineSpacing = (float)m_Font->GetLineSpacing();
 			Vector2i position;
-			position.y = m_GlobalBounds.y + lineSpacing;
+			position.y = m_GlobalBounds.y + lineSpacing - 2.0f;
 			float textLength = gui::GetTextLength(text, m_Font);
 
 			Colour textCol = { 1.0f, 1.0f, 1.0f, 1.0f };

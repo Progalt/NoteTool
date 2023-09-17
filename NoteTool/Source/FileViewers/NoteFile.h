@@ -12,7 +12,8 @@ enum class NoteElementType
 	Dividor,
 	BulletPoint,
 	Quote,
-	CodeBlock
+	CodeBlock,
+
 };
 
 // Note Elements

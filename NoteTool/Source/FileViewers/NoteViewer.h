@@ -87,4 +87,8 @@ private:
 	void EnterDuplicateElement(NoteElement* element);
 
 	void InitialiseGUIElement(NoteElement* element);
+
+	uint32_t m_BaseTextSize = 16;
+	uint32_t m_SubheaderSize = 24;
+	uint32_t m_HeaderSize = 32;
 };

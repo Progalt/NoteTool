@@ -6,7 +6,7 @@
 #include "../Maths/Rect.h"
 #include "EventHandler.h"
 #include "../OS.h"
-
+#include <functional>
 
 namespace gui
 {
@@ -206,8 +206,31 @@ namespace gui
 			}
 			else */
 
+			
+
 			if (m_Visible)
+			{
+				if (m_GlobalBounds.Contains((float)gui::EventHandler::x, (float)gui::EventHandler::y))
+				{
+					// gained hover
+					if (m_OnHover && !m_HasHover)
+					{
+						m_OnHover(m_UserData, true);
+						m_HasHover = true;
+					}
+				}
+				else
+				{
+					if (m_HasHover)
+					{
+						// Lost hover
+						m_OnHover(m_UserData, false);
+						m_HasHover = false;
+					}
+				}
+
 				OnEvent();
+			}
 
 			std::vector<gui::Widget*> currentChildren = m_Children;
 
@@ -432,6 +455,18 @@ namespace gui
 
 		}
 
+		void AddOnHoverCallback(std::function<void(void*, bool)> callback, void* userData)
+		{
+			m_OnHover = callback;
+			m_UserData = userData;
+		}
+
+
+	private:
+
+		std::function<void(void*, bool)> m_OnHover;
+		bool m_HasHover = false;
+		void* m_UserData;
 
 	protected:
 

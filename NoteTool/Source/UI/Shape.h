@@ -21,16 +21,22 @@ namespace gui
 
 				shape = gui::GenerateCircle(position, circle.radius, m_Colour);
 
+				m_GlobalBounds.size = rectangle.size;
+
 
 				break;
 			case Type::Rectangle:
 
 				shape = gui::GenerateQuad(position, position + rectangle.size, {}, {}, m_Colour);
 
+				m_GlobalBounds.size = rectangle.size;
+
 				break;
 			case Type::RoundedRectangle:
 
 				shape = gui::GenerateRoundedQuad(position, position + rectangle.size, m_Colour, rectangle.rounding);
+
+				m_GlobalBounds.size = rectangle.size;
 
 				break;
 			}
@@ -48,6 +54,7 @@ namespace gui
 		{
 			m_Type = Type::Rectangle;
 			rectangle.size = size;
+			m_GlobalBounds.size = rectangle.size;
 		}
 
 		void SetAsRoundedRectangle(Vector2f size, float rounding)
@@ -55,6 +62,7 @@ namespace gui
 			m_Type = Type::RoundedRectangle;
 			rectangle.size = size;
 			rectangle.rounding = rounding;
+			m_GlobalBounds.size = rectangle.size;
 		}
 
 	private:

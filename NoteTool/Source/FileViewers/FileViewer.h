@@ -6,12 +6,15 @@
 #include "../UI/TextBox.h"
 #include "../UI/Text.h"
 #include "../Theme.h"
+#include "../UI/Shape.h"
 
 class WorkspaceUI;
 
 class FileViewer
 {
 public:
+
+	void ShowExtension(bool ext) { m_ShowExtension = ext; }
 
 	void SetFile(File* file) { m_File = file; LoadFileContents(); InitialiseGUIElements(); }
 
@@ -36,6 +39,9 @@ public:
 
 protected:
 
+	
+
+
 	virtual void LoadFileContents() = 0;
 
 	virtual void InitialiseGUIElements() = 0;
@@ -53,8 +59,10 @@ protected:
 
 	gui::TextBox* m_Title;
 	gui::Text* m_FileExt;
-	gui::Panel* m_SavedCircle;
+	gui::ShapeWidget* m_SavedCircle;
 
 	bool m_Saved = true;
+	bool m_ShowExtension = true;
 
+	float m_TitlePadding = 30.0f;
 };

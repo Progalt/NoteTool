@@ -325,7 +325,7 @@ namespace gui
 		FontManager* m_CodeFontManager;
 		Font* m_Font;
 		uint32_t m_FontSize;
-		FontWeight m_DefaultWeight = FontWeight::ExtraLight;
+		FontWeight m_DefaultWeight = FontWeight::Light;
 		bool m_Editing = false;
 
 		float m_CursorTime = 0.0f;

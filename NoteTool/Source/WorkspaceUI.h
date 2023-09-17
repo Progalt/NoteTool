@@ -532,6 +532,7 @@ private:
 				{
 					NoteViewer* viewer = new NoteViewer;
 					viewer->theme = m_Theme;
+					viewer->ShowExtension(false);
 					viewer->SetFontManager(m_FontManager);
 					viewer->SetParentPanel(m_ActiveTab->panel);
 					viewer->SetCodeFontManager(m_CodeFontManager);
