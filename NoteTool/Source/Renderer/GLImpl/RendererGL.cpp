@@ -3,9 +3,10 @@
 #include <glad/glad.h>
 #include <cassert>
 #include "../../Platform.h"
+#include "../../OS.h"
 
 
-#define glCheck(func) func; if (GL_NO_ERROR != glGetError()) printf("GL Error: %d, %s\n", __LINE__, __FILE__);
+#define glCheck(func) func; if (GL_NO_ERROR != glGetError()) OS::GetInstance().DebugPrint("GL Error: %d, %s\n", __LINE__, __FILE__);
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -25,7 +26,7 @@ void RendererGL::Initialise(SDL_Window* win)
 {
 	if (!gladLoadGL())
 	{
-		printf("Failed to initialise GLAD\n");
+		OS::GetInstance().DebugPrint("Failed to initialise GLAD\n");
 	}
 
 

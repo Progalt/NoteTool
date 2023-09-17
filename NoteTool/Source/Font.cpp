@@ -31,13 +31,13 @@ void Font::SetFont(const std::string& path, uint32_t pixelSize, bool aa)
 {
 	if (FT_New_Face(m_FT, path.c_str(), 0, &m_Face) != 0)
 	{
-		printf("Failed to load font\n");
+		OS::GetInstance().DebugPrint("Failed to load font\n");
 		return;
 	}
 
 	if (FT_Set_Pixel_Sizes(m_Face, 0, pixelSize) != 0)
 	{
-		printf("Failed to set font size\n");
+		OS::GetInstance().DebugPrint("Failed to set font size\n");
 		return;
 	}
 
@@ -58,14 +58,14 @@ void Font::RasterizeGlyph(const uint32_t codepoint, Image* img, uint32_t x, uint
 	uint32_t index = FT_Get_Char_Index(m_Face, codepoint);
 	if (FT_Load_Glyph(m_Face, index, FT_LOAD_RENDER | m_Flags) != 0)
 	{
-		printf("Failed to load char\n");
+		OS::GetInstance().DebugPrint("Failed to load char\n");
 	}
 
 
 	if (x + m_Face->glyph->bitmap.width > img->GetWidth() ||
 		y + m_Face->glyph->bitmap.rows > img->GetHeight())
 	{
-		printf("Glyph too big to fit in image at location\n");
+		OS::GetInstance().DebugPrint("Glyph too big to fit in image at location\n");
 		return;
 	}
 
@@ -94,7 +94,7 @@ Image Font::RasterizeGlyph(const uint32_t codepoint)
 	uint32_t index = FT_Get_Char_Index(m_Face, codepoint);
 	if (FT_Load_Glyph(m_Face, index, FT_LOAD_NO_BITMAP | m_Flags) != 0)
 	{
-		printf("Failed to load char\n");
+		OS::GetInstance().DebugPrint("Failed to load char\n");
 	}
 
 	img.New(m_Face->glyph->bitmap.width, m_Face->glyph->bitmap.rows, 4);
@@ -175,7 +175,7 @@ void Font::LoadGlyphData(const uint32_t codepoint)
 	uint32_t index = FT_Get_Char_Index(m_Face, codepoint);
 	if (FT_Load_Glyph(m_Face, index, FT_LOAD_NO_BITMAP | m_Flags) != 0)
 	{
-		printf("Failed to load char\n");
+		OS::GetInstance().DebugPrint("Failed to load char\n");
 	}
 
 	Alphabet codepointAlphabet = GetAlphabetForCodepoint(codepoint);
@@ -220,7 +220,7 @@ void Font::PackGlyphs(Alphabet alphabet)
 		// If we go off the bottom edge of the image, then we've failed
 		if ((yPos + rect.h + m_PackingPadding) > m_Alphabets[alphabet].atlasHeight)
 		{
-			printf("Cannot pack anymore rects into image\n");
+			OS::GetInstance().DebugPrint("Cannot pack anymore rects into image\n");
 			break;
 		}
 

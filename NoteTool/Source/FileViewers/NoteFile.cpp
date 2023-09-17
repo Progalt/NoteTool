@@ -3,6 +3,7 @@
 #include "NoteFile.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include "../OS.h"
 
 using json = nlohmann::json;
 
@@ -14,7 +15,7 @@ void NoteFile::LoadFromJSON(const std::filesystem::path& path)
 
 	if (!file.is_open())
 	{
-		printf("Failed to open note for reading\n");
+		OS::GetInstance().DebugPrint("Failed to open note for reading\n");
 		return;
 	}
 
@@ -31,7 +32,7 @@ void NoteFile::LoadFromJSON(const std::filesystem::path& path)
 
 	if (!contains("version"))
 	{
-		printf("note does not contain version. Cannot parse\n");
+		OS::GetInstance().DebugPrint("note does not contain version. Cannot parse\n");
 		return;
 	}
 
@@ -42,7 +43,7 @@ void NoteFile::LoadFromJSON(const std::filesystem::path& path)
 	
 	if (!contains("elements"))
 	{
-		printf("Note contains no elements\n");
+		OS::GetInstance().DebugPrint("Note contains no elements\n");
 		return;
 	}
 
@@ -192,7 +193,7 @@ void NoteFile::Print()
 {
 	NoteElement* element = Start();
 
-	printf("Note File: %s\n", title.c_str());
+	OS::GetInstance().DebugPrint("Note File: %s\n", title.c_str());
 
 	while (element != nullptr)
 	{
@@ -216,7 +217,7 @@ void NoteFile::Print()
 			break;
 		}
 
-		printf("%s: %s\n", type.c_str(), text.c_str());
+		OS::GetInstance().DebugPrint("%s: %s\n", type.c_str(), text.c_str());
 		
 
 

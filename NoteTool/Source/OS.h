@@ -15,6 +15,66 @@
 
 #include <string>
 
+enum class CursorType
+{
+	Pointer,
+	Hand,
+	IBeam,
+
+	Count
+};
+
+class OS
+{
+public:
+
+	static OS& GetInstance()
+	{
+		static OS instance;
+
+		return instance;
+	}
+
+	OS(OS const&) = delete;
+	void operator=(OS const&) = delete;
+
+	void InitCursors()
+	{
+		m_Cursors[(int)CursorType::Pointer] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+		m_Cursors[(int)CursorType::Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+		m_Cursors[(int)CursorType::IBeam] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+	}
+
+	void DestroyCursors()
+	{
+		for (uint32_t i = 0; i < (uint32_t)CursorType::Count; i++)
+			SDL_FreeCursor(m_Cursors[i]);
+	}
+
+	void SetCursor(CursorType type)
+	{
+		SDL_SetCursor(m_Cursors[(int)type]);
+	}
+
+	template<typename ... Args>
+	void DebugPrint(const char* fmt, Args... args)
+	{
+#ifdef _DEBUG
+
+		printf(fmt, args...);
+
+#endif
+	}
+
+private:
+	OS() { }
+
+
+	SDL_Cursor* m_Cursors[(int)CursorType::Count];
+
+
+};
+
 // On some Operating systems dark mode can be toggled for the window
 // Toggle it if available
 inline void ToggleDarkModeForHwnd(SDL_Window* window)
@@ -41,7 +101,7 @@ inline void ToggleDarkModeForHwnd(SDL_Window* window)
 		&USE_DARK_MODE, sizeof(USE_DARK_MODE)));
 
 	if (!SET_IMMERSIVE_DARK_MODE_SUCCESS)
-		printf("Failed to set dark mode");
+		OS::GetInstance().DebugPrint("Failed to set dark mode");
 
 
 	// Hacky way to get it being drawn in dark mode without the window being redrawn due to input
@@ -73,7 +133,7 @@ inline std::filesystem::path GetDocumentsPath()
 	if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &pathTemp)))
 	{
 		CoTaskMemFree(pathTemp);
-		printf("Failed to find documents path for system\n");
+		OS::GetInstance().DebugPrint("Failed to find documents path for system\n");
 		return std::filesystem::path();
 	}
 	path = pathTemp;
@@ -135,7 +195,7 @@ inline bool CreateNewFile(const std::string in_path, const std::string ext)
 
 	path += ext;
 
-	printf("Trying to create file: %s\n", path.c_str());
+	OS::GetInstance().DebugPrint("Trying to create file: %s\n", path.c_str());
 
 	// std::filesystem doesn't have the ability to create a new file so we use std::ofstream 
 	// and write a blank file out
@@ -143,7 +203,7 @@ inline bool CreateNewFile(const std::string in_path, const std::string ext)
 	
 	if (!file.is_open())
 	{
-		printf("Failed to create file: %s\n", path.c_str());
+		OS::GetInstance().DebugPrint("Failed to create file: %s\n", path.c_str());
 		return false;
 	}
 
@@ -170,7 +230,7 @@ inline std::filesystem::path GetAppDataPath()
 	if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathTemp)))
 	{
 		CoTaskMemFree(pathTemp);
-		printf("Failed to find appdata path for system\n");
+		OS::GetInstance().DebugPrint("Failed to find appdata path for system\n");
 		return std::filesystem::path();
 	}
 	path = pathTemp;
@@ -234,52 +294,3 @@ inline std::filesystem::path BrowseForFolder(const std::string& title, const std
 }
 #endif
 
-enum class CursorType
-{
-	Pointer, 
-	Hand,
-	IBeam,
-
-	Count
-};
-
-class OS
-{
-public:
-
-	static OS& GetInstance()
-	{
-		static OS instance;
-
-		return instance;
-	}
-
-	OS(OS const&) = delete;
-	void operator=(OS const&) = delete;
-
-	void InitCursors()
-	{
-		m_Cursors[(int)CursorType::Pointer] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-		m_Cursors[(int)CursorType::Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-		m_Cursors[(int)CursorType::IBeam] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
-	}
-
-	void DestroyCursors()
-	{
-		for (uint32_t i = 0; i < (uint32_t)CursorType::Count; i++)
-			SDL_FreeCursor(m_Cursors[i]);
-	}
-
-	void SetCursor(CursorType type)
-	{
-		SDL_SetCursor(m_Cursors[(int)type]);
-	}
-
-private:
-	OS() { }
-
-
-	SDL_Cursor* m_Cursors[(int)CursorType::Count];
-
-
-};

@@ -1,8 +1,9 @@
 
 #include "GPUTextureGL.h"
 #include <glad/glad.h>
+#include "../../OS.h"
 
-#define glCheck(func) func; if (GL_NO_ERROR != glGetError()) printf("GL Error: %d, %s\n", __LINE__, __FILE__);
+#define glCheck(func) func; if (GL_NO_ERROR != glGetError()) OS::GetInstance().DebugPrint("GL Error: %d, %s\n", __LINE__, __FILE__);
 
 
 int formatTable[(int)GPUFormat::Count] =
@@ -13,7 +14,7 @@ int formatTable[(int)GPUFormat::Count] =
 
 void GPUTextureGL::Destroy()
 {
-	printf("Deleted texture\n");
+	OS::GetInstance().DebugPrint("Deleted texture\n");
 	glDeleteTextures(1, &m_Id);
 }
 
@@ -42,7 +43,7 @@ void GPUTextureGL::CreateFromImage(Image& img)
 		this->m_Width = img.GetWidth();
 		this->m_Height = img.GetHeight();
 
-		printf("Creating New GPU Texture\n");
+		OS::GetInstance().DebugPrint("Creating New GPU Texture\n");
 	}
 	else
 	{

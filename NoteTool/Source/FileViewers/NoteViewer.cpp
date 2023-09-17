@@ -408,7 +408,7 @@ void NoteViewer::NewParagraphOnNewlines(NoteElement* base)
 
 
 		NoteElement* newElement = InsertNewElement(base, NoteElementType::Paragraph);
-		printf("Created new paragraph element\n");
+		OS::GetInstance().DebugPrint("Created new paragraph element\n");
 
 		textBox->RemoveFocus();
 
@@ -436,7 +436,7 @@ void NoteViewer::NewDividorOnNewLines(NoteElement* base)
 		bool insertParagraph = (base->next == nullptr);
 
 		NoteElement* newElement = InsertNewElement(base, NoteElementType::Dividor);
-		printf("Created new dividor element\n");
+		OS::GetInstance().DebugPrint("Created new dividor element\n");
 
 		textBox->RemoveFocus();
 
@@ -536,7 +536,7 @@ void NoteViewer::RemoveElement(NoteElement* element)
 	NoteElement* parent = FindParent(element);
 
 
-	printf("Attempting remove element\n");
+	OS::GetInstance().DebugPrint("Attempting remove element\n");
 
 	// TODO: Actually delete the widget
 	// Memory wise its all handled correctly on close. We just hide it until then. 

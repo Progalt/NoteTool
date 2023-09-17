@@ -4,6 +4,7 @@
 #include "EventHandler.h"
 #include "Formatter.h"
 #include <functional>
+#include "../OS.h"
 
 namespace gui
 {
@@ -423,7 +424,7 @@ namespace gui
 			image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f }, 0);
 
 
-			printf("Rerasterising Textbox...\n");
+			OS::GetInstance().DebugPrint("Rerasterising Textbox...\n");
 
 			FloatRect bounds = { 0.0f, 0.0f, textBounds.w, textBounds.h };
 

@@ -601,7 +601,7 @@ namespace gui
 
 				float baseLine = (float)font->GetAscent();
 
-				printf("Rerasterising Textbox...\n");
+				OS::GetInstance().DebugPrint("Rerasterising Textbox...\n");
 
 				gui::RenderTextSoftware(image, str, font, {}, textWrap, { 1.0f, 1.0f, 1.0f, 1.0f }, textBounds, baseLine);
 
@@ -642,7 +642,7 @@ namespace gui
 					image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f }, (int)sectorMin);
 
 
-					printf("Rerasterising Textbox...\n");
+					OS::GetInstance().DebugPrint("Rerasterising Textbox...\n");
 
 					FloatRect bounds = { 0.0f, sectorMin, textBounds.w, sectorMax - sectorMin };
 
@@ -656,7 +656,7 @@ namespace gui
 					image.Fill({ 0.0f, 0.0f, 0.0f, 0.0f }, 0);
 
 
-					printf("Rerasterising Textbox Fully...\n");
+					OS::GetInstance().DebugPrint("Rerasterising Textbox Fully...\n");
 
 					FloatRect bounds = { 0.0f, 0.0f, textBounds.w, textBounds.h };
 

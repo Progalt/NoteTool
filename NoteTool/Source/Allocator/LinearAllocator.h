@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <cstdio>
-
+#include "../OS.h"
 
 
 
@@ -76,7 +76,7 @@ private:
 			m_Current = m_Root;
 		}
 
-		printf("Allocated New Block\n");
+		OS::GetInstance().DebugPrint("Allocated New Block\n");
 	}
 
 	_Ty* GetNext()

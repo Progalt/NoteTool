@@ -5,6 +5,7 @@
 #include <fstream>
 #include <ctime>
 #include <sstream>
+#include "OS.h"
 
 using json = nlohmann::json;
 
@@ -15,7 +16,7 @@ void UserPrefs::LoadFromJSON(const std::filesystem::path& path)
 
 	if (!userPrefsFile)
 	{
-		printf("Failed to open userprefs file for reading\n");
+		OS::GetInstance().DebugPrint("Failed to open userprefs file for reading\n");
 		return;
 	}
 
@@ -37,7 +38,7 @@ void UserPrefs::LoadFromJSON(const std::filesystem::path& path)
 
 			recentlyOpenWorkspaces.push_back(path);
 
-			printf("Recently Open: %s\n", path.name.c_str());
+			OS::GetInstance().DebugPrint("Recently Open: %s\n", path.name.c_str());
 		}
 	}
 
@@ -54,7 +55,7 @@ void UserPrefs::SaveToJSON(const std::filesystem::path& path)
 
 	if (!outputFile.is_open())
 	{
-		printf("Failed to open userprefs file for writing\n");
+		OS::GetInstance().DebugPrint("Failed to open userprefs file for writing\n");
 		return;
 	}
 

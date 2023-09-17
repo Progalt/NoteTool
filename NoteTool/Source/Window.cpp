@@ -1,5 +1,6 @@
 
 #include "Window.h"
+#include "OS.h"
 
 void Window::Create(const std::string& title, const uint32_t initialWidth, const uint32_t intialHeight, WindowFlags flags)
 {
@@ -28,7 +29,7 @@ void Window::Create(const std::string& title, const uint32_t initialWidth, const
 	{
 		// Failed to create window
 
-		printf("Failed to create window\n");
+		OS::GetInstance().DebugPrint("Failed to create window\n");
 
 		return;
 	}
@@ -44,7 +45,7 @@ void Window::Create(const std::string& title, const uint32_t initialWidth, const
 		{
 			// Failed to create OpenGL Context
 
-			printf("Failed to create OpenGL Context\n");
+			OS::GetInstance().DebugPrint("Failed to create OpenGL Context\n");
 
 			return;
 		}

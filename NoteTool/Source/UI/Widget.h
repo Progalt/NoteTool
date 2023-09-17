@@ -5,7 +5,7 @@
 #include "../Renderer/Renderer.h"
 #include "../Maths/Rect.h"
 #include "EventHandler.h"
-
+#include "../OS.h"
 
 
 namespace gui
@@ -138,7 +138,7 @@ namespace gui
 		{
 			for (auto& child : m_Children)
 			{
-				printf("Freed Widget Child\n");
+				OS::GetInstance().DebugPrint("Freed Widget Child\n");
 				delete child;
 			}
 		}
@@ -157,7 +157,7 @@ namespace gui
 		{
 			for (uint32_t i = first; i < m_Children.size(); i++)
 			{
-				printf("Freed Widget Child\n");
+				OS::GetInstance().DebugPrint("Freed Widget Child\n");
 				m_Children[i]->RemoveChildren();
 				delete m_Children[i];
 			}

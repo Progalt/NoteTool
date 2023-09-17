@@ -106,8 +106,8 @@ public:
 				
 			}
 
-			printf("Pin %s\n", workspacePin->name.c_str());
-			printf("Path: %s\n", m_Workspace->GetRoot().GetDirectoryOfFile(workspacePin)->path.generic_string().c_str());
+			OS::GetInstance().DebugPrint("Pin %s\n", workspacePin->name.c_str());
+			OS::GetInstance().DebugPrint("Path: %s\n", m_Workspace->GetRoot().GetDirectoryOfFile(workspacePin)->path.generic_string().c_str());
 
 			
 			FileUserData* userData = m_UserDataForFilesysten.Allocate();
@@ -303,7 +303,7 @@ private:
 				if (std::filesystem::exists(path))
 				{
 					std::filesystem::remove(path);
-					printf("Deleting file: %s\n", path.generic_string().c_str());
+					OS::GetInstance().DebugPrint("Deleting file: %s\n", path.generic_string().c_str());
 				}
 				
 				Refresh();
@@ -386,7 +386,7 @@ private:
 
 		tab->panel->SetOnFocusCallback([&](void* userData) 
 			{
-				printf("Changing active tab\n");
+				OS::GetInstance().DebugPrint("Changing active tab\n");
 				m_ActiveTab = (WorkspaceTab*)userData;
 
 			}, tab);
@@ -454,7 +454,7 @@ private:
 			
 			if (m_ActiveTab->currentFileView)
 			{
-				printf("Destroying tab\n");
+				OS::GetInstance().DebugPrint("Destroying tab\n");
 				
 				m_ActiveTab->currentFileView->Hide();
 

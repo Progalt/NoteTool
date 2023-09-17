@@ -20,7 +20,7 @@ void MarkdownViewer::LoadFileContents()
 	if (!file.is_open())
 	{
 		assert(false);
-		printf("Cannot open file to load contents\n");
+		OS::GetInstance().DebugPrint("Cannot open file to load contents\n");
 
 	}
 
@@ -65,8 +65,8 @@ void MarkdownViewer::InitialiseGUIElements()
 	m_TextBox->SetOnEditCallback([&]() { 
 		m_Saved = false; 
 		m_SavedCircle->SetVisible(true); 
-		printf("Panel  height: %f\n", m_Panel->GetBounds().h);
-		printf("Text box height: %f\n", m_TextBox->GetTextBoxHeight());
+		OS::GetInstance().DebugPrint("Panel  height: %f\n", m_Panel->GetBounds().h);
+		OS::GetInstance().DebugPrint("Text box height: %f\n", m_TextBox->GetTextBoxHeight());
 	
 			m_Panel->SetScrollable(true);
 			m_Panel->SetScrollableArea(Vector2f(0.0f, m_TextBox->GetTextBoxHeight()));
@@ -87,7 +87,7 @@ void MarkdownViewer::Save()
 	if (!file.is_open())
 	{
 		assert(false);
-		printf("Cannot open file for saving\n");
+		OS::GetInstance().DebugPrint("Cannot open file for saving\n");
 	}
 
 	file << m_FileContents;

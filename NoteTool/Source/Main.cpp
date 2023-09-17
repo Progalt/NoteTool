@@ -325,7 +325,7 @@ int main(int argc, char* argv)
 
 	gui::Button* createButton = userArea->NewChild<gui::Button>();
 	createButton->SetBounds({ 350.0f, createButtonY, 100.0f, 30.0f });
-	createButton->SetOnClick([&](void*) { printf("Click"); });
+	createButton->SetOnClick([&](void*) { OS::GetInstance().DebugPrint("Click"); });
 	createButton->SetColour(theme.accentColour);
 	createButton->SetHighlightColour(theme.accentHighlight);
 	createButton->SetHoveredColour(theme.accentColour + theme.hoverModifier);
@@ -399,13 +399,13 @@ int main(int argc, char* argv)
 
 
 	gui::ContextMenu* ctxMenu = filelistArea->GetContextMenu();
-	ctxMenu->AddOption("New Note", [&]() { printf("New Note"); 
+	ctxMenu->AddOption("New Note", [&]() { OS::GetInstance().DebugPrint("New Note"); 
 		
 			// Create a new file in the selected directory
 
 			std::string basePath = currentWorkspace.GetRoot().path.generic_string();
 
-			printf("Attempt new note\n");
+			OS::GetInstance().DebugPrint("Attempt new note\n");
 
 			//if (!workspaceUI.GetSelectedPath().empty())
 			//	basePath = workspaceUI.GetSelectedPath();
@@ -416,7 +416,7 @@ int main(int argc, char* argv)
 
 			if (!success)
 			{
-				printf("Failed to create new note\n");
+				OS::GetInstance().DebugPrint("Failed to create new note\n");
 			}
 
 			workspaceUI.Refresh();
@@ -492,7 +492,7 @@ int main(int argc, char* argv)
 				{
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
 
-					printf("Triggering Resize\n");
+					OS::GetInstance().DebugPrint("Triggering Resize\n");
 					gui::EventHandler::resizeEvent = true;
 
 					window_width = evnt.window.data1;
@@ -635,7 +635,7 @@ int main(int argc, char* argv)
 
 				if (evnt.key.keysym.sym == SDLK_s && evnt.key.keysym.mod & KMOD_CTRL)
 				{
-					printf("Saving...\n");
+					OS::GetInstance().DebugPrint("Saving...\n");
 					workspaceUI.TriggerSave();
 				}
 

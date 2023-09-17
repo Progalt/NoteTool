@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include <nlohmann/json.hpp>
+#include "OS.h"
 
 using json = nlohmann::json;
 
@@ -22,7 +23,7 @@ void Directory::ParseDirectory(const std::filesystem::path& path)
 			Directory dir;
 			dir.ParseDirectory(item.path());
 			subdirectories.push_back(dir);
-			printf("Directory: %s\n", dir.name.c_str());
+			OS::GetInstance().DebugPrint("Directory: %s\n", dir.name.c_str());
 		}
 		if (item.is_regular_file())
 		{
@@ -35,7 +36,7 @@ void Directory::ParseDirectory(const std::filesystem::path& path)
 				continue;
 
 			files.push_back(file);
-			printf("File: %s\n", file.name.c_str());
+			OS::GetInstance().DebugPrint("File: %s\n", file.name.c_str());
 		}
 	}
 }
@@ -62,7 +63,7 @@ void Workspace::OpenWorkspace(const std::filesystem::path& path)
 
 		if (!configFile.is_open())
 		{
-			printf("Failed to open workspace config file for reading\n");
+			OS::GetInstance().DebugPrint("Failed to open workspace config file for reading\n");
 			return;
 		}
 
@@ -87,7 +88,7 @@ void Workspace::OpenWorkspace(const std::filesystem::path& path)
 
 				if (file)
 				{
-					printf("Found pin: %s\n", file->name.c_str());
+					OS::GetInstance().DebugPrint("Found pin: %s\n", file->name.c_str());
 					pins.push_back(file);
 				}
 			}
@@ -112,7 +113,7 @@ void Workspace::Close()
 
 	if (!config.is_open())
 	{
-		printf("Failed to open workspace config file for writing\n");
+		OS::GetInstance().DebugPrint("Failed to open workspace config file for writing\n");
 		return;
 	}
 
