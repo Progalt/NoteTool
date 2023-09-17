@@ -11,7 +11,8 @@ enum class NoteElementType
 	Paragraph,
 	Dividor,
 	BulletPoint,
-	Quote
+	Quote,
+	CodeBlock
 };
 
 // Note Elements
@@ -33,6 +34,12 @@ struct Quote
 	std::string text;
 };
 
+struct CodeBlock
+{
+	std::string text;
+	std::string lang;
+};
+
 struct NoteElement
 {
 	NoteElementType type;
@@ -43,6 +50,7 @@ struct NoteElement
 	Header header;
 	Paragraph paragraph;
 	Quote quote;
+	CodeBlock code;
 
 	NoteElement* next = nullptr;
 
@@ -82,6 +90,11 @@ public:
 		m_Root = m_Elements.Allocate();
 
 		return m_Root;
+	}
+
+	void ReassignRoot(NoteElement* element)
+	{
+		m_Root = element;
 	}
 
 	NoteElement* Insert(NoteElement* parent)

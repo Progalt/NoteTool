@@ -1,4 +1,5 @@
 
+
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 
@@ -40,6 +41,8 @@ const std::string versionString = "v0.01d";
 #include "TextEdit.h"
 #include "UserPrefs.h"
 #include "Window.h"
+
+
 
 gui::Panel* windowPanel;
 Renderer renderer;
@@ -169,6 +172,7 @@ void OpenWorkspace(const std::string path)
 
 int main(int argc, char* argv)
 {
+
 	userPrefs.LoadFromJSON(m_UserPrefsPath / "userprefs.json");
 
 
@@ -684,5 +688,6 @@ int main(int argc, char* argv)
 		std::filesystem::create_directory(m_UserPrefsPath);
 
 	userPrefs.SaveToJSON(m_UserPrefsPath / "userprefs.json");
+
 	return 0;
 }

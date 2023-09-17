@@ -77,6 +77,6 @@ namespace gui
 		m_Texture.CreateFromImage(m_Image);
 
 
-
+		m_Image.~Image();
 	}
 }

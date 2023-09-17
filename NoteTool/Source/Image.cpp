@@ -8,7 +8,7 @@
 
 Image::~Image()
 {
-
+	//printf("Image freed\n");
 }
 
 Image::Image(const std::string& path)

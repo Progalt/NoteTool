@@ -6,6 +6,8 @@
 #include "../Maths/Rect.h"
 #include "EventHandler.h"
 
+
+
 namespace gui
 {
 
@@ -132,10 +134,13 @@ namespace gui
 	{
 	public:
 
-		~Widget()
+		virtual ~Widget()
 		{
 			for (auto& child : m_Children)
+			{
+				printf("Freed Widget Child\n");
 				delete child;
+			}
 		}
 
 		virtual void GenerateVertexList(DrawList& drawList) = 0;
@@ -152,6 +157,8 @@ namespace gui
 		{
 			for (uint32_t i = first; i < m_Children.size(); i++)
 			{
+				printf("Freed Widget Child\n");
+				m_Children[i]->RemoveChildren();
 				delete m_Children[i];
 			}
 

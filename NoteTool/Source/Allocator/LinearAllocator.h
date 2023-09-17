@@ -3,6 +3,9 @@
 #include <cstdint>
 #include <cstdio>
 
+
+
+
 // Really dead simple allocator
 // Does not free any data until destructor
 // But will expand if needed
@@ -24,10 +27,12 @@ public:
 		while (block != nullptr)
 		{
 			delete[] block->memPtr;
+			block->memPtr = nullptr;
 
 			block = block->next;
 		}
 	}
+
 
 	void FreeAll()
 	{

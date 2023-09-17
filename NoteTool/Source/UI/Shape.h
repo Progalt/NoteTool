@@ -10,6 +10,9 @@ namespace gui
 
 		void GenerateVertexList(DrawList& drawList) override
 		{
+			if (!m_Visible)
+				return;
+
 			Vector2f position = m_GlobalBounds.position;
 			Shape shape;
 			switch (m_Type)

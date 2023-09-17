@@ -11,6 +11,12 @@ namespace gui
 	{
 	public:
 
+		virtual ~TextBoxSimplified()
+		{
+			
+			texture.Destroy();
+		}
+
 		void GenerateVertexList(DrawList& drawList) override
 		{
 			if (!m_Visible || m_GlobalBounds.w <= 0.0f || m_GlobalBounds.h <= 0.0f)
@@ -202,7 +208,7 @@ namespace gui
 
 
 
-			if (string != m_CachedString || m_Bounds != m_CachedBounds)
+			if (string != m_CachedString || m_Bounds.size != m_CachedBounds.size)
 				TriggerRerender();
 		}
 
@@ -267,7 +273,7 @@ namespace gui
 			//else
 			//	return formattedPositions[formattedPositions.size() - 1].y + formattedPositions[formattedPositions.size() - 1].h + 24.0f;
 
-			float fontHeight = (float)m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetMaxHeight();
+			float fontHeight = (float)m_FontManager->Get(m_DefaultWeight, m_FontSize)->GetLineSpacing();
 			float lineCount = (float)gui::GetLineCount(string, m_FontManager->Get(m_DefaultWeight, m_FontSize), m_Bounds.w) + 1;
 
 			return fontHeight * lineCount;

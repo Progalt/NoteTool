@@ -3,6 +3,11 @@
 #include "../UI/TextBoxSimplified.h"
 #include "../UI/Shape.h"
 
+NoteViewer::~NoteViewer()
+{
+	
+}
+
 void NoteViewer::LoadFileContents()
 {
 
@@ -101,6 +106,21 @@ void NoteViewer::ReformatGUI()
 
 		}
 		break;
+		case NoteElementType::CodeBlock:
+		{
+			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)element->userData;
+
+			float fontSize = m_CodeFontManager->Get(gui::FontWeight::Regular, 14)->GetMaxHeight();
+			yOffset += fontSize * 2.0f;
+			//text->SetFontManager(m_CodeFontManager);
+			text->SetBounds({ m_Margin + 32.0f, yOffset, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+
+
+
+			yOffset += text->GetTextBoxHeight() + fontSize;
+
+		}
+		break;
 		}
 
 		element = element->next;
@@ -108,6 +128,7 @@ void NoteViewer::ReformatGUI()
 
 	m_Panel->SetScrollable(true);
 	m_Panel->SetScrollableArea(Vector2f(0.0f, yOffset));
+	m_Panel->SetDrawVerticalScrollBar(true);
 }
 
 void NoteViewer::InitialiseGUIElements()
@@ -326,6 +347,47 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 		element->userData = text;
 	}
 	break;
+	case NoteElementType::CodeBlock:
+	{
+		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+
+		float fontSize = m_CodeFontManager->Get(gui::FontWeight::Regular, 14)->GetMaxHeight();
+
+
+		text->SetFontManager(m_CodeFontManager);
+		text->SetBounds({ m_Margin + 32.0f, 10.0f, m_Panel->GetBounds().w - m_Margin * 2.0f, fontSize + 2.0f });
+		text->SetFontSize(14, gui::FontWeight::Regular);
+		text->string = element->code.text;
+
+		text->SetOnEditCallback([&](void* userData) {
+
+			NoteElement* baseElement = (NoteElement*)userData;
+
+			//OnEdit(baseElement);
+
+			Command(baseElement);
+
+			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)baseElement->userData;
+
+			gui::ShapeWidget* shape = text->GetChild<gui::ShapeWidget>(0);
+			float fontSize = m_FontManager->Get(gui::FontWeight::Light, 14)->GetMaxHeight();
+
+			shape->SetAsRoundedRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, text->GetTextBoxHeight() + fontSize * 1.5f }, 8.0f);
+
+			ReformatGUI();
+
+
+
+			}, element);
+
+		gui::ShapeWidget* square = text->NewChild<gui::ShapeWidget>();
+		square->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+		square->SetPosition({ -32.0f, -fontSize * 0.5f });
+		square->SetAsRoundedRectangle({ m_Panel->GetBounds().w - m_Margin * 2.0f, text->GetTextBoxHeight() + fontSize * 1.5f }, 8.0f);
+
+		element->userData = text;
+	}
+		break;
 	}
 
 
@@ -432,7 +494,7 @@ void NoteViewer::Command(NoteElement* base)
 						// Take focus if the new element was a text based one
 						if (type == NoteElementType::Paragraph || type == NoteElementType::Header1
 							|| type == NoteElementType::Header2 || type == NoteElementType::BulletPoint 
-							|| type == NoteElementType::Quote)
+							|| type == NoteElementType::Quote || type == NoteElementType::CodeBlock)
 						{
 							textBox->RemoveFocus();
 
@@ -494,7 +556,10 @@ void NoteViewer::RemoveElement(NoteElement* element)
 	}
 	else
 	{
+		// Assume root
 
+		if (element->next)
+			m_NoteFile.ReassignRoot(element->next);
 	}
 }
 

@@ -115,6 +115,7 @@ public:
 			userData->dir = dir;
 			userData->dirIndex = dir->GetFileIndex(workspacePin);
 			userData->workspace = m_Workspace;
+			userData->file = &dir->GetFile(userData->dirIndex);
 
 			gui::ButtonList::Button& pin = pins.AddButton(workspacePin->NameWithoutExtension(), m_OpenFileCallback, userData);
 			pin.AddSideButton(IconType::Cross, [&](void* userData)
@@ -271,6 +272,7 @@ private:
 			FileUserData* userData = m_UserDataForFilesysten.Allocate();
 			userData->dir = dir;
 			userData->dirIndex = i;
+			userData->file = &fileRef;
 
 
 			
@@ -280,7 +282,18 @@ private:
 
 				FileUserData* data = (FileUserData*)userData;
 
-				File* file = &data->dir->GetFile(data->dirIndex);
+				File* file = data->file;
+
+				FileViewer* openViewer = GetViewer(file);
+
+				// File is open in a viewer somewhere
+				if (openViewer)
+				{
+					openViewer->Hide();
+
+
+					
+				}
 
 				std::filesystem::path path = file->path;
 
@@ -340,6 +353,8 @@ private:
 		m_TextArea->InheritTheme(tab->panel);
 		tab->panel->SetBounds(bounds);
 		tab->panel->SetAnchor(gui::Anchor::BottomRight);
+		tab->panel->SetDrawVerticalScrollBar(true);
+		tab->panel->SetHighlightColour(m_Theme->panelHighlight);
 		//tab->panel->SetLockPosition(true);
 		//tab->panel->SetLockFlags(gui::ResizeLock::LockPositionY);
 
@@ -402,13 +417,25 @@ private:
 	WorkspaceTab* m_ActiveTab;
 	std::vector<WorkspaceTab*> m_Tabs;
 
-	
+	FileViewer* GetViewer(File* file)
+	{
+		FileViewer* v = nullptr;
+
+		for (auto& viewer : m_Viewers)
+			if (*viewer->GetFile() == *file)
+				v = viewer;
+
+		return v;
+
+	}
+
 
 	struct FileUserData
 	{
 		Directory* dir;
 		uint32_t dirIndex;
 		Workspace* workspace;
+		File* file;
 	};
 
 	//std::vector<FileUserData> m_AllocatedDataForFileSystem;
@@ -419,31 +446,42 @@ private:
 		{
 			FileUserData* data = (FileUserData*)userData;
 
-			File* file = &data->dir->GetFile(data->dirIndex);
+			File* file = data->file;
 
 			if (!m_ActiveTab)
 				return;
 
+			
 			if (m_ActiveTab->currentFileView)
+			{
+				printf("Destroying tab\n");
+				
 				m_ActiveTab->currentFileView->Hide();
+
+				m_ActiveTab->panel->RemoveChildren();
+				delete m_ActiveTab->currentFileView;
+			}
 
 			bool found = false;
 
-			for (auto& viewer : m_Viewers)
+			FileViewer* viewer = GetViewer(file);
+
+	
+		/*	if (viewer != nullptr)
 			{
-				if (*viewer->GetFile() == *file)
-				{
-					m_ActiveTab->currentFileView = viewer;
-					m_ActiveTab->currentFileView->Show();
-					gui::EventHandler::cursorOffset = 0;
 
-					found = true;
+				m_ActiveTab->currentFileView = viewer;
+				m_ActiveTab->currentFileView->Show();
+				m_ActiveTab->panel->SetCurrentScrollDistance(0.0f);
+				gui::EventHandler::cursorOffset = 0;
 
-
-				}
+				found = true;
 
 
-			}
+			}*/
+
+
+			
 
 			if (!found)
 			{
@@ -457,7 +495,7 @@ private:
 					viewer->SetFile(file);
 					viewer->parent = this;
 
-					m_Viewers.push_back(viewer);
+					//m_Viewers.push_back(viewer);
 
 					m_ActiveTab->currentFileView = viewer;
 
@@ -474,7 +512,7 @@ private:
 					viewer->parent = this;
 
 
-					m_Viewers.push_back(viewer);
+					//m_Viewers.push_back(viewer);
 
 					m_ActiveTab->currentFileView = viewer;
 				}
@@ -490,7 +528,7 @@ private:
 					viewer->parent = this;
 
 
-					m_Viewers.push_back(viewer);
+					//m_Viewers.push_back(viewer);
 
 					m_ActiveTab->currentFileView = viewer;
 				}

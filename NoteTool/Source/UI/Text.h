@@ -14,6 +14,11 @@ namespace gui
 			SetLockSize(true);
 		}
 
+		virtual ~Text()
+		{
+			m_Texture.Destroy();
+		}
+
 		void GenerateVertexList(DrawList& drawList) override;
 
 		void SetString(const std::string& str);

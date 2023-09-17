@@ -93,6 +93,12 @@ void NoteFile::LoadFromJSON(const std::filesystem::path& path)
 			current->quote.text = element["text"];
 			current->quote.title = element["title"];
 		}
+		else if (type == "code")
+		{
+			current->type = NoteElementType::CodeBlock;
+			current->code.text = element["text"];
+			current->code.lang = element["lang"];
+		}
 
 		last = current;
 	}
@@ -158,6 +164,12 @@ void NoteFile::WriteToJSON(const std::filesystem::path& path)
 				{ "type", "quote"},
 				{ "text", element->quote.text },
 				{ "title", element->quote.title }
+			};
+		case NoteElementType::CodeBlock:
+			elements[idx] = {
+				{ "type", "code"},
+				{ "text", element->code.text },
+				{ "lang", element->code.lang }
 			};
 			break;
 		}

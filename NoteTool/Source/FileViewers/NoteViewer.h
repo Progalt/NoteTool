@@ -9,18 +9,30 @@ static const std::vector<std::pair<std::string, NoteElementType>> Commands = {
 	{ "h1", NoteElementType::Header1 },
 	{ "h2", NoteElementType::Header2 },
 	{ "bullet", NoteElementType::BulletPoint },
-	{ "quote", NoteElementType::Quote } 
+	{ "quote", NoteElementType::Quote },
+	{ "code", NoteElementType::CodeBlock }
 };
 
 class NoteViewer : public FileViewer
 {
 public:
 
+	~NoteViewer();
+
 	void Hide() override
 	{
 		m_Title->SetVisible(false);
 		m_FileExt->SetVisible(false);
 		m_SavedCircle->SetVisible(false);
+
+		NoteElement* element = m_NoteFile.Start();
+
+		while (element != nullptr)
+		{
+			((gui::Widget*)element->userData)->SetVisible(false);
+
+			element = element->next;
+		}
 	}
 
 	void Show() override
@@ -33,6 +45,14 @@ public:
 
 		m_Panel->SetScrollable(true);
 
+		NoteElement* element = m_NoteFile.Start();
+
+		while (element != nullptr)
+		{
+			((gui::Widget*)element->userData)->SetVisible(true);
+
+			element = element->next;
+		}
 	}
 
 

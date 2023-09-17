@@ -46,7 +46,7 @@ namespace gui
 		void SetScrollableArea(Vector2f area) { m_MaxScrollableArea = area; }
 
 		void SetCurrentScrollDistance(float dist) {
-			m_VisibleOffset.y = dist; 
+			//m_VisibleOffset.y = dist; 
 			m_ScrollTargetY = dist;
 		}
 

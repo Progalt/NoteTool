@@ -13,7 +13,7 @@ namespace gui
 	{
 	public:
 
-		~ButtonList()
+		virtual ~ButtonList()
 		{
 			Clear();
 		}
