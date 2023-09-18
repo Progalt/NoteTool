@@ -183,6 +183,8 @@ void NoteViewer::Save()
 			element->quote.title = ((gui::TextBoxSimplified*)element->userData)->GetChild<gui::TextBoxSimplified>(1)->string;
 			element->quote.text = ((gui::TextBoxSimplified*)element->userData)->string;
 			break;
+		case NoteElementType::CodeBlock:
+			break;
 		};
 
 		element = element->next;

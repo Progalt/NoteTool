@@ -112,19 +112,28 @@ void CreatePanelsForWorkspace()
 
 void Render()
 {
+	
 
+	//PROFILE_BEGIN(events);
 	windowPanel->HandleEvents();
+	//PROFILE_END(events, "Events");
+	
+
+	gui::DrawList drawList;
+
+	//PROFILE_BEGIN(vertexLists);
+	windowPanel->GenerateVertexList(drawList);
+	//PROFILE_END(vertexLists, "Vertex List");
+
+	PROFILE_BEGIN(render);
 
 	renderer.SetViewport(0, 0, window_width, window_height);
 	renderer.SetScissor(0, 0, window_width, window_height);
 
 	renderer.BeginRenderpass(theme.backgroundColour);
 
-	gui::DrawList drawList;
-
-	windowPanel->GenerateVertexList(drawList);
-
 	renderer.CopyToBuffers(drawList.vertices, drawList.indices);
+	
 	for (auto& cmd : drawList.drawcalls)
 	{
 		if (cmd.scissor.IsNull())
@@ -140,7 +149,11 @@ void Render()
 
 	renderer.EndRenderpass();
 
+	PROFILE_END(render, "Render");
+
 	win.Swap();
+
+	
 }
 
 void OpenWorkspace(const std::string path)

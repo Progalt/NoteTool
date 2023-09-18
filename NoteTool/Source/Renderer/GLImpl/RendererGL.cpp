@@ -91,12 +91,14 @@ void RendererGL::CopyToBuffers(std::vector<Vertex> vertices, std::vector<uint32_
 	assert(vertices.size() < m_Buffer.currentVertexSize);
 	assert(indices.size() < m_Buffer.currentIndexSize);
 
-	glCheck(glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo));
-	glCheck(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data()));
-	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
 
+	//glCheck(glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo));
+	//glCheck(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data()));
+	//glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
+	//glCheck(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data()));
 
-	glCheck(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indices.size(), indices.data()));
+	memcpy(m_Buffer.mappedVBO, vertices.data(), sizeof(Vertex) * vertices.size());
+	memcpy(m_Buffer.mappedIBO, indices.data(), sizeof(uint32_t) * indices.size());
 }
 
 void RendererGL::Draw(const Matrix4x4f& mat, GPUTexture* tex, uint32_t indexOffset, uint32_t indexCount, uint32_t vertexOffset)
@@ -168,11 +170,17 @@ void RendererGL::CreateBuffers(uint32_t vertexSize, uint32_t indexSize)
 
 	glCheck(glBindVertexArray(m_Buffer.vao));
 
+	uint32_t flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
 	glCheck(glBindBuffer(GL_ARRAY_BUFFER, m_Buffer.vbo));
-	glCheck(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexSize, nullptr, GL_DYNAMIC_DRAW));
+	//glCheck(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexSize, nullptr, GL_DYNAMIC_DRAW));
+	glCheck(glBufferStorage(GL_ARRAY_BUFFER, sizeof(Vertex) * vertexSize, nullptr, flags));
+	m_Buffer.mappedVBO = glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertexSize, flags);
 
 	glCheck(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffer.ibo));
-	glCheck(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indexSize, nullptr, GL_DYNAMIC_DRAW));
+	//glCheck(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indexSize, nullptr, GL_DYNAMIC_DRAW));
+	glCheck(glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * indexSize, nullptr, flags));
+	m_Buffer.mappedIBO = glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * indexSize, flags);
 
 	glCheck(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0));
 	glCheck(glEnableVertexAttribArray(0));
@@ -190,6 +198,7 @@ void RendererGL::CreateBuffers(uint32_t vertexSize, uint32_t indexSize)
 
 void RendererGL::ResizeBuffers(uint32_t newVertexSize, uint32_t newIndexSize)
 {
+	OS::GetInstance().DebugPrint("Resizing Buffer\n");
 	CleanupBuffers();
 	CreateBuffers(newVertexSize, newIndexSize);
 }

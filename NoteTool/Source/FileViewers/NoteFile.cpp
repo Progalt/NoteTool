@@ -166,6 +166,7 @@ void NoteFile::WriteToJSON(const std::filesystem::path& path)
 				{ "text", element->quote.text },
 				{ "title", element->quote.title }
 			};
+			break;
 		case NoteElementType::CodeBlock:
 			elements[idx] = {
 				{ "type", "code"},

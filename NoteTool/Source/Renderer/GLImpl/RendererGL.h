@@ -39,6 +39,9 @@ private:
 		size_t vboOffset = 0, iboOffset = 0;
 		uint32_t vao = 0, vbo = 0, ibo = 0;
 
+		void* mappedVBO;
+		void* mappedIBO;
+
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 
