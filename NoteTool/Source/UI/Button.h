@@ -4,6 +4,7 @@
 #include <functional>
 #include "Utility.h"
 #include "../Font.h"
+#include "IconManager.h"
 
 namespace gui
 {
@@ -67,6 +68,9 @@ namespace gui
 
 			drawList.Add(bg.vertices, bg.indices, nullptr);
 
+			Colour textCol = { 1.0f, 1.0f, 1.0f, 1.0f };
+			textCol.a *= GetTransparency();
+
 			if (!m_Text.str.empty())
 			{
 				float lineSpacing = (float)m_Text.font->GetLineSpacing();
@@ -80,14 +84,14 @@ namespace gui
 					position.x = m_GlobalBounds.x + (m_GlobalBounds.w / 2.0f) - textLength / 2.0f ;
 					break;
 				case Alignment::Right:
+					position.x = m_GlobalBounds.x + m_GlobalBounds.w - textLength - 5.0f;
 					break;
 				case Alignment::Left:
 					position.x = m_GlobalBounds.x + 5.0f;
 					break;
 				}
 
-				Colour textCol = { 1.0f, 1.0f, 1.0f, 1.0f };
-				textCol.a *= GetTransparency();
+				position.x += m_Text.offset;
 
 				//gui::RenderText(drawList, m_Text.str, m_Text.font, position, 0.0f, textCol, m_GlobalBounds);
 
@@ -101,6 +105,37 @@ namespace gui
 
 				drawList.Add(quad.vertices, quad.indices, &m_Text.texture);
 			}
+
+			if (m_Icon.type != IconType::None)
+			{
+				GPUTexture* icon = IconManager::GetInstance()[m_Icon.type];
+
+				float iconSize = (float)icon->GetWidth();
+
+				float yOffset = (m_GlobalBounds.h - iconSize) / 2.0f;
+
+				Vector2f position;
+				position.y = m_GlobalBounds.y + yOffset;
+
+				switch (m_Icon.alignment)
+				{
+				case Alignment::Centre:
+					position.x = m_GlobalBounds.x + (m_GlobalBounds.w / 2.0f) - iconSize / 2.0f;
+					break;
+				case Alignment::Right:
+					position.x = m_GlobalBounds.x + m_GlobalBounds.w - iconSize - 5.0f;
+					break;
+				case Alignment::Left:
+					position.x = m_GlobalBounds.x + 5.0f;
+					break;
+				}
+
+				position.x += m_Icon.offset;
+
+				Shape iconRect = gui::GenerateQuad(position, position + Vector2f{ iconSize, iconSize }, { 0.0f,  0.0f }, { 1.0f, 1.0f }, textCol);
+				drawList.Add(iconRect.vertices, iconRect.indices, icon);
+			}
+			
 		}
 
 		void OnEvent() override
@@ -139,12 +174,13 @@ namespace gui
 
 		void SetHoveredColour(Colour col) { m_HoveredColour = col; }
 
-		void SetText(const std::string& str, Font* font, Alignment alignment = Alignment::Centre)
+		void SetText(const std::string& str, Font* font, Alignment alignment = Alignment::Centre, float offset = 0.0f)
 		{
 			m_Text.str = str;
 			m_Text.font = font;
 			m_Text.alignment = alignment;
 			m_Text.rerender = true;
+			m_Text.offset = offset;
 		}
 
 		void SetRequireDoubleClick(bool doubleClick)
@@ -153,6 +189,13 @@ namespace gui
 		}
 
 		void SetUserData(void* userData) { m_UserData = userData; }
+
+		void SetIcon(IconType type, Alignment align = Alignment::Centre, float offset = 0.0f)
+		{
+			m_Icon.type = type;
+			m_Icon.alignment = align;
+			m_Icon.offset = offset;
+		}
 
 	private:
 
@@ -172,6 +215,13 @@ namespace gui
 
 		struct
 		{
+			IconType type = IconType::None;
+			Alignment alignment;
+			float offset = 0.0f;
+		} m_Icon;
+
+		struct
+		{
 			std::string str = "";
 			Font* font;
 			Alignment alignment;
@@ -181,7 +231,7 @@ namespace gui
 			GPUTexture texture;
 			Image image;
 			bool rerender = true;
-
+			float offset = 0.0f;
 		
 
 		} m_Text;

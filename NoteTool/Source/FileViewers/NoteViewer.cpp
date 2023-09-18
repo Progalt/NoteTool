@@ -184,6 +184,7 @@ void NoteViewer::Save()
 			element->quote.text = ((gui::TextBoxSimplified*)element->userData)->string;
 			break;
 		case NoteElementType::CodeBlock:
+			element->code.text = ((gui::TextBoxSimplified*)element->userData)->string;
 			break;
 		};
 
@@ -407,13 +408,13 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 		dropDown->SetVisible(false);*/
 
 		gui::Button* copyButton = text->NewChild<gui::Button>();
-		copyButton->SetText("Copy", m_FontManager->Get(gui::FontWeight::Regular, 12));
+		copyButton->SetText("Copy", m_FontManager->Get(gui::FontWeight::Regular, 12), gui::Alignment::Centre, 12.0f);
 		copyButton->SetColour(theme->accentColour);
 		copyButton->SetHighlightColour(theme->accentColour);
 		copyButton->SetShadowColour(theme->accentColour);
 		copyButton->SetRounding(theme->buttonRounding);
 		copyButton->SetHoveredColour(theme->accentColour + theme->hoverModifier);
-		copyButton->SetBounds({ square->GetBounds().w - 116.0f, -30.0f, 80.0f, 20.0f});
+		copyButton->SetBounds({ square->GetBounds().w - 122.0f, -30.0f, 86.0f, 26.0f});
 		copyButton->SetUserData(text);
 		copyButton->SetOnClick([&](void* userData) 
 			{
@@ -423,6 +424,7 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 				OS::GetInstance().SetClipboardContents(textBox->string);
 
 			});
+		copyButton->SetIcon(IconType::Copy, gui::Alignment::Left);
 		copyButton->SetVisible(false);
 
 		square->AddOnHoverCallback([&](void* userData, bool hovered) {

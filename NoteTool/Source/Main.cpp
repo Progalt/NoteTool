@@ -125,7 +125,7 @@ void Render()
 	windowPanel->GenerateVertexList(drawList);
 	//PROFILE_END(vertexLists, "Vertex List");
 
-	PROFILE_BEGIN(render);
+	//PROFILE_BEGIN(render);
 
 	renderer.SetViewport(0, 0, window_width, window_height);
 	renderer.SetScissor(0, 0, window_width, window_height);
@@ -140,8 +140,7 @@ void Render()
 			renderer.SetScissor(0, 0, window_width, window_height);
 		else 
 			renderer.SetScissor(cmd.scissor.x, window_height - cmd.scissor.y - cmd.scissor.h, cmd.scissor.w, cmd.scissor.h);
-		//renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount);
-
+	
 		renderer.Draw(screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount, 0);
 
 	}
@@ -149,10 +148,10 @@ void Render()
 
 	renderer.EndRenderpass();
 
-	PROFILE_END(render, "Render");
+	
 
 	win.Swap();
-
+	//PROFILE_END(render, "Render");
 	
 }
 

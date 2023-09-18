@@ -22,7 +22,9 @@ enum class IconType
 	Cross,
 	Plus, 
 
-	Bin
+	Bin,
+
+	Copy
 };
 
 
@@ -75,6 +77,9 @@ public:
 
 		Image plus("Icons/Plus.png");
 		m_Icons[IconType::Plus].CreateFromImage(plus);
+
+		Image copy("Icons/Copy.png");
+		m_Icons[IconType::Copy].CreateFromImage(copy);
 	}
 
 	void DestroyIcons()

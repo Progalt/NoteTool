@@ -8,6 +8,11 @@ namespace gui
 	{
 	public:
 
+		virtual ~ShapeWidget()
+		{
+
+		}
+
 		void GenerateVertexList(DrawList& drawList) override
 		{
 			if (!m_Visible)
