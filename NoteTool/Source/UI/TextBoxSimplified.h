@@ -153,7 +153,7 @@ namespace gui
 
 			if (m_Hovered)
 			{
-
+				OS::GetInstance().SetCursor(CursorType::IBeam);
 
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].clicks == 1)
 				{

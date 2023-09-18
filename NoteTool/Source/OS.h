@@ -53,7 +53,11 @@ public:
 
 	void SetCursor(CursorType type)
 	{
-		SDL_SetCursor(m_Cursors[(int)type]);
+		if (m_Cursors[(int)type] != m_CurrentCursor)
+		{
+			SDL_SetCursor(m_Cursors[(int)type]);
+			m_CurrentCursor = m_Cursors[(int)type];
+		}
 	}
 
 	template<typename ... Args>
@@ -71,12 +75,13 @@ public:
 		SDL_SetClipboardText(str.c_str());
 	}
 
+
 private:
 	OS() { }
 
 
 	SDL_Cursor* m_Cursors[(int)CursorType::Count];
-
+	SDL_Cursor* m_CurrentCursor = nullptr;
 
 };
 

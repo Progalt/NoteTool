@@ -140,7 +140,8 @@ void Render()
 			renderer.SetScissor(0, 0, window_width, window_height);
 		else 
 			renderer.SetScissor(cmd.scissor.x, window_height - cmd.scissor.y - cmd.scissor.h, cmd.scissor.w, cmd.scissor.h);
-	
+		//renderer.SubmitVertices(drawList.vertices, drawList.indices, screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount);
+
 		renderer.Draw(screen, cmd.texture != nullptr ? cmd.texture : &whiteTexture, cmd.firstIndex, cmd.indexCount, 0);
 
 	}
@@ -148,10 +149,10 @@ void Render()
 
 	renderer.EndRenderpass();
 
-	
+	//PROFILE_END(render, "Render");
 
 	win.Swap();
-	//PROFILE_END(render, "Render");
+
 	
 }
 
@@ -489,6 +490,7 @@ int main(int argc, char* argv)
 
 		SDL_StartTextInput();
 
+		OS::GetInstance().SetCursor(CursorType::Pointer);
 
 		while (SDL_PollEvent(&evnt))
 		{
