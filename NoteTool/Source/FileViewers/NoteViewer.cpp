@@ -364,30 +364,13 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 			std::transform(titleText.begin(), titleText.end(), titleText.begin(),
 				[](unsigned char c) { return std::tolower(c); });
 
-			if (titleText == "note")
+			// Depending on the title we change the text box colours
+
+			if (QuoteBoxColours.find(titleText) != QuoteBoxColours.end())
+				shape->SetColour(QuoteBoxColours[titleText]);
+			else
 				shape->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
-			else if (titleText == "quote")
-				shape->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
-			else if (titleText == "warning")
-				shape->SetColour({ 166, 106, 56, 100 });
-			else if (titleText == "success")
-				shape->SetColour({ 58, 138, 45, 100 });
-			else if (titleText == "done")
-				shape->SetColour({ 58, 138, 45, 100 });
-			else if (titleText == "error")
-				shape->SetColour({ 138, 45, 45, 100 });
-			else if (titleText == "bug")
-				shape->SetColour({ 138, 45, 45, 100 });
-			else if (titleText == "danger")
-				shape->SetColour({ 138, 45, 45, 100 });
-			else if (titleText == "info")
-				shape->SetColour({ 45, 80, 166, 100 });
-			else if (titleText == "hint")
-				shape->SetColour({ 45, 80, 166, 100 });
-			else if (titleText == "todo")
-				shape->SetColour({ 45, 80, 166, 100 });
-			else 
-				shape->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+		
 
 			}, element);
 
