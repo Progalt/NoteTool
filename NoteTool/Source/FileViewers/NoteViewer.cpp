@@ -353,6 +353,44 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 		title->string = (element->quote.title.size() > 0) ? element->quote.title : "Note";
 		title->SetIgnoreScissor(true);
 
+		title->SetOnEditCallback([&](void* userData) {
+
+			NoteElement* baseElement = (NoteElement*)userData;
+			gui::TextBoxSimplified* text = (gui::TextBoxSimplified*)baseElement->userData;
+			gui::ShapeWidget* shape = text->GetChild<gui::ShapeWidget>(0);
+			gui::TextBoxSimplified* titleBox = text->GetChild<gui::TextBoxSimplified>(1);
+
+			std::string titleText = titleBox->string;
+			std::transform(titleText.begin(), titleText.end(), titleText.begin(),
+				[](unsigned char c) { return std::tolower(c); });
+
+			if (titleText == "note")
+				shape->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+			else if (titleText == "quote")
+				shape->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+			else if (titleText == "warning")
+				shape->SetColour({ 166, 106, 56, 100 });
+			else if (titleText == "success")
+				shape->SetColour({ 58, 138, 45, 100 });
+			else if (titleText == "done")
+				shape->SetColour({ 58, 138, 45, 100 });
+			else if (titleText == "error")
+				shape->SetColour({ 138, 45, 45, 100 });
+			else if (titleText == "bug")
+				shape->SetColour({ 138, 45, 45, 100 });
+			else if (titleText == "danger")
+				shape->SetColour({ 138, 45, 45, 100 });
+			else if (titleText == "info")
+				shape->SetColour({ 45, 80, 166, 100 });
+			else if (titleText == "hint")
+				shape->SetColour({ 45, 80, 166, 100 });
+			else if (titleText == "todo")
+				shape->SetColour({ 45, 80, 166, 100 });
+			else 
+				shape->SetColour({ 0.2f, 0.2f, 0.2f, 1.0f });
+
+			}, element);
+
 
 		element->userData = text;
 	}

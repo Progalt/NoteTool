@@ -13,14 +13,6 @@
 #include "UI/IconManager.h"
 
 
-int window_width = 1280;
-int window_height = 720;
-int modal_start_width = 800;
-int modal_start_height = 500;
-
-const std::string versionString = "v0.01d";
-
-
 #include "Font.h"
 #include "Theme.h"
 
@@ -42,7 +34,10 @@ const std::string versionString = "v0.01d";
 #include "UserPrefs.h"
 #include "Window.h"
 
+int window_width = 1280;
+int window_height = 720;
 
+const std::string versionString = "v0.01d";
 
 gui::Panel* windowPanel;
 Renderer renderer;
@@ -467,6 +462,7 @@ int main(int argc, char* argv)
 
 	gui::EventHandler::mouseButton[gui::MOUSE_LEFT].down = false;
 	gui::EventHandler::mouseButton[gui::MOUSE_RIGHT].down = false;
+	
 	
 
 	SDL_Event evnt;

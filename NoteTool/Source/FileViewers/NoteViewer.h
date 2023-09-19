@@ -22,7 +22,8 @@ public:
 	void Hide() override
 	{
 		m_Title->SetVisible(false);
-		m_FileExt->SetVisible(false);
+		if (m_ShowExtension)
+			m_FileExt->SetVisible(false);
 		m_SavedCircle->SetVisible(false);
 
 		NoteElement* element = m_NoteFile.Start();
@@ -38,7 +39,8 @@ public:
 	void Show() override
 	{
 		m_Title->SetVisible(true);
-		m_FileExt->SetVisible(true);
+		if (m_ShowExtension)
+			m_FileExt->SetVisible(true);
 
 		if (!m_Saved)
 			m_SavedCircle->SetVisible(true);
