@@ -21,6 +21,8 @@ namespace gui
 	int EventHandler::verticalScroll = 0;
 
 	int EventHandler::cursorOffset = 0;
+	int EventHandler::selectionOffset = 0;
+	bool EventHandler::selecting = false;
 	std::string* EventHandler::textInput = nullptr;
 
 	bool EventHandler::backspace = false;

@@ -74,24 +74,25 @@ const std::filesystem::path m_UserPrefsPath = GetAppDataPath() / "NotesTool";
 
 void CreatePanelsForWorkspace()
 {
-	float padding = 6.0f;
+	float padding = 0.0f;
 	filelistArea->SetBounds({ padding , padding, fileBrowserUISize - padding * 2.0f, windowPanel->GetBounds().h - padding * 2.0f });
 	filelistArea->SetColour(theme.panelBackground);
-	//filelistArea->SetHighlightColour(theme.panelHighlight);
+	filelistArea->SetHighlightColour(theme.panelHighlight);
 	filelistArea->SetTransparency(1.0f);
 	filelistArea->SetAnchor(gui::Anchor::CentreLeft);
 	//filelistArea->SetVisible(false);
 	filelistArea->SetFlags(gui::PanelFlags::DrawBorder);
-	filelistArea->SetRounding(8.0f);
+	filelistArea->SetRounding(0.0f);
 
 	float editableWidth = windowPanel->GetBounds().w - filelistArea->GetBounds().w - 1.0f;
 
 
-	float rounding = 8.0f;
+	float rounding = 0.0f;
 	textArea->SetBounds({ fileBrowserUISize + borderSize, padding, editableWidth - padding * 3.0f, windowPanel->GetBounds().h - padding * 2.0f });
 	textArea->SetColour(theme.panelBackground);
 	textArea->SetRounding(rounding);
 	textArea->SetDummyPanel(true);
+	//textArea->SetHighlightColour({ 0.4f, 0.4f, 0.4f, 1.0f });
 	//textArea->SetVisible(false);
 
 
@@ -607,15 +608,22 @@ int main(int argc, char* argv)
 							gui::EventHandler::cursorOffset--;
 						}*/
 
-						textedit::Remove();
+						if (gui::EventHandler::selecting)
+						{
+							textedit::Remove(gui::EventHandler::selectionOffset, gui::EventHandler::cursorOffset);
+						}
+						else 
+							textedit::Remove();
 					}
+
+					
 
 					if (evnt.key.keysym.sym == SDLK_RETURN)
 					{
 						textedit::Insert("\n");
 						gui::EventHandler::enter = true;
 					}
-
+					
 					if (evnt.key.keysym.sym == SDLK_TAB)
 					{
 						textedit::Insert("\t");
@@ -625,19 +633,57 @@ int main(int argc, char* argv)
 
 					if (evnt.key.keysym.sym == SDLK_LEFT)
 					{
-						if (gui::EventHandler::cursorOffset > 0)
-							gui::EventHandler::cursorOffset--;
+						if (evnt.key.keysym.mod & KMOD_SHIFT)
+						{
+							if (!gui::EventHandler::selecting)
+							{
+								gui::EventHandler::selectionOffset = gui::EventHandler::cursorOffset;
+								gui::EventHandler::selecting = true;
+							}
 
+							if (gui::EventHandler::cursorOffset > 0)
+								gui::EventHandler::cursorOffset--;
+
+							OS::GetInstance().DebugPrint("Selecting Offset: %d\n", gui::EventHandler::selectionOffset - gui::EventHandler::cursorOffset);
+						}
+						else
+						{
+	
+							if (gui::EventHandler::cursorOffset > 0)
+								gui::EventHandler::cursorOffset--;
+
+							gui::EventHandler::selecting = false;
+						}
+						
 					}
 
-
+					 
 					if (evnt.key.keysym.sym == SDLK_RIGHT)
 					{
 						uint32_t offset = 1;
 
-					
-						if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
-							gui::EventHandler::cursorOffset += offset;
+						if (evnt.key.keysym.mod & KMOD_SHIFT)
+						{
+							if (!gui::EventHandler::selecting)
+							{
+								gui::EventHandler::selectionOffset = gui::EventHandler::cursorOffset;
+								gui::EventHandler::selecting = true;
+							}
+
+							if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
+								gui::EventHandler::cursorOffset += offset;
+
+							OS::GetInstance().DebugPrint("Selecting Offset: %d\n", gui::EventHandler::selectionOffset - gui::EventHandler::cursorOffset);
+						}
+						else
+						{
+							if (gui::EventHandler::selecting && gui::EventHandler::selectionOffset > gui::EventHandler::cursorOffset)
+								gui::EventHandler::cursorOffset = gui::EventHandler::selectionOffset;
+							else if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
+								gui::EventHandler::cursorOffset += offset;
+
+							gui::EventHandler::selecting = false;
+						}
 
 					}
 
@@ -651,14 +697,17 @@ int main(int argc, char* argv)
 
 
 
-				//// Clipboard options
-				//if (evnt.key.keysym.sym == SDLK_c && evnt.key.keysym.mod & KMOD_CTRL)
-				//{
-				//	std::string selectedText = textedit::GetSelection();
-				//	SDL_SetClipboardText(selectedText.c_str());
+				// Clipboard options
+				if (evnt.key.keysym.sym == SDLK_c && evnt.key.keysym.mod & KMOD_CTRL)
+				{
+					std::string selectedText = textedit::GetSelection();
+					//SDL_SetClipboardText(selectedText.c_str());
 
-				//	printf("Added to clipboard: %s\n", selectedText.c_str());
-				//}
+					OS::GetInstance().SetClipboardContents(selectedText);
+
+					OS::GetInstance().DebugPrint("Added to clipboard: %s\n", selectedText.c_str());
+				}
+
 
 				if (evnt.key.keysym.sym == SDLK_v && evnt.key.keysym.mod & KMOD_CTRL)
 				{

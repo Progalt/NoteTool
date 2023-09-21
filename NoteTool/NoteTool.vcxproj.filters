@@ -248,6 +248,9 @@
     <ClInclude Include="Source\UI\Shape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\UI\Checkbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Themes\dark.json" />

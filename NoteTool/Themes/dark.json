@@ -5,9 +5,9 @@
   "use-windows-dark-mode": true,
   "enable-srgb": true,
 
-  "background": [ 4, 4, 4 ],
+  "background": [ 4, 4, 4 ], 
   "panel-bg": [ 6, 6, 6 ],
-  "panel-highlight": [ 10, 10, 10 ],
+  "panel-highlight": [ 14, 14, 14 ],
   "button-accent": [ 16, 16, 16 ],
   "button-highlight": [ 27, 27, 27 ],
   "button-shadow": [ 3, 3, 3 ],

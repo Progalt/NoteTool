@@ -83,7 +83,29 @@ namespace gui
 			} */
 
 
+			if (gui::EventHandler::selecting && m_Editing)
+			{
+				// Render a quad for selections
 
+				uint32_t minSelection = std::min(gui::EventHandler::selectionOffset, gui::EventHandler::cursorOffset);
+				uint32_t maxSelection = std::max(gui::EventHandler::selectionOffset, gui::EventHandler::cursorOffset);
+
+				Vector2f minPos = GetPosition(minSelection);
+				Vector2f maxPos = GetPosition(maxSelection);
+
+				TextFormatOption formatOption = GetFormattingAtPoint(gui::EventHandler::cursorOffset);
+
+				Font* font = GetFontForFormat(formatOption, m_FontManager, m_CodeFontManager, m_DefaultWeight, m_FontSize);
+
+				minPos.y += 4.0f;
+				maxPos.y -= font->GetAscent();
+
+				Shape selectionQuad = gui::GenerateQuad(m_GlobalBounds.position + minPos,
+					m_GlobalBounds.position + maxPos ,
+					{ 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.5f, 0.5f, 0.5f, 0.5f });
+
+				drawList.Add(selectionQuad.vertices, selectionQuad.indices);
+			}
 
 			if (!str.empty() && m_Font)
 			{

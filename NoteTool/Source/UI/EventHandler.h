@@ -37,6 +37,8 @@ namespace gui
 
 		static std::string* textInput;
 		static int cursorOffset;
+		static int selectionOffset;
+		static bool selecting;
 
 		static bool backspace;
 		static bool enter;
