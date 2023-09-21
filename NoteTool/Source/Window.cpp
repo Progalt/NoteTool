@@ -84,11 +84,16 @@ void Window::SetAsCurrent()
 
 void Window::HandleWindowEvents(SDL_Event* ev)
 {
+
+	// Filter out the events for other windows
+
+	if (ev->window.windowID != m_WindowID)
+		return;
+
 	if (ev->type == SDL_WINDOWEVENT)
 	{
-		// Filter out the events for other windows
-		if (ev->window.windowID != m_WindowID)
-			return;
+
+
 
 		switch (ev->window.event)
 		{
@@ -103,7 +108,12 @@ void Window::HandleWindowEvents(SDL_Event* ev)
 
 			break;
 		}
+
+
 	}
+
+	if (m_EventCallback)
+		m_EventCallback(ev);
 }
 
 void Window::SetTitle(const std::string& title)

@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include "Maths/Vector2.h"
+#include <functional>
 
 enum class WindowFlags
 {
@@ -49,8 +50,11 @@ public:
 
 	SDL_Window* GetWindow();
 
+	void SetEventCallback(std::function<void(SDL_Event*)> evntCallback) { m_EventCallback = evntCallback; }
+
 private:
 
+	std::function<void(SDL_Event*)> m_EventCallback;
 
 	SDL_Window* m_Window;
 	SDL_GLContext m_Context;

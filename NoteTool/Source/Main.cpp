@@ -48,7 +48,8 @@ Matrix4x4f screen;
 Window win;
 
 Workspace currentWorkspace;
-WorkspaceUI workspaceUI;
+WorkspaceUI workspaceUI; 
+FloatRect fullWindowBounds;
 
 
 UserPrefs userPrefs;
@@ -179,6 +180,237 @@ void OpenWorkspace(const std::string path)
 	workspaceUI.Refresh();
 }
 
+void MainWindowEventCallback(SDL_Event* evnt)
+{
+	switch (evnt->type)
+	{
+
+	case SDL_WINDOWEVENT:
+
+		switch (evnt->window.event)
+		{
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+
+			OS::GetInstance().DebugPrint("Triggering Resize\n");
+			gui::EventHandler::resizeEvent = true;
+
+			window_width = evnt->window.data1;
+			window_height = evnt->window.data2;
+
+			windowPanel->SetOldBounds(fullWindowBounds);
+
+			gui::EventHandler::window_width = window_width;
+			gui::EventHandler::window_height = window_height;
+			fullWindowBounds.size = { (float)window_width, (float)window_height };
+
+			screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
+			windowPanel->SetBounds(fullWindowBounds);
+			workspaceUIPanel->SetBounds(fullWindowBounds);
+
+			break;
+		}
+
+		break;
+	case SDL_MOUSEMOTION:
+
+		gui::EventHandler::x = evnt->motion.x;
+		gui::EventHandler::y = evnt->motion.y;
+
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+	{
+		gui::MouseButton button;
+		switch (evnt->button.button)
+		{
+		case SDL_BUTTON_LEFT:
+			button = gui::MOUSE_LEFT;
+			break;
+		case SDL_BUTTON_RIGHT:
+			button = gui::MOUSE_RIGHT;
+			break;
+		default:
+			button = gui::MOUSE_LEFT;
+			break;
+		}
+
+		gui::EventHandler::mouseButton[button].clicks = (evnt->type == SDL_MOUSEBUTTONDOWN) ? evnt->button.clicks : 0;
+		gui::EventHandler::mouseButton[button].down = true;
+	}
+
+	break;
+	case SDL_MOUSEBUTTONUP:
+	{
+		gui::MouseButton button;
+		switch (evnt->button.button)
+		{
+		case SDL_BUTTON_LEFT:
+			button = gui::MOUSE_LEFT;
+			break;
+		case SDL_BUTTON_RIGHT:
+			button = gui::MOUSE_RIGHT;
+			break;
+		default:
+			button = gui::MOUSE_LEFT;
+			break;
+		}
+
+		gui::EventHandler::mouseButton[button].down = false;
+	}
+	break;
+	case SDL_MOUSEWHEEL:
+		gui::EventHandler::verticalScroll = evnt->wheel.y;
+		break;
+	case SDL_TEXTINPUT:
+		if (gui::EventHandler::textInput)
+		{
+			/*uint32_t oldSize = gui::EventHandler::textInput->size();
+			gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, evnt->text.text);
+			uint32_t newSize = gui::EventHandler::textInput->size();
+			gui::EventHandler::cursorOffset += newSize - oldSize;
+			gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;*/
+
+			textedit::Insert(evnt->text.text);
+
+		}
+		break;
+	case SDL_KEYDOWN:
+
+		if (gui::EventHandler::textInput)
+		{
+			if (evnt->key.keysym.sym == SDLK_BACKSPACE)
+			{
+				gui::EventHandler::backspace = true;
+			}
+			if (evnt->key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
+			{
+				/*if (gui::EventHandler::selecting)
+				{
+					uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
+					uint32_t maxSelect = std::max(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
+					gui::EventHandler::textInput->erase(minSelect, maxSelect - minSelect);
+					gui::EventHandler::cursorOffset = minSelect;
+				}
+				else
+				{
+					gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
+					gui::EventHandler::cursorOffset--;
+				}*/
+
+				if (gui::EventHandler::selecting)
+				{
+					textedit::Remove(gui::EventHandler::selectionOffset, gui::EventHandler::cursorOffset);
+				}
+				else
+					textedit::Remove();
+			}
+
+
+
+			if (evnt->key.keysym.sym == SDLK_RETURN)
+			{
+				textedit::Insert("\n");
+				gui::EventHandler::enter = true;
+			}
+
+			if (evnt->key.keysym.sym == SDLK_TAB)
+			{
+				textedit::Insert("\t");
+
+			}
+
+
+			if (evnt->key.keysym.sym == SDLK_LEFT)
+			{
+				if (evnt->key.keysym.mod & KMOD_SHIFT)
+				{
+					if (!gui::EventHandler::selecting)
+					{
+						gui::EventHandler::selectionOffset = gui::EventHandler::cursorOffset;
+						gui::EventHandler::selecting = true;
+					}
+
+					if (gui::EventHandler::cursorOffset > 0)
+						gui::EventHandler::cursorOffset--;
+
+					OS::GetInstance().DebugPrint("Selecting Offset: %d\n", gui::EventHandler::selectionOffset - gui::EventHandler::cursorOffset);
+				}
+				else
+				{
+
+					if (gui::EventHandler::cursorOffset > 0)
+						gui::EventHandler::cursorOffset--;
+
+					gui::EventHandler::selecting = false;
+				}
+
+			}
+
+
+			if (evnt->key.keysym.sym == SDLK_RIGHT)
+			{
+				uint32_t offset = 1;
+
+				if (evnt->key.keysym.mod & KMOD_SHIFT)
+				{
+					if (!gui::EventHandler::selecting)
+					{
+						gui::EventHandler::selectionOffset = gui::EventHandler::cursorOffset;
+						gui::EventHandler::selecting = true;
+					}
+
+					if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
+						gui::EventHandler::cursorOffset += offset;
+
+					OS::GetInstance().DebugPrint("Selecting Offset: %d\n", gui::EventHandler::selectionOffset - gui::EventHandler::cursorOffset);
+				}
+				else
+				{
+					if (gui::EventHandler::selecting && gui::EventHandler::selectionOffset > gui::EventHandler::cursorOffset)
+						gui::EventHandler::cursorOffset = gui::EventHandler::selectionOffset;
+					else if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
+						gui::EventHandler::cursorOffset += offset;
+
+					gui::EventHandler::selecting = false;
+				}
+
+			}
+
+		}
+
+		if (evnt->key.keysym.sym == SDLK_s && evnt->key.keysym.mod & KMOD_CTRL)
+		{
+			OS::GetInstance().DebugPrint("Saving...\n");
+			workspaceUI.TriggerSave();
+		}
+
+
+
+		// Clipboard options
+		if (evnt->key.keysym.sym == SDLK_c && evnt->key.keysym.mod & KMOD_CTRL)
+		{
+			std::string selectedText = textedit::GetSelection();
+			//SDL_SetClipboardText(selectedText.c_str());
+
+			OS::GetInstance().SetClipboardContents(selectedText);
+
+			OS::GetInstance().DebugPrint("Added to clipboard: %s\n", selectedText.c_str());
+		}
+
+
+		if (evnt->key.keysym.sym == SDLK_v && evnt->key.keysym.mod & KMOD_CTRL)
+		{
+			std::string clipboard(SDL_GetClipboardText());
+
+			textedit::Insert(clipboard);
+		}
+
+
+
+
+		break;
+	}
+}
+
 int main(int argc, char* argv)
 {
 
@@ -196,6 +428,7 @@ int main(int argc, char* argv)
 
 	std::string title = "Notes " + versionString;
 	win.Create(title, window_width, window_height, WindowFlags::Resizable | WindowFlags::OpenGL);
+	win.SetEventCallback(MainWindowEventCallback);
 
 	OS::GetInstance().InitCursors();
 
@@ -233,7 +466,6 @@ int main(int argc, char* argv)
 
 	// We use one big window panel for the GUI
 	// Its a dummy panel so no rendering just events
-	FloatRect fullWindowBounds;
 	fullWindowBounds.size = { (float)window_width, (float)window_height };
 	windowPanel = new gui::Panel();
 	windowPanel->SetBounds(fullWindowBounds);
@@ -494,233 +726,7 @@ int main(int argc, char* argv)
 			win.HandleWindowEvents(&evnt);
 
 
-			switch (evnt.type)
-			{
-		
-			case SDL_WINDOWEVENT:
-
-				switch (evnt.window.event)
-				{
-				case SDL_WINDOWEVENT_SIZE_CHANGED:
-
-					OS::GetInstance().DebugPrint("Triggering Resize\n");
-					gui::EventHandler::resizeEvent = true;
-
-					window_width = evnt.window.data1;
-					window_height = evnt.window.data2;
-
-					windowPanel->SetOldBounds(fullWindowBounds);
-
-					gui::EventHandler::window_width = window_width;
-					gui::EventHandler::window_height = window_height;
-					fullWindowBounds.size = { (float)window_width, (float)window_height };
-
-					screen.Ortho(0.0f, (float)window_width, (float)window_height, 0.0f, -1.0f, 1.0f);
-					windowPanel->SetBounds(fullWindowBounds);
-					workspaceUIPanel->SetBounds(fullWindowBounds);
-
-					break;
-				}
-
-				break;
-			case SDL_MOUSEMOTION:
-
-				gui::EventHandler::x = evnt.motion.x;
-				gui::EventHandler::y = evnt.motion.y;
-
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-			{
-				gui::MouseButton button;
-				switch (evnt.button.button)
-				{
-				case SDL_BUTTON_LEFT:
-					button = gui::MOUSE_LEFT;
-					break;
-				case SDL_BUTTON_RIGHT:
-					button = gui::MOUSE_RIGHT;
-					break;
-				default:
-					button = gui::MOUSE_LEFT;
-					break;
-				}
-
-				gui::EventHandler::mouseButton[button].clicks = (evnt.type == SDL_MOUSEBUTTONDOWN) ? evnt.button.clicks : 0;
-				gui::EventHandler::mouseButton[button].down = true;
-			}
-
-			break; 
-			case SDL_MOUSEBUTTONUP:
-			{
-				gui::MouseButton button;
-				switch (evnt.button.button)
-				{
-				case SDL_BUTTON_LEFT:
-					button = gui::MOUSE_LEFT;
-					break;
-				case SDL_BUTTON_RIGHT:
-					button = gui::MOUSE_RIGHT;
-					break;
-				default:
-					button = gui::MOUSE_LEFT;
-					break;
-				}
-
-				gui::EventHandler::mouseButton[button].down = false;
-			}
-				break;
-			case SDL_MOUSEWHEEL:
-				gui::EventHandler::verticalScroll = evnt.wheel.y;
-				break;
-			case SDL_TEXTINPUT:
-				if (gui::EventHandler::textInput)
-				{
-					/*uint32_t oldSize = gui::EventHandler::textInput->size();
-					gui::EventHandler::textInput->insert(gui::EventHandler::cursorOffset, evnt.text.text);
-					uint32_t newSize = gui::EventHandler::textInput->size();
-					gui::EventHandler::cursorOffset += newSize - oldSize;
-					gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;*/
-
-					textedit::Insert(evnt.text.text);
-
-				}
-				break;
-			case SDL_KEYDOWN:
-
-				if (gui::EventHandler::textInput)
-				{
-					if (evnt.key.keysym.sym == SDLK_BACKSPACE)
-					{
-						gui::EventHandler::backspace = true;
-					}
-					if (evnt.key.keysym.sym == SDLK_BACKSPACE && gui::EventHandler::cursorOffset > 0)
-					{
-						/*if (gui::EventHandler::selecting)
-						{
-							uint32_t minSelect = std::min(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
-							uint32_t maxSelect = std::max(gui::EventHandler::cursorOffset, gui::EventHandler::selectionStart);
-							gui::EventHandler::textInput->erase(minSelect, maxSelect - minSelect);
-							gui::EventHandler::cursorOffset = minSelect;
-						}
-						else
-						{
-							gui::EventHandler::textInput->erase(gui::EventHandler::cursorOffset - 1, 1);
-							gui::EventHandler::cursorOffset--;
-						}*/
-
-						if (gui::EventHandler::selecting)
-						{
-							textedit::Remove(gui::EventHandler::selectionOffset, gui::EventHandler::cursorOffset);
-						}
-						else 
-							textedit::Remove();
-					}
-
-					
-
-					if (evnt.key.keysym.sym == SDLK_RETURN)
-					{
-						textedit::Insert("\n");
-						gui::EventHandler::enter = true;
-					}
-					
-					if (evnt.key.keysym.sym == SDLK_TAB)
-					{
-						textedit::Insert("\t");
-
-					}
-
-
-					if (evnt.key.keysym.sym == SDLK_LEFT)
-					{
-						if (evnt.key.keysym.mod & KMOD_SHIFT)
-						{
-							if (!gui::EventHandler::selecting)
-							{
-								gui::EventHandler::selectionOffset = gui::EventHandler::cursorOffset;
-								gui::EventHandler::selecting = true;
-							}
-
-							if (gui::EventHandler::cursorOffset > 0)
-								gui::EventHandler::cursorOffset--;
-
-							OS::GetInstance().DebugPrint("Selecting Offset: %d\n", gui::EventHandler::selectionOffset - gui::EventHandler::cursorOffset);
-						}
-						else
-						{
-	
-							if (gui::EventHandler::cursorOffset > 0)
-								gui::EventHandler::cursorOffset--;
-
-							gui::EventHandler::selecting = false;
-						}
-						
-					}
-
-					 
-					if (evnt.key.keysym.sym == SDLK_RIGHT)
-					{
-						uint32_t offset = 1;
-
-						if (evnt.key.keysym.mod & KMOD_SHIFT)
-						{
-							if (!gui::EventHandler::selecting)
-							{
-								gui::EventHandler::selectionOffset = gui::EventHandler::cursorOffset;
-								gui::EventHandler::selecting = true;
-							}
-
-							if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
-								gui::EventHandler::cursorOffset += offset;
-
-							OS::GetInstance().DebugPrint("Selecting Offset: %d\n", gui::EventHandler::selectionOffset - gui::EventHandler::cursorOffset);
-						}
-						else
-						{
-							if (gui::EventHandler::selecting && gui::EventHandler::selectionOffset > gui::EventHandler::cursorOffset)
-								gui::EventHandler::cursorOffset = gui::EventHandler::selectionOffset;
-							else if (gui::EventHandler::cursorOffset + offset - 1 < gui::EventHandler::textInput->size())
-								gui::EventHandler::cursorOffset += offset;
-
-							gui::EventHandler::selecting = false;
-						}
-
-					}
-
-				}
-
-				if (evnt.key.keysym.sym == SDLK_s && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					OS::GetInstance().DebugPrint("Saving...\n");
-					workspaceUI.TriggerSave();
-				}
-
-
-
-				// Clipboard options
-				if (evnt.key.keysym.sym == SDLK_c && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					std::string selectedText = textedit::GetSelection();
-					//SDL_SetClipboardText(selectedText.c_str());
-
-					OS::GetInstance().SetClipboardContents(selectedText);
-
-					OS::GetInstance().DebugPrint("Added to clipboard: %s\n", selectedText.c_str());
-				}
-
-
-				if (evnt.key.keysym.sym == SDLK_v && evnt.key.keysym.mod & KMOD_CTRL)
-				{
-					std::string clipboard(SDL_GetClipboardText());
-
-					textedit::Insert(clipboard);
-				}
-
-				
-				
-
-				break;
-			} 
+			
 		}
 		
 
