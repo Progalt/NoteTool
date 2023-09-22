@@ -109,7 +109,7 @@ void CreatePanelsForWorkspace()
 
 void Render()
 {
-	
+	//win.SetAsCurrent();
 
 	//PROFILE_BEGIN(events);
 	windowPanel->HandleEvents();
@@ -270,6 +270,7 @@ void MainWindowEventCallback(SDL_Event* evnt)
 			gui::EventHandler::selectionStart = gui::EventHandler::cursorOffset;*/
 
 			textedit::Insert(evnt->text.text);
+			gui::EventHandler::selecting = false;
 
 		}
 		break;
@@ -724,9 +725,6 @@ int main(int argc, char* argv)
 		while (SDL_PollEvent(&evnt))
 		{
 			win.HandleWindowEvents(&evnt);
-
-
-			
 		}
 		
 

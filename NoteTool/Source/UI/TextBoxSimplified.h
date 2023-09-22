@@ -204,11 +204,37 @@ namespace gui
 
 				if (EventHandler::mouseButton[MouseButton::MOUSE_LEFT].down)
 				{
-					dragging = true;
+					if (!dragging)
+					{
+						Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
+						mpoint = mpoint - m_GlobalBounds.position;
+						gui::EventHandler::selectionOffset = gui::GetNearestCharFromPointFormatted(mpoint, 0, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats) + 1;
+
+						if (EventHandler::selectionOffset > EventHandler::textInput->size())
+							EventHandler::selectionOffset = EventHandler::textInput->size();
+
+						dragging = true;
+
+						OS::GetInstance().DebugPrint("Selection Drag Start: %d\n", gui::EventHandler::selectionOffset);
+						gui::EventHandler::selecting = true;
+					}
+					
 				}
 				else
 				{
+					
 					dragging = false;
+				}
+
+				if (dragging)
+				{
+					Vector2f mpoint = Vector2f((float)EventHandler::x, (float)EventHandler::y);
+					mpoint = mpoint - m_GlobalBounds.position;
+					EventHandler::cursorOffset = gui::GetNearestCharFromPointFormatted(mpoint, 0, string, m_FontManager, m_CodeFontManager, m_FontSize, m_DefaultWeight, m_GlobalBounds.w, m_Formats) + 1;
+					EventHandler::textInput = &string;
+
+					if (EventHandler::cursorOffset > EventHandler::textInput->size())
+						EventHandler::cursorOffset = EventHandler::textInput->size();
 				}
 
 			}
@@ -330,6 +356,8 @@ namespace gui
 		}
 
 	private:
+
+
 
 		bool m_IgnoreScissor = false;
 

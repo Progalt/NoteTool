@@ -118,7 +118,7 @@ void NoteViewer::ReformatGUI()
 
 
 
-			yOffset += text->GetTextBoxHeight() + fontSize;
+			yOffset += text->GetTextBoxHeight() + fontSize * 2.0f;
 
 		}
 		break;

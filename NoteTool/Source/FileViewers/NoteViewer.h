@@ -16,7 +16,7 @@ static const std::vector<std::pair<std::string, NoteElementType>> Commands = {
 static std::unordered_map<std::string, Colour> QuoteBoxColours = {
 	{ "note", { 0.2f, 0.2f, 0.2f, 1.0f } },
 	{ "quote", { 0.2f, 0.2f, 0.2f, 1.0f } },
-	{ "warning", { 166, 106, 56, 100 } },
+	{ "warning", { 161, 112, 8, 100 } },
 	{ "success", { 58, 138, 45, 100 } },
 	{ "done", { 58, 138, 45, 100 } },
 	{ "error", { 138, 45, 45, 100 } },
@@ -24,7 +24,7 @@ static std::unordered_map<std::string, Colour> QuoteBoxColours = {
 	{ "danger", { 138, 45, 45, 100 } },
 	{ "info", { 45, 80, 166, 100 } },
 	{ "hint", { 45, 80, 166, 100 } },
-	{"todo", { 45, 80, 166, 100 } }
+	{ "todo", { 45, 80, 166, 100 } }
 };
 
 class NoteViewer : public FileViewer

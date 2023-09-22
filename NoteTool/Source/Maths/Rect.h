@@ -17,6 +17,15 @@ public:
 		h = static_cast<_Ty>(rt2.h);
 	}
 
+	Rect(Vector2<_Ty> min, Vector2<_Ty> max)
+	{
+		x = min.x;
+		y = min.y;
+		Vector2f s = max - min;
+		w = s.x;
+		h = s.y;
+	}
+
 	const bool IsNull() const
 	{
 		if (x == 0 && y == 0 && w == 0 && h == 0)
@@ -70,8 +79,6 @@ public:
 			Vector2<_Ty> size;
 		};
 	};
-
-
 
 };
 
