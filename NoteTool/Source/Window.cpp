@@ -73,6 +73,8 @@ void Window::Close()
 			SDL_GL_DeleteContext(m_Context);
 
 		SDL_DestroyWindow(m_Window);
+
+		m_IsOpen = false;
 	}
 }
 
@@ -98,7 +100,7 @@ void Window::HandleWindowEvents(SDL_Event* ev)
 		switch (ev->window.event)
 		{
 		case SDL_WINDOWEVENT_CLOSE:
-			m_IsOpen = false;
+			
 			Close();
 			break;
 		case SDL_WINDOWEVENT_SIZE_CHANGED:

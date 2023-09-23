@@ -355,33 +355,33 @@ private:
 		tab->panel->SetAnchor(gui::Anchor::BottomRight);
 		tab->panel->SetDrawVerticalScrollBar(true);
 		tab->panel->SetHighlightColour(m_Theme->panelHighlight);
-		//tab->panel->SetLockPosition(true);
+		tab->panel->SetLockPosition(true);
 		//tab->panel->SetLockFlags(gui::ResizeLock::LockPositionY);
 
-		gui::ContextMenu* menu = tab->panel->GetContextMenu();
-		menu->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 12));
-		menu->SetColour(m_Theme->panelBackground);
-		menu->SetBorderColour(m_Theme->panelHighlight);
-		menu->SetPosition({ 100.0f, 100.0f });
-		menu->SetRounding(m_Theme->buttonRounding);
+		//gui::ContextMenu* menu = tab->panel->GetContextMenu();
+		//menu->SetFont(m_FontManager->Get(gui::FontWeight::Regular, 12));
+		//menu->SetColour(m_Theme->panelBackground);
+		//menu->SetBorderColour(m_Theme->panelHighlight);
+		//menu->SetPosition({ 100.0f, 100.0f });
+		//menu->SetRounding(m_Theme->buttonRounding);
 
-		menu->AddOption("Split Vertically", [&]()
-			{
-				float padding = 3.0f;
-				m_ActiveTab->bounds.w /= 2.0f;
-				m_ActiveTab->bounds.w -= padding;
-				m_ActiveTab->panel->SetBounds(m_ActiveTab->bounds);
-				m_ActiveTab->panel->RecalculateAllBounds();
-				m_ActiveTab->panel->SetAnchor(gui::Anchor::BottomRight);
-				//m_ActiveTab->panel->SetLockFlags(gui::ResizeLock::LockPositionY);
-				
+		//menu->AddOption("Split Vertically", [&]()
+		//	{
+		//		float padding = 3.0f;
+		//		m_ActiveTab->bounds.w /= 2.0f;
+		//		m_ActiveTab->bounds.w -= padding;
+		//		m_ActiveTab->panel->SetBounds(m_ActiveTab->bounds);
+		//		m_ActiveTab->panel->RecalculateAllBounds();
+		//		m_ActiveTab->panel->SetAnchor(gui::Anchor::BottomRight);
+		//		//m_ActiveTab->panel->SetLockFlags(gui::ResizeLock::LockPositionY);
+		//		
 
-				FloatRect newBounds = m_ActiveTab->bounds;
-				newBounds.x += m_ActiveTab->bounds.w + padding * 2.0f;
-				
-				WorkspaceTab* t = NewTab();
-				OpenNewTab(t, newBounds);
-			});
+		//		FloatRect newBounds = m_ActiveTab->bounds;
+		//		newBounds.x += m_ActiveTab->bounds.w + padding * 2.0f;
+		//		
+		//		WorkspaceTab* t = NewTab();
+		//		OpenNewTab(t, newBounds);
+		//	});
 		
 
 		tab->panel->SetOnFocusCallback([&](void* userData) 

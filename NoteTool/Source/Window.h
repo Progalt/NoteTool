@@ -52,6 +52,24 @@ public:
 
 	void SetEventCallback(std::function<void(SDL_Event*)> evntCallback) { m_EventCallback = evntCallback; }
 
+	bool IsVisible() const { return m_Visible; }
+
+	void SetVisible(bool vis)
+	{
+		switch (vis)
+		{
+		case true:
+			SDL_ShowWindow(m_Window);
+			m_Visible = true;
+			break;
+		case false:
+			SDL_HideWindow(m_Window);
+			m_Visible = false;
+			break;
+		}
+		
+	}
+
 private:
 
 	std::function<void(SDL_Event*)> m_EventCallback;
@@ -59,6 +77,7 @@ private:
 	SDL_Window* m_Window;
 	SDL_GLContext m_Context;
 
+	bool m_Visible = true;
 
 	uint32_t m_WindowID = 0;
 

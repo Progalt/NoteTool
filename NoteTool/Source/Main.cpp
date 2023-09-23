@@ -46,6 +46,7 @@ GPUTexture whiteTexture;
 Matrix4x4f screen;
 
 Window win;
+Window settingsWin;
 
 Workspace currentWorkspace;
 WorkspaceUI workspaceUI; 
@@ -109,7 +110,7 @@ void CreatePanelsForWorkspace()
 
 void Render()
 {
-	//win.SetAsCurrent();
+	win.SetAsCurrent();
 
 	//PROFILE_BEGIN(events);
 	windowPanel->HandleEvents();
@@ -431,6 +432,10 @@ int main(int argc, char* argv)
 	win.Create(title, window_width, window_height, WindowFlags::Resizable | WindowFlags::OpenGL);
 	win.SetEventCallback(MainWindowEventCallback);
 
+	settingsWin.Create("Settings", 800, 600, WindowFlags::OpenGL);
+	settingsWin.SetVisible(false);
+
+
 	OS::GetInstance().InitCursors();
 
 	// only enable dark mode for the hwnd if the theme wants it to be
@@ -439,7 +444,7 @@ int main(int argc, char* argv)
 		ToggleDarkModeForHwnd(win.GetWindow());
 	}
 
-
+	win.SetAsCurrent();
 
 	renderer.Initialise(win.GetWindow());
 
@@ -725,6 +730,7 @@ int main(int argc, char* argv)
 		while (SDL_PollEvent(&evnt))
 		{
 			win.HandleWindowEvents(&evnt);
+			settingsWin.HandleWindowEvents(&evnt);
 		}
 		
 
@@ -735,6 +741,7 @@ int main(int argc, char* argv)
 
 	renderer.Shutdown();
 	
+	settingsWin.Close();
 	win.Close();
 
 	OS::GetInstance().DestroyCursors();

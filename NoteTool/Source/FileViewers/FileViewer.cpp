@@ -2,6 +2,7 @@
 #include "FileViewer.h"
 #include "../WorkspaceUI.h"
 #include "../UI/Shape.h"
+#include "../UI/TextBoxSimplified.h"
 
 void FileViewer::SetupTitleAndExt()
 {
@@ -9,14 +10,14 @@ void FileViewer::SetupTitleAndExt()
 
 
 
-	m_Title = m_Panel->NewChild<gui::TextBox>();
+	m_Title = m_Panel->NewChild<gui::TextBoxSimplified>();
 	m_Title->SetFontManager(m_FontManager);
 	m_Title->SetFontSize(28, gui::FontWeight::Bold);
 	m_Title->string = m_File->NameWithoutExtension();
 	float yPos = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetPixelSize();
 	m_Title->SetBounds({ m_TitlePadding, yPos, m_Panel->GetBounds().w, (float)m_FontManager->Get(gui::FontWeight::Bold, 28)->GetMaxHeight() });
 
-	m_Title->SetOnEditCallback([&]()
+	m_Title->SetOnEditCallback([&](void* userData)
 		{
 			float dif = m_FontManager->Get(gui::FontWeight::Bold, 28)->GetMaxHeight();
 			float xPos = gui::GetTextLength(m_Title->string, m_FontManager->Get(gui::FontWeight::Bold, 28));

@@ -3,6 +3,7 @@
 #include "FileViewer.h"
 #include "../UI/TextBox.h"
 #include "../UI/Text.h"
+#include "../UI/TextBoxSimplified.h"
 
 class WorkspaceUI;
 

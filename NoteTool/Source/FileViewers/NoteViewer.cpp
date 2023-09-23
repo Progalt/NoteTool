@@ -218,6 +218,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 	case NoteElementType::Header2:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+		text->SetAnchor(gui::Anchor::BottomRight);
+		text->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 		int fontPointSize = (element->type == NoteElementType::Header1) ? m_HeaderSize : m_SubheaderSize;
 		float fontSize = m_FontManager->Get(gui::FontWeight::Bold, fontPointSize)->GetMaxHeight();
@@ -242,6 +244,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 	case NoteElementType::Paragraph:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+		text->SetAnchor(gui::Anchor::BottomRight);
+		text->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 		float fontSize = m_FontManager->Get(gui::FontWeight::Regular, m_BaseTextSize)->GetMaxHeight();
 		text->SetFontManager(m_FontManager);
@@ -266,6 +270,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 	case NoteElementType::Dividor:
 	{
 		gui::ShapeWidget* shape = m_Panel->NewChild<gui::ShapeWidget>();
+		shape->SetAnchor(gui::Anchor::BottomRight);
+		shape->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 		shape->SetColour({ 0.4f, 0.4f, 0.4f, 1.0f });
 		shape->SetPosition({ m_Margin, 10.0f });
@@ -279,6 +285,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 	case NoteElementType::BulletPoint:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+		text->SetAnchor(gui::Anchor::BottomRight);
+		text->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 		float fontSize = m_FontManager->Get(gui::FontWeight::Regular, m_BaseTextSize)->GetMaxHeight();
 		text->SetFontManager(m_FontManager);
@@ -309,6 +317,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 	case NoteElementType::Quote:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+		text->SetAnchor(gui::Anchor::BottomRight);
+		text->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 
 
@@ -352,6 +362,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 		title->SetFontSize(m_BaseTextSize, gui::FontWeight::BoldItalic);
 		title->string = (element->quote.title.size() > 0) ? element->quote.title : "Note";
 		title->SetIgnoreScissor(true);
+		title->SetAnchor(gui::Anchor::BottomRight);
+		title->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 		title->SetOnEditCallback([&](void* userData) {
 
@@ -381,6 +393,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 	case NoteElementType::CodeBlock:
 	{
 		gui::TextBoxSimplified* text = m_Panel->NewChild<gui::TextBoxSimplified>();
+		text->SetAnchor(gui::Anchor::BottomRight);
+		text->SetLockFlags(gui::ResizeLock::LockPositionX | gui::ResizeLock::LockPositionY);
 
 		float fontSize = m_CodeFontManager->Get(gui::FontWeight::Regular, 14)->GetMaxHeight();
 
@@ -447,6 +461,8 @@ void NoteViewer::InitialiseGUIElement(NoteElement* element)
 			});
 		copyButton->SetIcon(IconType::Copy, gui::Alignment::Left);
 		copyButton->SetVisible(false);
+		copyButton->SetAnchor(gui::Anchor::BottomRight);
+		copyButton->SetLockFlags(gui::ResizeLock::LockScaleX | gui::ResizeLock::LockScaleY);
 
 		square->AddOnHoverCallback([&](void* userData, bool hovered) {
 				

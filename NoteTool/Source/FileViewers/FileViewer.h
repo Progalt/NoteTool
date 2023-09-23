@@ -7,6 +7,7 @@
 #include "../UI/Text.h"
 #include "../Theme.h"
 #include "../UI/Shape.h"
+#include "../UI/TextBoxSimplified.h"
 
 class WorkspaceUI;
 
@@ -57,7 +58,7 @@ protected:
 	gui::FontManager* m_FontManager;
 	gui::FontManager* m_CodeFontManager;
 
-	gui::TextBox* m_Title;
+	gui::TextBoxSimplified* m_Title;
 	gui::Text* m_FileExt;
 	gui::ShapeWidget* m_SavedCircle;
 
