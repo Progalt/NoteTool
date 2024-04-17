@@ -21,4 +21,8 @@ appdata folder.
 - stb single header libraries
 - tinyfiledialogs (This is already embedded) 
 - GLAD (For OpenGL) 
-- nlohmann JSON 
+- nlohmann JSON
+
+### Image of Editor
+
+![Notes editor](https://github.com/Progalt/NoteTool/blob/master/Notes.PNG)
